@@ -1,0 +1,44 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="512dp"
+    android:height="512dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    
+    <!-- Background circle -->
+    <path
+        android:fillColor="#08111F"
+        android:pathData="M0,0h512v512H0z"/>
+    
+    <!-- Bible pages -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#C9A84C"
+        android:strokeWidth="18"
+        android:pathData="M170,150 Q256,120 342,150 L342,360 Q256,332 170,360 Z"/>
+    
+    <!-- Spine -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#C9A84C"
+        android:strokeWidth="10"
+        android:pathData="M256,138 L256,372"/>
+    
+    <!-- Cross vertical -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="14"
+        android:pathData="M256,185 L256,305"/>
+    
+    <!-- Cross horizontal -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="14"
+        android:pathData="M220,235 L292,235"/>
+    
+    <!-- Rays -->
+    <path android:fillColor="#00000000" android:strokeColor="#FFE59B" android:strokeWidth="4" android:pathData="M256,78 L256,52"/>
+    <path android:fillColor="#00000000" android:strokeColor="#FFE59B" android:strokeWidth="3" android:pathData="M208,90 L195,66"/>
+    <path android:fillColor="#00000000" android:strokeColor="#FFE59B" android:strokeWidth="3" android:pathData="M304,90 L317,66"/>
+</vector>
