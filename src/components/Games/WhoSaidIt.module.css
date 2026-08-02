@@ -1,0 +1,709 @@
+/* WhoSaidIt.module.css - Bible Arena Premium Styling */
+
+/* ============================================
+   CONTAINER
+   ============================================ */
+
+.container {
+  min-height: 100vh;
+  background: #07111F;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.container::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 50% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 30%, rgba(212, 175, 55, 0.015) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.content {
+  max-width: 720px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================
+   BACK BUTTON
+   ============================================ */
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 215, 120, 0.08);
+  border-radius: 12px;
+  color: #94A3B8;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 280ms ease;
+  margin-bottom: 24px;
+  font-family: inherit;
+}
+
+.backBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(212, 175, 55, 0.2);
+  color: #F8F6F2;
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   QUIZ CARD
+   ============================================ */
+
+.quizCard {
+  background: #15253A;
+  border: 1px solid rgba(255, 215, 120, 0.08);
+  border-radius: 24px;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.quizCard::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.02), transparent 70%);
+  pointer-events: none;
+}
+
+/* ============================================
+   PROGRESS HEADER
+   ============================================ */
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.missionLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: #94A3B8;
+  letter-spacing: 0.5px;
+}
+
+.missionLabel strong {
+  color: #D4AF37;
+  font-weight: 600;
+}
+
+.scoreDisplay {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.scoreItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #DDE7F2;
+}
+
+.scoreItem svg {
+  color: #D4AF37;
+}
+
+.streakBadge {
+  padding: 2px 10px;
+  border-radius: 12px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  font-size: 12px;
+  font-weight: 600;
+  color: #D4AF37;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ============================================
+   PROGRESS BAR
+   ============================================ */
+
+.progressTrack {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #D4AF37, #b8941a);
+}
+
+/* ============================================
+   TAGS
+   ============================================ */
+
+.tags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tag {
+  padding: 3px 14px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tagCategory {
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  color: #D4AF37;
+}
+
+.tagDifficulty {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #94A3B8;
+}
+
+/* ============================================
+   QUOTE BOX
+   ============================================ */
+
+.quoteBox {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 215, 120, 0.04);
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 20px;
+}
+
+.quoteText {
+  font-size: 20px;
+  font-weight: 400;
+  color: #F8F6F2;
+  line-height: 1.7;
+  text-align: center;
+  font-style: italic;
+  margin: 0 0 8px 0;
+}
+
+.quoteReference {
+  font-size: 13px;
+  color: #4a5568;
+  text-align: center;
+  margin: 0;
+}
+
+/* ============================================
+   QUESTION PROMPT
+   ============================================ */
+
+.questionPrompt {
+  font-size: 14px;
+  font-weight: 500;
+  color: #94A3B8;
+  margin: 0 0 12px 0;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================
+   OPTIONS
+   ============================================ */
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.option {
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  color: #DDE7F2;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 280ms ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+}
+
+.option:hover:not(.disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(212, 175, 55, 0.15);
+  transform: translateX(4px);
+}
+
+.optionLetter {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #94A3B8;
+  flex-shrink: 0;
+  transition: all 280ms ease;
+}
+
+.option:hover:not(.disabled) .optionLetter {
+  background: rgba(212, 175, 55, 0.1);
+  color: #D4AF37;
+}
+
+.optionText {
+  flex: 1;
+}
+
+.option.correct {
+  background: rgba(95, 175, 117, 0.12);
+  border-color: rgba(95, 175, 117, 0.3);
+}
+
+.option.correct .optionLetter {
+  background: #5FAF75;
+  color: #07111F;
+}
+
+.option.wrong {
+  background: rgba(184, 97, 97, 0.12);
+  border-color: rgba(184, 97, 97, 0.3);
+}
+
+.option.wrong .optionLetter {
+  background: #B86161;
+  color: #07111F;
+}
+
+.option.showCorrect {
+  background: rgba(95, 175, 117, 0.06);
+  border-color: rgba(95, 175, 117, 0.15);
+}
+
+.option.showCorrect .optionLetter {
+  background: rgba(95, 175, 117, 0.2);
+  color: #5FAF75;
+}
+
+.option.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.option.disabled:hover {
+  transform: none;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.optionIcon {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   EXPLANATION
+   ============================================ */
+
+.explanation {
+  padding: 16px 20px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+}
+
+.explanation.correct {
+  background: rgba(95, 175, 117, 0.06);
+  border: 1px solid rgba(95, 175, 117, 0.15);
+}
+
+.explanation.wrong {
+  background: rgba(184, 97, 97, 0.06);
+  border: 1px solid rgba(184, 97, 97, 0.15);
+}
+
+.explanation strong {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.explanation.correct strong {
+  color: #5FAF75;
+}
+
+.explanation.wrong strong {
+  color: #B86161;
+}
+
+.explanation p {
+  font-size: 14px;
+  color: #94A3B8;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ============================================
+   NEXT BUTTON
+   ============================================ */
+
+.nextBtn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #D4AF37, #b8941a);
+  border: none;
+  border-radius: 14px;
+  color: #07111F;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 280ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+}
+
+.nextBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
+}
+
+/* ============================================
+   START SCREEN
+   ============================================ */
+
+.startCard {
+  text-align: center;
+  padding: 40px 32px;
+}
+
+.startIcon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.12), rgba(212, 175, 55, 0.04));
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  margin: 0 auto 16px;
+}
+
+.startTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #F8F6F2;
+  margin: 0 0 4px 0;
+}
+
+.startSubtitle {
+  color: #94A3B8;
+  font-size: 16px;
+  margin: 0 0 32px 0;
+}
+
+.startOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left;
+}
+
+.startLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94A3B8;
+  display: block;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.startChipGroup {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.startChip {
+  padding: 10px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  color: #94A3B8;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+  text-align: center;
+}
+
+.startChip:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #DDE7F2;
+}
+
+.startChip.active {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: rgba(212, 175, 55, 0.2);
+  color: #D4AF37;
+}
+
+.startBtn {
+  width: 100%;
+  padding: 16px;
+  margin-top: 8px;
+  background: linear-gradient(135deg, #D4AF37, #b8941a);
+  border: none;
+  border-radius: 14px;
+  color: #07111F;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+}
+
+.startBtn:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
+}
+
+/* ============================================
+   RESULTS SCREEN
+   ============================================ */
+
+.resultsCard {
+  text-align: center;
+  padding: 40px 32px;
+}
+
+.resultsEmoji {
+  font-size: 56px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.resultsTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #F8F6F2;
+  margin: 0 0 4px 0;
+}
+
+.resultsMessage {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0 0 24px 0;
+}
+
+.resultsMessage.gold { color: #D4AF37; }
+.resultsMessage.blue { color: #6a9aaa; }
+.resultsMessage.purple { color: #8a7aaa; }
+.resultsMessage.green { color: #5FAF75; }
+
+.newBest {
+  display: inline-block;
+  padding: 6px 18px;
+  border-radius: 16px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: #D4AF37;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.resultsStats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.resultsStat {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.resultsStatValue {
+  font-size: 22px;
+  font-weight: 700;
+  color: #F8F6F2;
+  display: block;
+}
+
+.resultsStatLabel {
+  font-size: 12px;
+  color: #94A3B8;
+}
+
+.xpEarned {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: 16px;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  margin-bottom: 24px;
+}
+
+.xpEmoji {
+  font-size: 18px;
+}
+
+.xpValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: #D4AF37;
+}
+
+.resultsButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.resultsButtons .primary {
+  flex: 1;
+  padding: 14px;
+  background: linear-gradient(135deg, #D4AF37, #b8941a);
+  border: none;
+  border-radius: 14px;
+  color: #07111F;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+}
+
+.resultsButtons .primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
+}
+
+.resultsButtons .secondary {
+  padding: 14px 28px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  color: #94A3B8;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+}
+
+.resultsButtons .secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #F8F6F2;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .quizCard {
+    padding: 24px;
+  }
+
+  .quoteText {
+    font-size: 17px;
+  }
+
+  .options {
+    grid-template-columns: 1fr;
+  }
+
+  .resultsStats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .resultsButtons {
+    flex-direction: column;
+  }
+
+  .startChipGroup {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .quizCard {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .quoteText {
+    font-size: 15px;
+    padding: 0 4px;
+  }
+
+  .option {
+    font-size: 13px;
+    padding: 12px 14px;
+  }
+
+  .resultsTitle {
+    font-size: 22px;
+  }
+
+  .resultsStatValue {
+    font-size: 18px;
+  }
+
+  .startCard {
+    padding: 24px 18px;
+  }
+
+  .startTitle {
+    font-size: 22px;
+  }
+
+  .startChip {
+    font-size: 12px;
+    padding: 8px 4px;
+  }
+}

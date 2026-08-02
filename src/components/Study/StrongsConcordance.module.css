@@ -1,0 +1,595 @@
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 8px 0 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 16px;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.searchSection {
+  margin-bottom: 16px;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xs);
+  margin-bottom: 12px;
+  transition: border-color var(--transition);
+}
+
+.searchBar:focus-within {
+  border-color: var(--primary);
+}
+
+.searchIcon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: var(--text);
+  outline: none;
+  font-family: var(--font-sans);
+}
+
+.searchInput::placeholder {
+  color: var(--text-muted);
+}
+
+.clearBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 50%;
+  transition: background var(--transition);
+}
+
+.clearBtn:hover {
+  background: var(--bg-card);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.filterIcon {
+  color: var(--text-muted);
+}
+
+.filterBtn {
+  padding: 4px 12px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+}
+
+.filterBtn:hover {
+  border-color: var(--primary);
+}
+
+.filterBtn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.filterSelect {
+  padding: 4px 10px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  color: var(--text);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  outline: none;
+}
+
+.filterSelect:focus {
+  border-color: var(--primary);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+
+.checkbox {
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.clearFiltersBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-sans);
+}
+
+.clearFiltersBtn:hover {
+  background: #fca5a5;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 0;
+  color: var(--text-muted);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.emptyIcon {
+  color: var(--text-muted);
+  stroke-width: 1.5;
+}
+
+.empty h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.empty p {
+  font-size: 14px;
+  margin: 0;
+}
+
+.resultsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.wordCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.wordCard:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-hover);
+  transform: translateX(4px);
+}
+
+.wordCard.frequent {
+  border-left: 3px solid var(--primary);
+}
+
+.wordHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.strongsNumber {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.languageTag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 10px;
+  background: var(--bg-hover);
+  color: var(--text-muted);
+}
+
+.frequentBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.wordBody {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.wordOriginal {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.wordTranslit {
+  font-size: 15px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.wordMeta {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.pronunciation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.occurrences {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wordDefinition {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0 0 6px;
+}
+
+.wordVerses {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.versePreview {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wordFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.arrow {
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.wordCard:hover .arrow {
+  opacity: 1;
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  max-width: 560px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.25s ease;
+  position: relative;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modalClose {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all var(--transition);
+}
+
+.modalClose:hover {
+  background: var(--bg-hover);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.modalStrongs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.modalLanguage {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 10px;
+  background: var(--bg-hover);
+  color: var(--text-muted);
+}
+
+.modalCategory {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.modalWord {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.modalOriginal {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.modalTranslit {
+  font-size: 16px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.modalPronunciation {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.modalStats {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: var(--text-muted);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 12px;
+}
+
+.modalStats span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modalDefinition h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 4px;
+}
+
+.modalDefinition p {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text);
+  font-family: var(--font-serif);
+  margin: 0;
+}
+
+.modalDerivatives {
+  margin-top: 16px;
+}
+
+.modalDerivatives h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 6px;
+}
+
+.derivativeList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.derivativeTag {
+  padding: 4px 12px;
+  background: var(--bg-hover);
+  border-radius: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.modalVerses {
+  margin-top: 16px;
+}
+
+.modalVerses h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 6px;
+}
+
+.verseList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.modalVerse {
+  padding: 4px 12px;
+  background: var(--bg-hover);
+  border-radius: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 600px) {
+  .header {
+    flex-wrap: wrap;
+  }
+
+  .subtitle {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filterGroup {
+    flex-wrap: wrap;
+  }
+
+  .modal {
+    padding: 16px;
+    margin: 10px;
+  }
+
+  .modalOriginal {
+    font-size: 22px;
+  }
+
+  .modalStats {
+    flex-wrap: wrap;
+  }
+}

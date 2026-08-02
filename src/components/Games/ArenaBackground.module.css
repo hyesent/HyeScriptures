@@ -1,0 +1,105 @@
+/* ArenaBackground.module.css - Ambient Animation */
+
+.arena {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Deep Gradient Base */
+.arenaBase {
+  position: absolute;
+  inset: 0;
+  background: #07111F;
+}
+
+/* Soft Vignette */
+.arenaVignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(7, 17, 31, 0.7) 100%);
+}
+
+/* Floating Dust Particles */
+.particles {
+  position: absolute;
+  inset: 0;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(212, 175, 55, 0.15);
+  border-radius: 50%;
+  animation: float linear infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(20px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* Light Rays */
+.rays {
+  position: absolute;
+  inset: 0;
+  background: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 40px,
+      rgba(212, 175, 55, 0.01) 40px,
+      rgba(212, 175, 55, 0.01) 41px,
+      transparent 41px,
+      transparent 100px
+    );
+  animation: rayMove 60s linear infinite;
+  opacity: 0.3;
+}
+
+@keyframes rayMove {
+  0% {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  100% {
+    transform: translateX(50%) rotate(2deg);
+  }
+}
+
+/* Subtle Gold Glow */
+.glow {
+  position: absolute;
+  bottom: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 40%;
+  background: radial-gradient(ellipse, rgba(212, 175, 55, 0.03), transparent 70%);
+  animation: glowPulse 8s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.05);
+  }
+}

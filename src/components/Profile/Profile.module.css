@@ -1,0 +1,393 @@
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 8px 0 16px;
+}
+
+.notLoggedIn {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   PROFILE HEADER
+   ============================================================ */
+.profileHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0 16px;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 16px;
+}
+
+.avatarContainer {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--bg-hover);
+  font-size: 36px;
+  border: 3px solid var(--border-light);
+  transition: border-color var(--transition);
+}
+
+.editAvatarBtn {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--primary);
+  color: white;
+  border: 2px solid var(--bg-card);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.editAvatarBtn:hover {
+  transform: scale(1.1);
+}
+
+.profileInfo {
+  text-align: center;
+}
+
+.name {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.email {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.bio {
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  background: var(--bg-hover);
+  border-radius: var(--radius-xs);
+  margin: 8px 0;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.editBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-sans);
+  margin-top: 4px;
+}
+
+.editBtn:hover {
+  background: var(--bg-hover);
+}
+
+/* ============================================================
+   EDIT FORM
+   ============================================================ */
+.editForm {
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+}
+
+.formGroup {
+  margin-bottom: 14px;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xs);
+  font-size: 14px;
+  color: var(--text);
+  font-family: var(--font-sans);
+  transition: border-color var(--transition);
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 60px;
+  font-family: var(--font-sans);
+}
+
+.avatarGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 6px;
+}
+
+.avatarOption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  font-size: 20px;
+  background: var(--bg-hover);
+  border: 2px solid transparent;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.avatarOption:hover {
+  transform: scale(1.1);
+}
+
+.avatarOption.selected {
+  border-color: var(--primary);
+  background: rgba(184, 134, 11, 0.08);
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.saveBtn,
+.cancelBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--radius-xs);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-sans);
+}
+
+.saveBtn {
+  background: var(--primary);
+  color: white;
+}
+
+.saveBtn:hover {
+  background: var(--primary-dark);
+}
+
+.cancelBtn {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.cancelBtn:hover {
+  background: var(--border);
+}
+
+/* ============================================================
+   STATS
+   ============================================================ */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.statCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.statLabel {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   MENU
+   ============================================================ */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-sans);
+  width: 100%;
+}
+
+.menuItem:hover {
+  background: var(--bg-hover);
+  border-color: var(--border);
+}
+
+.menuLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.menuIcon {
+  color: var(--text-muted);
+}
+
+.menuLabel {
+  font-size: 15px;
+  color: var(--text);
+}
+
+.menuRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.menuCount {
+  font-size: 13px;
+  color: var(--text-muted);
+  background: var(--bg-hover);
+  padding: 1px 10px;
+  border-radius: 12px;
+}
+
+.menuArrow {
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.menuItem:hover .menuArrow {
+  opacity: 1;
+}
+
+/* ============================================================
+   SIGN OUT
+   ============================================================ */
+.signOutBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: none;
+  border: 1px solid #fee2e2;
+  border-radius: var(--radius-xs);
+  color: #dc2626;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-sans);
+  width: 100%;
+}
+
+.signOutBtn:hover {
+  background: #fee2e2;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 600px) {
+  .avatar {
+    width: 64px;
+    height: 64px;
+    font-size: 28px;
+  }
+
+  .name {
+    font-size: 19px;
+  }
+
+  .editForm {
+    max-width: 100%;
+  }
+
+  .avatarGrid {
+    grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+  }
+
+  .avatarOption {
+    font-size: 17px;
+    padding: 4px;
+  }
+
+  .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .statValue {
+    font-size: 20px;
+  }
+
+  .menuItem {
+    padding: 10px 14px;
+  }
+
+  .menuLabel {
+    font-size: 14px;
+  }
+}

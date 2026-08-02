@@ -1,0 +1,817 @@
+/* GameHub.module.css - Bible Arena Lobby */
+
+.container {
+  min-height: 100vh;
+  background: #07111F;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Arena Background Layers */
+.container::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 50% 80%, rgba(212, 175, 55, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 20%, rgba(212, 175, 55, 0.02) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 40%, rgba(212, 175, 55, 0.015) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(7, 17, 31, 0.6) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 48px;
+  padding: 8px 0;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 215, 120, 0.08);
+  border-radius: 12px;
+  color: #94A3B8;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+}
+
+.backBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(212, 175, 55, 0.2);
+  color: #F8F6F2;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logoIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #F8F6F2;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+.logo h1 span {
+  color: #D4AF37;
+}
+
+.headerRight {
+  width: 100px;
+}
+
+/* Welcome Section */
+.welcome {
+  margin-bottom: 40px;
+}
+
+.welcome h2 {
+  font-size: 28px;
+  font-weight: 300;
+  color: #DDE7F2;
+  margin: 0 0 4px 0;
+  letter-spacing: 0.5px;
+}
+
+.welcome h2 strong {
+  font-weight: 600;
+  color: #F8F6F2;
+}
+
+.welcome p {
+  font-size: 14px;
+  color: #94A3B8;
+  margin: 0;
+}
+
+/* Stats Row */
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+/* Daily Challenge Banner */
+.dailyChallenge {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(212, 175, 55, 0.02));
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 16px;
+  padding: 20px 28px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 280ms ease;
+}
+
+.dailyChallenge:hover {
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 0 40px rgba(212, 175, 55, 0.04);
+}
+
+.dailyChallengeLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.dailyChallengeBadge {
+  padding: 4px 12px;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #D4AF37;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.dailyChallenge h3 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #DDE7F2;
+  margin: 0;
+}
+
+.dailyChallenge p {
+  font-size: 13px;
+  color: #94A3B8;
+  margin: 0;
+}
+
+.dailyChallengeReward {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dailyChallengeReward span {
+  font-size: 13px;
+  color: #D4AF37;
+  font-weight: 500;
+}
+
+.dailyChallengeBtn {
+  padding: 8px 24px;
+  background: linear-gradient(135deg, #D4AF37, #b8941a);
+  border: none;
+  border-radius: 10px;
+  color: #07111F;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+}
+
+.dailyChallengeBtn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.25);
+}
+
+/* Category Filters */
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.filters::-webkit-scrollbar {
+  display: none;
+}
+
+.filterBtn {
+  padding: 8px 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  color: #94A3B8;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 280ms ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.filterBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #DDE7F2;
+}
+
+.filterBtn.active {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: rgba(212, 175, 55, 0.3);
+  color: #D4AF37;
+}
+
+/* Games Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* Footer */
+.footer {
+  margin-top: 48px;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.footer p {
+  font-size: 13px;
+  color: #4a5568;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .headerRight {
+    display: none;
+  }
+
+  .statsRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dailyChallenge {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .dailyChallengeReward {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome h2 {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsRow {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .logo h1 {
+    font-size: 18px;
+  }
+
+  .backBtn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+
+/* GameHub.module.css - Bible Arena Premium Styling */
+
+/* ============================================
+   CONTAINER & AMBIENT BACKGROUND
+   ============================================ */
+
+.container {
+  min-height: 100vh;
+  background: #07111F;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ambient Glow */
+.ambientGlow {
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 50% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 20%, rgba(212, 175, 55, 0.015) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 40%, rgba(212, 175, 55, 0.01) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ambient Rays */
+.ambientRays {
+  position: fixed;
+  inset: 0;
+  background: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 40px,
+      rgba(212, 175, 55, 0.008) 40px,
+      rgba(212, 175, 55, 0.008) 41px,
+      transparent 41px,
+      transparent 100px
+    );
+  animation: rayMove 60s linear infinite;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes rayMove {
+  0% {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  100% {
+    transform: translateX(50%) rotate(2deg);
+  }
+}
+
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 48px;
+  padding: 8px 0;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 215, 120, 0.08);
+  border-radius: 12px;
+  color: #94A3B8;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+}
+
+.backBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(212, 175, 55, 0.2);
+  color: #F8F6F2;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logoIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #D4AF37;
+}
+
+.logo h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #F8F6F2;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+.logo h1 span {
+  color: #D4AF37;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.headerLevel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.12);
+  border-radius: 20px;
+  color: #D4AF37;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ============================================
+   WELCOME
+   ============================================ */
+
+.welcome {
+  margin-bottom: 40px;
+}
+
+.welcome h2 {
+  font-size: 28px;
+  font-weight: 300;
+  color: #DDE7F2;
+  margin: 0 0 4px 0;
+  letter-spacing: 0.5px;
+}
+
+.welcome h2 strong {
+  font-weight: 600;
+  color: #F8F6F2;
+}
+
+.welcome p {
+  font-size: 14px;
+  color: #94A3B8;
+  margin: 0;
+}
+
+/* ============================================
+   STATS
+   ============================================ */
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 215, 120, 0.04);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  transition: all 280ms ease;
+  cursor: default;
+}
+
+.statCard:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(212, 175, 55, 0.08);
+}
+
+.iconWrapper {
+  display: inline-flex;
+  padding: 6px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+
+.iconWrapper.blue {
+  background: rgba(106, 154, 170, 0.08);
+  color: #6a9aaa;
+}
+
+.iconWrapper.green {
+  background: rgba(95, 175, 117, 0.08);
+  color: #5FAF75;
+}
+
+.iconWrapper.amber {
+  background: rgba(212, 175, 55, 0.08);
+  color: #D4AF37;
+}
+
+.iconWrapper.purple {
+  background: rgba(138, 122, 170, 0.08);
+  color: #8a7aaa;
+}
+
+.value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #F8F6F2;
+  display: block;
+}
+
+.label {
+  font-size: 12px;
+  color: #94A3B8;
+}
+
+/* ============================================
+   DAILY CHALLENGE
+   ============================================ */
+
+.dailyChallenge {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(212, 175, 55, 0.02));
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 16px;
+  padding: 20px 28px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 280ms ease;
+}
+
+.dailyChallenge:hover {
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 0 40px rgba(212, 175, 55, 0.04);
+}
+
+.dailyChallengeLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.dailyChallengeBadge {
+  padding: 4px 12px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #D4AF37;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dailyChallenge h3 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #DDE7F2;
+  margin: 0;
+}
+
+.dailyChallenge p {
+  font-size: 13px;
+  color: #94A3B8;
+  margin: 0;
+}
+
+.dailyChallengeReward {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dailyChallengeReward span {
+  font-size: 13px;
+  color: #D4AF37;
+  font-weight: 500;
+}
+
+.dailyChallengeBtn {
+  padding: 8px 24px;
+  background: linear-gradient(135deg, #D4AF37, #b8941a);
+  border: none;
+  border-radius: 10px;
+  color: #07111F;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+}
+
+.dailyChallengeBtn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.25);
+}
+
+/* ============================================
+   FILTERS
+   ============================================ */
+
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.filters::-webkit-scrollbar {
+  display: none;
+}
+
+.filterBtn {
+  padding: 8px 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  color: #94A3B8;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 280ms ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.filterBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #DDE7F2;
+}
+
+.filterBtn.active {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: rgba(212, 175, 55, 0.3);
+  color: #D4AF37;
+}
+
+/* ============================================
+   GRID
+   ============================================ */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.footer {
+  margin-top: 48px;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.footer p {
+  font-size: 13px;
+  color: #4a5568;
+  margin: 0;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .headerRight {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .statsRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dailyChallenge {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .dailyChallengeReward {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome h2 {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsRow {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .logo h1 {
+    font-size: 18px;
+  }
+
+  .backBtn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .statCard {
+    padding: 12px;
+  }
+
+  .value {
+    font-size: 18px;
+  }
+
+  .filters {
+    gap: 6px;
+  }
+
+  .filterBtn {
+    padding: 6px 14px;
+    font-size: 12px;
+  }
+
+  .dailyChallenge {
+    padding: 16px 18px;
+  }
+
+  .dailyChallenge h3 {
+    font-size: 14px;
+  }
+}

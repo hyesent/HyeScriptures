@@ -1,0 +1,65 @@
+/* StatCard.module.css */
+
+.statCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 215, 120, 0.04);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  transition: all 280ms ease;
+}
+
+.statCard:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(212, 175, 55, 0.08);
+  transform: translateY(-2px);
+}
+
+.iconWrapper {
+  display: inline-flex;
+  padding: 6px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+
+.iconWrapper.blue {
+  background: rgba(106, 154, 170, 0.08);
+  color: #6a9aaa;
+}
+
+.iconWrapper.green {
+  background: rgba(95, 175, 117, 0.08);
+  color: #5FAF75;
+}
+
+.iconWrapper.amber {
+  background: rgba(212, 175, 55, 0.08);
+  color: #D4AF37;
+}
+
+.iconWrapper.purple {
+  background: rgba(138, 122, 170, 0.08);
+  color: #8a7aaa;
+}
+
+.value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #F8F6F2;
+  display: block;
+}
+
+.label {
+  font-size: 12px;
+  color: #94A3B8;
+}
+
+@media (max-width: 480px) {
+  .statCard {
+    padding: 12px;
+  }
+
+  .value {
+    font-size: 18px;
+  }
+}

@@ -1,0 +1,257 @@
+/* ============================================================
+   HOME SCREEN
+   ============================================================ */
+.home-container {
+  padding: 8px 0 16px;
+}
+
+/* ============================================================
+   GREETING
+   ============================================================ */
+.home-greeting {
+  padding: 16px 0;
+}
+
+.home-greeting h2 {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+
+.home-greeting p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.home-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  transition: all var(--transition);
+}
+
+.home-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.home-card:active {
+  transform: scale(0.99);
+}
+
+.home-card .card-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.home-card .card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--font-serif);
+}
+
+.home-card .card-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.home-card .card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--primary);
+  cursor: pointer;
+  transition: color var(--transition);
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-sans);
+}
+
+.home-card .card-action:hover {
+  color: var(--primary-dark);
+}
+
+.card-action-icon {
+  transition: transform var(--transition);
+}
+
+.home-card .card-action:hover .card-action-icon {
+  transform: translateX(4px);
+}
+
+/* ============================================================
+   DEVOTIONAL CARD
+   ============================================================ */
+.devotional-card {
+  border-left: 4px solid var(--primary);
+  background: linear-gradient(
+    135deg,
+    var(--bg-card) 0%,
+    rgba(184, 134, 11, 0.03) 100%
+  );
+}
+
+.home-prayer-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--bg-hover);
+  border-radius: var(--radius-xs);
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.home-prayer-preview svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   PROGRESS
+   ============================================================ */
+.home-progress,
+.home-plan-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.home-progress-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.home-progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.home-progress-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  min-width: 32px;
+  text-align: right;
+}
+
+/* ============================================================
+   QUICK ACTIONS
+   ============================================================ */
+.home-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.quick-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  background: var(--bg-hover);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+}
+
+.quick-action .qa-icon {
+  stroke-width: 1.5;
+}
+
+.quick-action .qa-label {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.quick-action:hover {
+  background: var(--border-light);
+  transform: translateY(-2px);
+}
+
+.quick-action:active {
+  transform: scale(0.95);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 600px) {
+  .home-card {
+    padding: 16px 18px;
+  }
+  
+  .home-card .card-title {
+    font-size: 16px;
+  }
+  
+  .home-greeting h2 {
+    font-size: 22px;
+  }
+  
+  .home-quick-actions {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  
+  .quick-action {
+    padding: 10px 6px;
+  }
+  
+  .quick-action .qa-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 400px) {
+  .home-greeting h2 {
+    font-size: 20px;
+  }
+  
+  .home-card {
+    padding: 14px 16px;
+  }
+  
+  .home-quick-actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1,0 +1,750 @@
+/* BookOrder.module.css - Bible Arena Premium Styling */
+
+/* ============================================
+   CONTAINER
+   ============================================ */
+
+.container {
+  min-height: 100vh;
+  background: #07111F;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ambientGlow {
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 50% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 30%, rgba(212, 175, 55, 0.015) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.content {
+  max-width: 720px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================
+   BACK BUTTON
+   ============================================ */
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 215, 120, 0.08);
+  border-radius: 12px;
+  color: #94A3B8;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 280ms ease;
+  margin-bottom: 24px;
+  font-family: inherit;
+}
+
+.backBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(212, 175, 55, 0.2);
+  color: #F8F6F2;
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   START SCREEN
+   ============================================ */
+
+.startCard {
+  background: #15253A;
+  border: 1px solid rgba(255, 215, 120, 0.08);
+  border-radius: 24px;
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.startIcon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.startTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #F8F6F2;
+  margin: 0 0 4px 0;
+}
+
+.startSubtitle {
+  color: #94A3B8;
+  font-size: 16px;
+  margin: 0 0 32px 0;
+}
+
+.startSection {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.startLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94A3B8;
+  display: block;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.chipGroup {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  color: #94A3B8;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chip:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #DDE7F2;
+}
+
+.chip.active {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: rgba(212, 175, 55, 0.2);
+  color: #D4AF37;
+}
+
+.chipCount {
+  font-size: 11px;
+  color: #4a5568;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0 8px;
+  border-radius: 10px;
+}
+
+.chip.active .chipCount {
+  color: #D4AF37;
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.modeGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.modeChip {
+  padding: 12px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  color: #94A3B8;
+  cursor: pointer;
+  transition: all 280ms ease;
+  text-align: center;
+  font-family: inherit;
+}
+
+.modeChip:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #DDE7F2;
+}
+
+.modeChip.active {
+  background: rgba(212, 175, 55, 0.08);
+  border-color: rgba(212, 175, 55, 0.15);
+  color: #D4AF37;
+}
+
+.modeIcon {
+  display: block;
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.modeLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.modeDesc {
+  display: block;
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
+.startBtn {
+  width: 100%;
+  padding: 16px;
+  margin-top: 8px;
+  background: linear-gradient(135deg, #D4AF37, #b8941a);
+  border: none;
+  border-radius: 14px;
+  color: #07111F;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+}
+
+.startBtn:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
+}
+
+/* ============================================
+   GAME CARD
+   ============================================ */
+
+.gameCard {
+  background: #15253A;
+  border: 1px solid rgba(255, 215, 120, 0.08);
+  border-radius: 24px;
+  padding: 24px;
+}
+
+.gameHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.gameModeLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #D4AF37;
+  display: block;
+}
+
+.gameProgress {
+  font-size: 12px;
+  color: #94A3B8;
+}
+
+.gameStats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gameScore {
+  font-size: 14px;
+  font-weight: 600;
+  color: #D4AF37;
+}
+
+.gameTime {
+  font-size: 13px;
+  color: #94A3B8;
+}
+
+.gameLives {
+  font-size: 13px;
+  color: #B86161;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #D4AF37, #b8941a);
+}
+
+.statsBar {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #94A3B8;
+  margin-bottom: 16px;
+}
+
+.targetBox {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 215, 120, 0.04);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+
+.targetContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.targetLabel {
+  font-size: 14px;
+  color: #94A3B8;
+  margin: 0;
+}
+
+.targetBook {
+  color: #F8F6F2;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.hintText {
+  font-size: 13px;
+  color: #D4AF37;
+  margin: 4px 0 0 0;
+}
+
+.hintBtn {
+  padding: 4px 14px;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 20px;
+  color: #D4AF37;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.hintBtn:hover {
+  background: rgba(212, 175, 55, 0.15);
+}
+
+.attemptsWarning {
+  font-size: 13px;
+  color: #B86161;
+  margin: 8px 0 0 0;
+}
+
+.booksGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.bookBtn {
+  padding: 12px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  color: #DDE7F2;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+  text-align: center;
+}
+
+.bookBtn:hover {
+  background: rgba(212, 175, 55, 0.06);
+  border-color: rgba(212, 175, 55, 0.12);
+}
+
+.bottomStats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #4a5568;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ============================================
+   REORDER MODE
+   ============================================ */
+
+.reorderGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.reorderBook {
+  padding: 14px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  color: #DDE7F2;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+  text-align: center;
+}
+
+.reorderBook:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.reorderBook.selected {
+  background: rgba(212, 175, 55, 0.08);
+  border-color: #D4AF37;
+  transform: scale(1.03);
+}
+
+.reorderHint {
+  text-align: center;
+  font-size: 13px;
+  color: #94A3B8;
+}
+
+/* ============================================
+   CATEGORIES MODE
+   ============================================ */
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.categoryGroup {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 215, 120, 0.04);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.categoryTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #D4AF37;
+  margin: 0 0 8px 0;
+}
+
+.categoryBooks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.categoryBook {
+  padding: 2px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  font-size: 12px;
+  color: #94A3B8;
+}
+
+/* ============================================
+   RESULTS SCREEN
+   ============================================ */
+
+.resultsCard {
+  background: #15253A;
+  border: 1px solid rgba(255, 215, 120, 0.08);
+  border-radius: 24px;
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.resultsEmoji {
+  font-size: 56px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.resultsTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #F8F6F2;
+  margin: 0 0 4px 0;
+}
+
+.resultsSubtitle {
+  font-size: 16px;
+  color: #94A3B8;
+  margin: 0 0 24px 0;
+}
+
+.newBest {
+  display: inline-block;
+  padding: 6px 18px;
+  border-radius: 16px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: #D4AF37;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.resultsStats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.resultsStat {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.resultsStatValue {
+  font-size: 22px;
+  font-weight: 700;
+  color: #F8F6F2;
+  display: block;
+}
+
+.resultsStatLabel {
+  font-size: 12px;
+  color: #94A3B8;
+}
+
+.xpEarned {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: 16px;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  margin-bottom: 24px;
+}
+
+.xpEmoji {
+  font-size: 18px;
+}
+
+.xpValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: #D4AF37;
+}
+
+.resultsButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.resultsButtons .primary {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #D4AF37, #b8941a);
+  border: none;
+  border-radius: 14px;
+  color: #07111F;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+}
+
+.resultsButtons .primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
+}
+
+.resultsSecondaryGroup {
+  display: flex;
+  gap: 10px;
+}
+
+.resultsButtons .secondary {
+  flex: 1;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  color: #94A3B8;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+}
+
+.resultsButtons .secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #F8F6F2;
+}
+
+/* ============================================
+   COMING SOON
+   ============================================ */
+
+.comingSoon {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.comingSoonIcon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.comingSoon h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #F8F6F2;
+  margin: 0 0 8px 0;
+}
+
+.comingSoon p {
+  color: #94A3B8;
+  margin: 0;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .startCard {
+    padding: 24px 18px;
+  }
+
+  .modeGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .booksGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .reorderGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .categoryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .resultsStats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .resultsSecondaryGroup {
+    flex-direction: column;
+  }
+
+  .gameHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .gameStats {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .startTitle {
+    font-size: 22px;
+  }
+
+  .startIcon {
+    font-size: 36px;
+  }
+
+  .chipGroup {
+    flex-wrap: wrap;
+  }
+
+  .modeGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .modeChip {
+    padding: 10px 6px;
+  }
+
+  .modeIcon {
+    font-size: 20px;
+  }
+
+  .modeLabel {
+    font-size: 12px;
+  }
+
+  .booksGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .bookBtn {
+    padding: 10px 6px;
+    font-size: 12px;
+  }
+
+  .reorderGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .reorderBook {
+    padding: 10px 6px;
+    font-size: 12px;
+  }
+
+  .resultsTitle {
+    font-size: 22px;
+  }
+
+  .resultsStatValue {
+    font-size: 18px;
+  }
+
+  .resultsStats {
+    gap: 8px;
+  }
+
+  .statsBar {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .targetContent {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+}

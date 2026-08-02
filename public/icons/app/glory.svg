@@ -1,0 +1,259 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+
+<defs>
+
+<!-- Heaven Sky -->
+
+<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="#0A1428"/>
+<stop offset="45%" stop-color="#344E7A"/>
+<stop offset="100%" stop-color="#D6B56C"/>
+</linearGradient>
+
+
+<!-- Gold -->
+
+<linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0%" stop-color="#FFF6C7"/>
+<stop offset="50%" stop-color="#F3CF63"/>
+<stop offset="100%" stop-color="#A66C0A"/>
+</linearGradient>
+
+
+<!-- Divine Light -->
+
+<radialGradient id="light">
+<stop offset="0%" stop-color="#FFFFFF" stop-opacity=".9"/>
+<stop offset="35%" stop-color="#FFE9A0" stop-opacity=".45"/>
+<stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+</radialGradient>
+
+
+<filter id="blur">
+<feGaussianBlur stdDeviation="18"/>
+</filter>
+
+
+<filter id="glow">
+<feGaussianBlur stdDeviation="9"/>
+</filter>
+
+
+</defs>
+
+
+<!-- Heaven Background -->
+
+<rect
+width="512"
+height="512"
+rx="110"
+fill="url(#bg)"/>
+
+
+<!-- Divine opening -->
+
+<circle
+cx="256"
+cy="115"
+r="180"
+fill="url(#light)"/>
+
+
+<!-- Christ silhouette -->
+
+<g opacity=".16" fill="#FFFFFF">
+
+<!-- Halo -->
+
+<circle
+cx="256"
+cy="110"
+r="42"/>
+
+
+<!-- Head -->
+
+<circle
+cx="256"
+cy="135"
+r="25"/>
+
+
+<!-- Body -->
+
+<path
+d="
+M205 260
+Q256 180 307 260
+L350 350
+H162Z"/>
+
+
+<!-- Arms -->
+
+<path
+d="
+M180 235
+L80 285
+L95 305
+L220 260Z"/>
+
+<path
+d="
+M332 235
+L432 285
+L417 305
+L292 260Z"/>
+
+</g>
+
+
+<!-- Clouds -->
+
+<g fill="#FFFFFF" opacity=".18" filter="url(#blur)">
+
+<ellipse
+cx="110"
+cy="300"
+rx="120"
+ry="45"/>
+
+<ellipse
+cx="400"
+cy="300"
+rx="120"
+ry="45"/>
+
+<ellipse
+cx="250"
+cy="350"
+rx="180"
+ry="55"/>
+
+</g>
+
+
+<!-- Cloud details -->
+
+<path
+d="
+M40 320
+Q120 270 200 320"
+fill="none"
+stroke="#FFFFFF"
+stroke-width="12"
+opacity=".12"/>
+
+
+<path
+d="
+M310 320
+Q390 270 470 320"
+fill="none"
+stroke="#FFFFFF"
+stroke-width="12"
+opacity=".12"/>
+
+
+
+<!-- Bible -->
+
+<path
+d="
+M170 150
+Q256 120 342 150
+L342 360
+Q256 332 170 360
+Z"
+fill="none"
+stroke="url(#gold)"
+stroke-width="18"
+stroke-linejoin="round"/>
+
+
+<!-- Spine -->
+
+<path
+d="M256 138V372"
+stroke="url(#gold)"
+stroke-width="10"
+stroke-linecap="round"/>
+
+
+<!-- Pages -->
+
+<path
+d="
+M256 150
+Q215 168 188 195"
+stroke="#FFFFFF88"
+stroke-width="3"
+fill="none"/>
+
+
+<path
+d="
+M256 150
+Q297 168 324 195"
+stroke="#FFFFFF88"
+stroke-width="3"
+fill="none"/>
+
+
+<!-- Cross -->
+
+<path
+d="
+M256 185V305
+M220 235H292"
+stroke="#FFFFFF"
+stroke-width="14"
+stroke-linecap="round"/>
+
+
+<!-- Cross Glory -->
+
+<g opacity=".55" filter="url(#glow)">
+
+<path
+d="
+M256 185V305
+M220 235H292"
+stroke="#FFD86A"
+stroke-width="28"
+stroke-linecap="round"/>
+
+</g>
+
+
+<!-- Heavenly rays -->
+
+<path
+d="M256 55V20"
+stroke="#FFF1B0"
+stroke-width="5"
+stroke-linecap="round"/>
+
+<path
+d="M190 75L165 40"
+stroke="#FFF1B0"
+stroke-width="4"
+stroke-linecap="round"/>
+
+<path
+d="M322 75L347 40"
+stroke="#FFF1B0"
+stroke-width="4"
+stroke-linecap="round"/>
+
+
+<!-- Light particles -->
+
+<circle cx="120" cy="150" r="3" fill="#FFFFFF"/>
+<circle cx="390" cy="155" r="3" fill="#FFE9A0"/>
+<circle cx="150" cy="270" r="2" fill="#FFFFFF"/>
+<circle cx="360" cy="270" r="2" fill="#FFE9A0"/>
+
+
+</svg>

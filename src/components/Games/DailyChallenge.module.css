@@ -1,0 +1,369 @@
+/* DailyChallenge.module.css - Bible Arena Premium Styling */
+
+.container {
+  min-height: 100vh;
+  background: #07111F;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ambientGlow {
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 50% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 30%, rgba(212, 175, 55, 0.015) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.content {
+  max-width: 720px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 215, 120, 0.08);
+  border-radius: 12px;
+  color: #94A3B8;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 280ms ease;
+  margin-bottom: 24px;
+  font-family: inherit;
+}
+
+.backBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(212, 175, 55, 0.2);
+  color: #F8F6F2;
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   START SCREEN
+   ============================================ */
+
+.startCard {
+  background: #15253A;
+  border: 1px solid rgba(255, 215, 120, 0.08);
+  border-radius: 24px;
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.startIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  color: #D4AF37;
+}
+
+.startTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #F8F6F2;
+  margin: 0 0 4px 0;
+}
+
+.startSubtitle {
+  color: #94A3B8;
+  font-size: 16px;
+  margin: 0 0 24px 0;
+}
+
+.streakDisplay {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: 16px;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.12);
+  color: #D4AF37;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.startBtn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #D4AF37, #b8941a);
+  border: none;
+  border-radius: 14px;
+  color: #07111F;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.startBtn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
+}
+
+.startBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ============================================
+   CHALLENGE CARD
+   ============================================ */
+
+.challengeCard {
+  background: #15253A;
+  border: 1px solid rgba(255, 215, 120, 0.08);
+  border-radius: 24px;
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.challengeIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  color: #D4AF37;
+}
+
+.challengeTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #94A3B8;
+  margin: 0 0 4px 0;
+}
+
+.challengeLabel {
+  font-size: 28px;
+  font-weight: 700;
+  color: #F8F6F2;
+  margin: 0 0 8px 0;
+}
+
+.challengeHint {
+  font-size: 15px;
+  color: #4a5568;
+  margin: 0 0 32px 0;
+}
+
+.challengeActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.completeBtn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #5FAF75, #4a9a5a);
+  border: none;
+  border-radius: 14px;
+  color: #F8F6F2;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.completeBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(95, 175, 117, 0.2);
+}
+
+.menuBtn {
+  width: 100%;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  color: #94A3B8;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+}
+
+.menuBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #F8F6F2;
+}
+
+.challengeStreak {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 12px;
+  background: rgba(212, 175, 55, 0.06);
+  border: 1px solid rgba(212, 175, 55, 0.08);
+  color: #D4AF37;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 16px;
+}
+
+/* ============================================
+   RESULTS SCREEN
+   ============================================ */
+
+.resultsCard {
+  background: #15253A;
+  border: 1px solid rgba(255, 215, 120, 0.08);
+  border-radius: 24px;
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.resultsEmoji {
+  font-size: 56px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.resultsTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #F8F6F2;
+  margin: 0 0 4px 0;
+}
+
+.resultsSubtitle {
+  font-size: 16px;
+  color: #94A3B8;
+  margin: 0 0 24px 0;
+}
+
+.streakCard {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  border-radius: 16px;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.12);
+  margin-bottom: 24px;
+}
+
+.streakCard svg {
+  color: #D4AF37;
+}
+
+.streakNumber {
+  font-size: 32px;
+  font-weight: 700;
+  color: #D4AF37;
+}
+
+.streakLabel {
+  font-size: 14px;
+  color: #94A3B8;
+}
+
+.xpEarned {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: 16px;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  margin-bottom: 24px;
+}
+
+.xpEmoji {
+  font-size: 18px;
+}
+
+.xpValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: #D4AF37;
+}
+
+.resultsButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.resultsButtons .secondary {
+  flex: 1;
+  padding: 14px;
+  background: linear-gradient(135deg, #D4AF37, #b8941a);
+  border: none;
+  border-radius: 14px;
+  color: #07111F;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+}
+
+.resultsButtons .secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .container { padding: 16px; }
+  .startCard { padding: 24px 18px; }
+  .challengeCard { padding: 24px 18px; }
+  .challengeLabel { font-size: 24px; }
+  .resultsCard { padding: 24px 18px; }
+  .streakCard { padding: 12px 20px; }
+  .resultsButtons { flex-direction: column; }
+}
+
+@media (max-width: 480px) {
+  .startTitle { font-size: 22px; }
+  .challengeLabel { font-size: 20px; }
+  .resultsTitle { font-size: 22px; }
+  .streakNumber { font-size: 24px; }
+  .streakCard { flex-wrap: wrap; justify-content: center; }
+}

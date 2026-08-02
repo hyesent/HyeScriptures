@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+
+<defs>
+
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0%" stop-color="#171006"/>
+<stop offset="45%" stop-color="#5B3A18"/>
+<stop offset="100%" stop-color="#18351D"/>
+</linearGradient>
+
+
+<linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0%" stop-color="#FFF4B8"/>
+<stop offset="45%" stop-color="#E7BC50"/>
+<stop offset="100%" stop-color="#875500"/>
+</linearGradient>
+
+
+<radialGradient id="halo">
+<stop offset="0%" stop-color="#FFF0A6" stop-opacity=".4"/>
+<stop offset="45%" stop-color="#8FD36B" stop-opacity=".18"/>
+<stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+</radialGradient>
+
+
+<filter id="glow">
+<feGaussianBlur stdDeviation="10"/>
+</filter>
+
+
+</defs>
+
+
+<!-- Earth creation background -->
+
+<rect width="512" height="512" rx="110" fill="url(#bg)"/>
+
+
+<!-- Creation light -->
+
+<circle cx="256" cy="175" r="160" fill="url(#halo)"/>
+
+
+<!-- Orbit / creation circle -->
+
+<circle
+cx="256"
+cy="180"
+r="125"
+fill="none"
+stroke="#D9EFA2"
+stroke-width="2"
+opacity=".25"/>
+
+
+<!-- Small stars -->
+
+<circle cx="130" cy="130" r="3" fill="#FFF0B0"/>
+<circle cx="380" cy="145" r="2" fill="#FFF0B0"/>
+<circle cx="145" cy="320" r="2" fill="#FFFFFF"/>
+<circle cx="370" cy="300" r="3" fill="#FFFFFF"/>
+
+
+<!-- Bible -->
+
+<path
+d="
+M170 150
+Q256 120 342 150
+L342 360
+Q256 332 170 360
+Z"
+fill="none"
+stroke="url(#gold)"
+stroke-width="18"
+stroke-linejoin="round"/>
+
+
+<!-- Spine -->
+
+<path
+d="M256 138V372"
+stroke="url(#gold)"
+stroke-width="10"
+stroke-linecap="round"/>
+
+
+<!-- Pages -->
+
+<path
+d="M256 150Q215 168 188 195"
+stroke="#FFFFFF66"
+stroke-width="3"
+fill="none"/>
+
+
+<path
+d="M256 150Q297 168 324 195"
+stroke="#FFFFFF66"
+stroke-width="3"
+fill="none"/>
+
+
+<!-- Cross -->
+
+<path
+d="
+M256 185V305
+M220 235H292"
+stroke="white"
+stroke-width="14"
+stroke-linecap="round"/>
+
+
+<!-- Golden creation glow -->
+
+<g opacity=".55" filter="url(#glow)">
+<path
+d="
+M256 185V305
+M220 235H292"
+stroke="#FFD86A"
+stroke-width="28"
+stroke-linecap="round"/>
+</g>
+
+
+<!-- Rising creation rays -->
+
+<path
+d="M256 78V45"
+stroke="#FFE59B"
+stroke-width="4"
+stroke-linecap="round"/>
+
+
+<path
+d="M205 92L190 64"
+stroke="#FFE59B"
+stroke-width="3"
+stroke-linecap="round"/>
+
+
+<path
+d="M307 92L322 64"
+stroke="#FFE59B"
+stroke-width="3"
+stroke-linecap="round"/>
+
+
+<!-- Nature accents -->
+
+<path
+d="M120 260 Q105 230 135 215"
+fill="none"
+stroke="#A8E88A"
+stroke-width="3"
+opacity=".4"/>
+
+
+<path
+d="M392 260 Q407 230 377 215"
+fill="none"
+stroke="#A8E88A"
+stroke-width="3"
+opacity=".4"/>
+
+
+</svg>

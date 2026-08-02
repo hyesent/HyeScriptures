@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Hyescriptures</string>
+    <string name="title_activity_main">Hyescriptures</string>
+    <string name="package_name">com.hyescriptures.app</string>
+    <string name="custom_url_scheme">com.hyescriptures.app</string>
+</resources>

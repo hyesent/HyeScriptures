@@ -1,0 +1,1344 @@
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* ============================================================
+   READER HEADER
+============================================================ */
+
+.readerHeader{
+  position: sticky;
+  top: 0;
+  z-index: 30;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:14px 18px;
+
+  margin-bottom:20px;
+
+  background:var(--bg-card);
+
+  border:1px solid var(--border-light);
+
+  border-radius:18px;
+
+  backdrop-filter:blur(16px);
+
+  box-shadow:0 8px 30px rgba(0,0,0,.05);
+}
+
+.readerTitle{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.bookName{
+  font-size:19px;
+  font-weight:700;
+  color:var(--text);
+  letter-spacing:.2px;
+}
+
+.chapterNum{
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  min-width:36px;
+  height:36px;
+
+  padding:0 12px;
+
+  background:var(--primary);
+
+  color:#fff;
+
+  border-radius:999px;
+
+  font-size:14px;
+  font-weight:700;
+}
+
+.navBtn,
+.menuBtn{
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  width:42px;
+  height:42px;
+
+  border:none;
+
+  border-radius:12px;
+
+  background:transparent;
+
+  color:var(--text-secondary);
+
+  cursor:pointer;
+
+  transition:.25s;
+}
+
+.navBtn:hover,
+.menuBtn:hover{
+
+  background:var(--bg-hover);
+
+  color:var(--primary);
+
+}
+
+.navBtn:active,
+.menuBtn:active{
+
+  transform:scale(.95);
+
+}
+
+/* ============================================================
+   READER MENU
+============================================================ */
+
+.readerMenu{
+
+  position:absolute;
+
+  top:82px;
+
+  right:20px;
+
+  width:240px;
+
+  background:var(--bg-card);
+
+  border:1px solid var(--border-light);
+
+  border-radius:18px;
+
+  overflow:hidden;
+
+  box-shadow:
+  0 18px 45px rgba(0,0,0,.15);
+
+  animation:menuDrop .22s ease;
+
+  z-index:100;
+
+}
+
+@keyframes menuDrop{
+
+  from{
+
+    opacity:0;
+
+    transform:translateY(-8px);
+
+  }
+
+  to{
+
+    opacity:1;
+
+    transform:translateY(0);
+
+  }
+
+}
+
+.menuItem{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:14px;
+
+  width:100%;
+
+  padding:14px 18px;
+
+  background:none;
+
+  border:none;
+
+  color:var(--text);
+
+  font-size:14px;
+
+  font-weight:500;
+
+  cursor:pointer;
+
+  transition:.2s;
+
+}
+
+.menuItem svg{
+
+  width:18px;
+  height:18px;
+
+  color:var(--text-secondary);
+
+}
+
+.menuItem:hover{
+
+  background:var(--bg-hover);
+
+}
+
+.menuItem:hover svg{
+
+  color:var(--primary);
+
+}
+
+.menuItem:not(:last-child){
+
+  border-bottom:1px solid var(--border-light);
+
+}
+
+/* ============================================================
+   AUDIO READER PANEL
+============================================================ */
+
+.audioControls{
+
+  margin-bottom:22px;
+
+  padding:20px;
+
+  background:var(--bg-card);
+
+  border:1px solid var(--border-light);
+
+  border-radius:22px;
+
+  box-shadow:0 10px 30px rgba(0,0,0,.05);
+
+  animation:fadeUp .25s ease;
+
+}
+
+.audioMain{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:16px;
+
+}
+
+.audioPlayBtn,
+.audioStopBtn{
+
+  width:52px;
+
+  height:52px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  border:none;
+
+  border-radius:50%;
+
+  cursor:pointer;
+
+  transition:.25s;
+
+}
+
+.audioPlayBtn{
+
+  background:var(--primary);
+
+  color:#fff;
+
+  font-size:20px;
+
+  box-shadow:0 8px 18px rgba(var(--primary-rgb),.25);
+
+}
+
+.audioPlayBtn:hover{
+
+  transform:scale(1.05);
+
+}
+
+.audioPlayBtn:active{
+
+  transform:scale(.95);
+
+}
+
+.audioStopBtn{
+
+  background:var(--bg-hover);
+
+  color:var(--text-secondary);
+
+}
+
+.audioStopBtn:hover{
+
+  background:#fee2e2;
+
+  color:#dc2626;
+
+}
+
+.audioProgress{
+
+  flex:1;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:8px;
+
+}
+
+.audioProgressBar{
+
+  position:relative;
+
+  width:100%;
+
+  height:8px;
+
+  border-radius:999px;
+
+  overflow:hidden;
+
+  background:var(--border);
+
+}
+
+.audioProgressFill{
+
+  position:absolute;
+
+  left:0;
+
+  top:0;
+
+  bottom:0;
+
+  width:0;
+
+  border-radius:999px;
+
+  background:linear-gradient(
+      90deg,
+      var(--primary),
+      #60a5fa
+  );
+
+  transition:width .35s ease;
+
+}
+
+.audioStatus{
+
+  font-size:13px;
+
+  font-weight:600;
+
+  color:var(--text-secondary);
+
+}
+
+.audioSettings{
+
+  margin-top:20px;
+
+  padding-top:18px;
+
+  border-top:1px solid var(--border-light);
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:18px;
+
+}
+
+.audioSettingGroup{
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:10px;
+
+}
+
+.audioSettingGroup label{
+
+  font-size:13px;
+
+  font-weight:700;
+
+  color:var(--text);
+
+}
+
+.audioSpeedOptions,
+.audioVoiceOptions{
+
+  display:flex;
+
+  flex-wrap:wrap;
+
+  gap:8px;
+
+}
+
+.audioSpeedBtn,
+.audioVoiceBtn{
+
+  padding:8px 14px;
+
+  border-radius:999px;
+
+  border:1px solid var(--border-light);
+
+  background:var(--bg-hover);
+
+  color:var(--text-secondary);
+
+  font-size:13px;
+
+  font-weight:600;
+
+  cursor:pointer;
+
+  transition:.25s;
+
+}
+
+.audioSpeedBtn:hover,
+.audioVoiceBtn:hover{
+
+  border-color:var(--primary);
+
+  color:var(--primary);
+
+  transform:translateY(-1px);
+
+}
+
+.audioSpeedBtn.active,
+.audioVoiceBtn.active{
+
+  background:var(--primary);
+
+  color:#fff;
+
+  border-color:var(--primary);
+
+}
+
+.audioVoiceBtn{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:6px;
+
+}
+
+.audioVoiceBtn svg{
+
+  width:14px;
+
+  height:14px;
+
+}
+
+.audioLoading{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:10px;
+
+  font-size:14px;
+
+  color:var(--text-muted);
+
+}
+
+.audioLoading::before{
+
+  content:"";
+
+  width:14px;
+
+  height:14px;
+
+  border-radius:50%;
+
+  border:2px solid var(--border);
+
+  border-top-color:var(--primary);
+
+  animation:spin .8s linear infinite;
+
+}
+
+@keyframes spin{
+
+  to{
+
+    transform:rotate(360deg);
+
+  }
+
+}
+
+@keyframes fadeUp{
+
+  from{
+
+    opacity:0;
+
+    transform:translateY(10px);
+
+  }
+
+  to{
+
+    opacity:1;
+
+    transform:translateY(0);
+
+  }
+
+}
+
+/* ============================================================
+   VERSE READER
+============================================================ */
+
+.verses{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    padding:4px 0 60px;
+
+}
+
+/* ============================================================
+   VERSE LINE - Fixed layout for toolbar
+============================================================ */
+
+.verseLine{
+
+    position:relative;
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    align-items:flex-start;
+
+    gap:0 16px;
+
+    padding:18px 20px;
+
+    background:var(--bg-card);
+
+    border:1px solid var(--border-light);
+
+    border-radius:20px;
+
+    cursor:default;
+
+    transition:
+        background .25s,
+        border-color .25s,
+        transform .25s,
+        box-shadow .25s;
+
+    user-select:none;
+
+    -webkit-touch-callout:none;
+
+}
+
+.verseLine:hover{
+
+    background:var(--bg-hover);
+
+    border-color:var(--primary-light);
+
+    transform:translateY(-2px);
+
+    box-shadow:0 12px 28px rgba(0,0,0,.06);
+
+}
+
+.verseLine:active{
+
+    transform:scale(.99);
+
+}
+
+/* =====================================
+   Verse Number
+===================================== */
+
+.verseNumber{
+
+    width:38px;
+
+    height:38px;
+
+    flex-shrink:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:var(--bg-secondary);
+
+    color:var(--primary);
+
+    font-size:13px;
+
+    font-weight:700;
+
+    user-select:none;
+
+    transition:.25s;
+
+    margin-top:2px;
+
+}
+
+.verseLine:hover .verseNumber{
+
+    background:var(--primary);
+
+    color:white;
+
+}
+
+/* =====================================
+   Verse Text
+===================================== */
+
+.verseText{
+
+    flex:1;
+
+    min-width:0;
+
+    font-family:var(--font-serif);
+
+    font-size:19px;
+
+    line-height:2;
+
+    color:var(--text);
+
+    letter-spacing:.2px;
+
+    word-break:break-word;
+
+}
+
+/* =====================================
+   Selected Verse
+===================================== */
+
+.selected{
+
+    border-color:var(--primary);
+
+    box-shadow:
+        0 0 0 3px rgba(var(--primary-rgb),.12);
+
+}
+
+/* =====================================
+   Highlighted Verse
+===================================== */
+
+.highlighted{
+
+    border-left:5px solid var(--primary);
+
+}
+
+/* =====================================
+   Audio Playing
+===================================== */
+
+.audioHighlight{
+
+    border-left:5px solid #f59e0b;
+
+    background:#fff9e8;
+
+    animation:readerPulse 1.6s infinite;
+
+}
+
+.dark .audioHighlight{
+
+    background:rgba(245,158,11,.12);
+
+}
+
+/* =====================================
+   Reader Pulse
+===================================== */
+
+@keyframes readerPulse{
+
+    0%{
+
+        box-shadow:
+            0 0 0 rgba(245,158,11,0);
+
+    }
+
+    50%{
+
+        box-shadow:
+            0 0 18px rgba(245,158,11,.18);
+
+    }
+
+    100%{
+
+        box-shadow:
+            0 0 0 rgba(245,158,11,0);
+
+    }
+
+}
+
+/* =====================================
+   Verse Animation
+===================================== */
+
+.verseLine{
+
+    animation:verseFade .25s ease;
+
+}
+
+@keyframes verseFade{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(8px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/* ============================================================
+   VERSE TOOLBAR - Full width below text
+============================================================ */
+
+.actions{
+
+    width:100%;
+
+    margin-top:14px;
+
+    padding-top:14px;
+
+    border-top:1px solid var(--border-light);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:flex-start;
+
+    gap:10px;
+
+    flex-wrap:wrap;
+
+    animation:toolbarIn .22s ease;
+
+}
+
+/* -------------------------------- */
+
+@keyframes toolbarIn{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(-6px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/* -------------------------------- */
+
+.actionBtn{
+
+    width:40px;
+
+    height:40px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:var(--bg-secondary);
+
+    color:var(--text-secondary);
+
+    cursor:pointer;
+
+    transition:all .25s ease;
+
+}
+
+.actionBtn svg{
+
+    width:18px;
+
+    height:18px;
+
+}
+
+.actionBtn:hover{
+
+    background:var(--primary);
+
+    color:white;
+
+    transform:translateY(-2px);
+
+    box-shadow:0 8px 18px rgba(var(--primary-rgb),.20);
+
+}
+
+.actionBtn:active{
+
+    transform:scale(.95);
+
+}
+
+.actionBtn:disabled{
+
+    opacity:.45;
+
+    cursor:not-allowed;
+
+    transform:none;
+
+}
+
+/* -------------------------------- */
+
+.activeIcon{
+
+    color:#f59e0b;
+
+    fill:#f59e0b;
+
+}
+
+/* ============================================================
+   HIGHLIGHT OPTIONS - Full width
+============================================================ */
+
+.highlightOptions{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:10px 14px;
+
+    margin-top:10px;
+
+    background:var(--bg-card);
+
+    border:1px solid var(--border-light);
+
+    border-radius:14px;
+
+    animation:highlightPop .2s ease;
+
+    width:100%;
+
+}
+
+@keyframes highlightPop{
+
+    from{
+
+        opacity:0;
+
+        transform:scale(.92);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:scale(1);
+
+    }
+
+}
+
+/* ============================================================
+   HIGHLIGHT COLORS
+============================================================ */
+
+.colorOptions{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+}
+
+.colorBtn{
+
+    width:24px;
+
+    height:24px;
+
+    border-radius:50%;
+
+    border:3px solid white;
+
+    cursor:pointer;
+
+    transition:all .25s ease;
+
+    box-shadow:0 2px 8px rgba(0,0,0,.12);
+
+}
+
+.colorBtn:hover{
+
+    transform:scale(1.25);
+
+}
+
+.colorBtn:active{
+
+    transform:scale(.92);
+
+}
+
+/* -------------------------------- */
+
+.removeHighlightBtn{
+
+    width:28px;
+
+    height:28px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:#ef4444;
+
+    color:white;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+    margin-left:4px;
+
+}
+
+.removeHighlightBtn:hover{
+
+    transform:rotate(90deg);
+
+    background:#dc2626;
+
+}
+
+/* ============================================================
+   BUTTON COLORS
+============================================================ */
+
+.actionBtn:nth-child(1):hover{
+
+    background:#f59e0b;
+
+}
+
+.actionBtn:nth-child(2):hover{
+
+    background:#3b82f6;
+
+}
+
+.actionBtn:nth-child(3):hover{
+
+    background:#8b5cf6;
+
+}
+
+.actionBtn:nth-child(4):hover{
+
+    background:#10b981;
+
+}
+
+/* Share button */
+
+.actions button:last-of-type:hover{
+
+    background:#ec4899;
+
+}
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width:768px){
+
+.actions{
+
+    flex-wrap:wrap;
+
+    justify-content:flex-start;
+
+    gap:10px;
+
+}
+
+.actionBtn{
+
+    width:38px;
+
+    height:38px;
+
+}
+
+}
+
+/* ============================================================
+   AI EXPLANATION CARD - Full width
+============================================================ */
+
+.aiExplanation{
+
+    width:100%;
+
+    margin-top:14px;
+
+    margin-left:0;
+
+    background:linear-gradient(
+        135deg,
+        rgba(var(--primary-rgb),.06),
+        rgba(var(--primary-rgb),.02)
+    );
+
+    border:1px solid rgba(var(--primary-rgb),.15);
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    animation:aiReveal .28s ease;
+
+}
+
+/* -------------------------------- */
+
+@keyframes aiReveal{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(8px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/* -------------------------------- */
+
+.aiHeader{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:14px 18px;
+
+    border-bottom:1px solid rgba(var(--primary-rgb),.10);
+
+    background:rgba(var(--primary-rgb),.05);
+
+}
+
+/* -------------------------------- */
+
+.aiHeader span{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    font-size:14px;
+
+    font-weight:700;
+
+    color:var(--primary);
+
+}
+
+.aiHeader svg{
+
+    width:18px;
+
+    height:18px;
+
+}
+
+/* -------------------------------- */
+
+.aiCloseBtn{
+
+    width:34px;
+
+    height:34px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:transparent;
+
+    color:var(--text-muted);
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.aiCloseBtn:hover{
+
+    background:rgba(var(--primary-rgb),.10);
+
+    color:var(--primary);
+
+}
+
+/* -------------------------------- */
+
+.aiText{
+
+    padding:20px;
+
+    margin:0;
+
+    color:var(--text);
+
+    font-size:16px;
+
+    line-height:1.9;
+
+    font-family:var(--font-serif);
+
+}
+
+/* -------------------------------- */
+
+.aiText strong{
+
+    color:var(--primary);
+
+}
+
+/* -------------------------------- */
+
+.aiText ul{
+
+    margin:14px 0;
+
+    padding-left:22px;
+
+}
+
+.aiText li{
+
+    margin-bottom:10px;
+
+}
+
+/* -------------------------------- */
+
+.aiText blockquote{
+
+    margin:18px 0;
+
+    padding:14px 18px;
+
+    border-left:4px solid var(--primary);
+
+    background:rgba(var(--primary-rgb),.05);
+
+    border-radius:12px;
+
+    font-style:italic;
+
+}
+
+/* -------------------------------- */
+
+.aiText code{
+
+    padding:3px 8px;
+
+    border-radius:8px;
+
+    background:var(--bg-secondary);
+
+    font-family:monospace;
+
+}
+
+/* -------------------------------- */
+
+.dark .aiExplanation{
+
+    background:rgba(var(--primary-rgb),.08);
+
+}
+
+/* ============================================================
+   VERSE CLICKABLE AREA
+============================================================ */
+
+.verseLine::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    border-radius:20px;
+
+    pointer-events:none;
+
+    opacity:0;
+
+    transition:opacity .3s ease;
+
+}
+
+.verseLine:active::after{
+
+    opacity:.06;
+
+    background:var(--primary);
+
+}
+

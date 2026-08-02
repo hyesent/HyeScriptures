@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+
+<defs>
+
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0%" stop-color="#FFFDF2"/>
+<stop offset="45%" stop-color="#F4E8C8"/>
+<stop offset="100%" stop-color="#C8A85B"/>
+</linearGradient>
+
+
+<linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0%" stop-color="#FFF7D0"/>
+<stop offset="45%" stop-color="#E7BC4D"/>
+<stop offset="100%" stop-color="#8F5D08"/>
+</linearGradient>
+
+
+<radialGradient id="halo">
+<stop offset="0%" stop-color="#FFFFFF" stop-opacity=".8"/>
+<stop offset="40%" stop-color="#FFE9A3" stop-opacity=".35"/>
+<stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+</radialGradient>
+
+
+<filter id="glow">
+<feGaussianBlur stdDeviation="9"/>
+</filter>
+
+
+</defs>
+
+
+<!-- Ivory background -->
+
+<rect width="512" height="512" rx="110" fill="url(#bg)"/>
+
+
+<!-- Divine light -->
+
+<circle cx="256" cy="175" r="165" fill="url(#halo)"/>
+
+
+<!-- Subtle crown rays -->
+
+<path
+d="M256 65V35"
+stroke="#D9B14A"
+stroke-width="3"
+stroke-linecap="round"
+opacity=".6"/>
+
+<path
+d="M205 80L188 52"
+stroke="#D9B14A"
+stroke-width="3"
+stroke-linecap="round"
+opacity=".6"/>
+
+<path
+d="M307 80L324 52"
+stroke="#D9B14A"
+stroke-width="3"
+stroke-linecap="round"
+opacity=".6"/>
+
+
+<!-- Bible -->
+
+<path
+d="
+M170 150
+Q256 120 342 150
+L342 360
+Q256 332 170 360
+Z"
+fill="none"
+stroke="url(#gold)"
+stroke-width="18"
+stroke-linejoin="round"/>
+
+
+<!-- Spine -->
+
+<path
+d="M256 138V372"
+stroke="url(#gold)"
+stroke-width="10"
+stroke-linecap="round"/>
+
+
+<!-- Pages -->
+
+<path
+d="M256 150Q215 168 188 195"
+stroke="#B88D3A"
+stroke-width="3"
+fill="none"
+opacity=".55"/>
+
+
+<path
+d="M256 150Q297 168 324 195"
+stroke="#B88D3A"
+stroke-width="3"
+fill="none"
+opacity=".55"/>
+
+
+<!-- Cross -->
+
+<path
+d="
+M256 185V305
+M220 235H292"
+stroke="#FFFFFF"
+stroke-width="14"
+stroke-linecap="round"/>
+
+
+<!-- Golden glory -->
+
+<g opacity=".45" filter="url(#glow)">
+<path
+d="
+M256 185V305
+M220 235H292"
+stroke="#DFAE35"
+stroke-width="28"
+stroke-linecap="round"/>
+</g>
+
+
+<!-- Gold particles -->
+
+<circle cx="140" cy="130" r="3" fill="#D9B14A"/>
+<circle cx="370" cy="140" r="3" fill="#D9B14A"/>
+<circle cx="160" cy="300" r="2" fill="#B88D3A"/>
+<circle cx="355" cy="285" r="2" fill="#B88D3A"/>
+
+
+</svg>

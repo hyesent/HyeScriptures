@@ -1,0 +1,322 @@
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 8px 0 16px;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.header {
+  margin-bottom: 20px;
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.greeting {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 2px 0 0;
+}
+
+.date {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.refreshBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-light);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.refreshBtn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.refreshBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spinning {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-hover);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+}
+
+.tab:hover {
+  color: var(--text);
+}
+
+.tab.active {
+  background: var(--bg-card);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 20px 22px;
+  box-shadow: var(--shadow);
+  transition: all var(--transition);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.cardIcon {
+  font-size: 18px;
+}
+
+.cardLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================================
+   SCRIPTURE
+   ============================================================ */
+.scriptureBlock {
+  margin-bottom: 12px;
+}
+
+.scriptureRef {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0 0 6px;
+}
+
+.scriptureText {
+  font-size: 18px;
+  line-height: 1.8;
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-style: italic;
+  margin: 0;
+}
+
+/* ============================================================
+   REFLECTION & PRAYER
+   ============================================================ */
+.reflectionText {
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--text);
+  font-family: var(--font-serif);
+  margin: 0 0 12px;
+}
+
+.prayerText {
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-style: italic;
+  margin: 0 0 12px;
+}
+
+/* ============================================================
+   CARD ACTIONS
+   ============================================================ */
+.cardActions {
+  display: flex;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+
+.cardActionBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: var(--bg-hover);
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-sans);
+}
+
+.cardActionBtn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.emptyIcon {
+  color: var(--text-muted);
+  stroke-width: 1.5;
+}
+
+.empty h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.empty p {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ============================================================
+   SKELETON LOADING
+   ============================================================ */
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.skeletonHeader {
+  height: 32px;
+  width: 60%;
+  background: var(--bg-hover);
+  border-radius: 8px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonCard {
+  height: 100px;
+  background: var(--bg-hover);
+  border-radius: var(--radius-sm);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 600px) {
+  .container {
+    padding: 0 4px;
+  }
+
+  .title {
+    font-size: 19px;
+  }
+
+  .card {
+    padding: 16px 18px;
+  }
+
+  .scriptureRef {
+    font-size: 16px;
+  }
+
+  .scriptureText {
+    font-size: 16px;
+  }
+
+  .reflectionText,
+  .prayerText {
+    font-size: 15px;
+  }
+
+  .cardActions {
+    flex-wrap: wrap;
+  }
+}

@@ -1,0 +1,300 @@
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 8px 0 16px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color var(--transition);
+  font-family: var(--font-sans);
+}
+
+.backBtn:hover {
+  color: var(--text);
+}
+
+.percentage {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.progressSection {
+  margin-bottom: 20px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.progressInfo {
+  text-align: right;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.daySelector {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  text-align: center;
+}
+
+.daySelector h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 4px;
+}
+
+.dayDescription {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+}
+
+.dayNav {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.dayNavBtn {
+  padding: 6px 16px;
+  background: var(--bg-hover);
+  border: none;
+  border-radius: var(--radius-xs);
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-sans);
+}
+
+.dayNavBtn:hover:not(:disabled) {
+  background: var(--primary);
+  color: white;
+}
+
+.dayNavBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.completeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  width: 100%;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-xs);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-sans);
+}
+
+.completeBtn:hover {
+  background: var(--primary-dark);
+}
+
+.completeBtn.completed {
+  background: #22c55e;
+}
+
+.completeBtn.completed:hover {
+  background: #16a34a;
+}
+
+.chapters {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+}
+
+.chapters h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 12px;
+}
+
+.chapterList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.chapterItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-sans);
+}
+
+.chapterItem:hover {
+  border-color: var(--primary);
+  transform: translateX(4px);
+}
+
+.chapterBook {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.chapterArrow {
+  color: var(--text-muted);
+}
+
+.calendar {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+}
+
+.calendar h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 12px;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+  gap: 6px;
+}
+
+.calendarDay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 4px;
+  text-align: center;
+  font-size: 13px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-hover);
+  cursor: pointer;
+  transition: all var(--transition);
+  color: var(--text-muted);
+  border: 1px solid transparent;
+}
+
+.calendarDay:hover {
+  border-color: var(--primary);
+  transform: scale(1.05);
+}
+
+.calendarDay.completedDay {
+  background: #22c55e;
+  color: white;
+  border-color: #22c55e;
+}
+
+.calendarDay.completedDay svg {
+  stroke: white;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 700px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
+
+  .calendarGrid {
+    grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .percentage {
+    text-align: center;
+  }
+
+  .backBtn {
+    justify-content: center;
+  }
+
+  .calendarGrid {
+    grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
+  }
+
+  .calendarDay {
+    font-size: 11px;
+    padding: 4px 2px;
+  }
+}

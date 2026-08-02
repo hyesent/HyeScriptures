@@ -1,0 +1,453 @@
+/* src/components/Community/PostCard.module.css */
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  box-shadow: var(--shadow);
+  transition: all 0.2s;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  font-size: 32px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-hover);
+  border-radius: 50%;
+}
+
+.userName {
+  font-weight: 600;
+  color: var(--text);
+  display: block;
+  font-size: 14px;
+}
+
+.postType {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: block;
+}
+
+.postMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+}
+
+.editBtn,
+.deleteBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  color: var(--text-muted);
+}
+
+.editBtn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.deleteBtn:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.content {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text);
+  margin-bottom: 8px;
+  font-family: var(--font-serif);
+}
+
+.verseRef {
+  font-size: 14px;
+  color: var(--primary);
+  background: var(--bg-hover);
+  padding: 4px 12px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.stats {
+  display: flex;
+  gap: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.likeBtn,
+.commentBtn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.likeBtn:hover {
+  background: var(--bg-hover);
+  color: #ef4444;
+}
+
+.likeBtn.liked {
+  color: #ef4444;
+}
+
+.likeBtn.liked .filled {
+  fill: #ef4444;
+}
+
+.commentBtn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+/* Comments Section */
+.comments {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.comment {
+  display: flex;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.comment.reply {
+  padding-left: 48px;
+  border-left: 2px solid var(--border);
+  margin-left: 4px;
+}
+
+.commentAvatar {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.commentContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.commentHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.commentUser {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.commentTime {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.commentActions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.editCommentBtn,
+.deleteCommentBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  color: var(--text-muted);
+}
+
+.editCommentBtn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.deleteCommentBtn:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.commentText {
+  font-size: 14px;
+  color: var(--text);
+  word-wrap: break-word;
+}
+
+/* Comment Edit */
+.commentEditArea {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.commentEditInput {
+  flex: 1;
+  padding: 4px 10px;
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.commentEditInput:focus {
+  outline: none;
+}
+
+.commentEditSaveBtn,
+.commentEditCancelBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.commentEditSaveBtn {
+  color: #22c55e;
+}
+
+.commentEditSaveBtn:hover {
+  background: #dcfce7;
+}
+
+.commentEditCancelBtn {
+  color: #ef4444;
+}
+
+.commentEditCancelBtn:hover {
+  background: #fee2e2;
+}
+
+/* Reply Button */
+.replyBtn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 0;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.replyBtn:hover {
+  color: var(--primary);
+}
+
+/* Reply Input */
+.replyInputArea {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.replyInput {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.replyInput:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.replySubmitBtn {
+  padding: 6px 12px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.replySubmitBtn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.replySubmitBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.loadingComments,
+.noComments {
+  font-size: 14px;
+  color: var(--text-muted);
+  padding: 8px 0;
+}
+
+/* Comment Input */
+.commentInputArea {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.commentInput {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+
+.commentInput:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.commentInput::placeholder {
+  color: var(--text-muted);
+}
+
+.commentSubmitBtn {
+  padding: 8px 12px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.commentSubmitBtn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.commentSubmitBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Edit Area (Post) */
+.editArea {
+  margin: 8px 0;
+}
+
+.editInput {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-size: 15px;
+  font-family: var(--font-serif);
+  line-height: 1.6;
+  resize: vertical;
+  background: var(--bg);
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+
+.editInput:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.editActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  justify-content: flex-end;
+}
+
+.cancelEditBtn {
+  padding: 6px 16px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+
+.cancelEditBtn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.saveEditBtn {
+  padding: 6px 16px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.saveEditBtn:hover {
+  opacity: 0.9;
+}

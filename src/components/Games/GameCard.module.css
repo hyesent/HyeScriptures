@@ -1,0 +1,232 @@
+/* GameCard.module.css - Premium Game Card */
+
+.card {
+  position: relative;
+  background: #15253A;
+  border: 1px solid rgba(255, 215, 120, 0.06);
+  border-radius: 20px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 280ms ease;
+  overflow: hidden;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.02), transparent);
+  opacity: 0;
+  transition: opacity 280ms ease;
+}
+
+.card:hover {
+  transform: translateY(-4px) scale(1.01);
+  border-color: rgba(212, 175, 55, 0.15);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card.locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.card.locked:hover {
+  transform: none !important;
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+/* Top Gradient Bar */
+.topBar {
+  height: 3px;
+  border-radius: 20px 20px 0 0;
+  margin: -24px -24px 16px -24px;
+  background: linear-gradient(90deg, var(--card-color), var(--card-color-dark));
+}
+
+/* Badge */
+.badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #D4AF37, #b8941a);
+  font-size: 10px;
+  font-weight: 700;
+  color: #07111F;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Lock Overlay */
+.lockOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 17, 31, 0.7);
+  backdrop-filter: blur(2px);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 2;
+}
+
+.lockOverlay svg {
+  color: #4a5568;
+}
+
+.lockOverlay span {
+  font-size: 12px;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+/* Icon & Title */
+.topSection {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.iconWrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+  background: var(--icon-bg);
+  border: 1px solid var(--icon-border);
+}
+
+.titleGroup {
+  flex: 1;
+  min-width: 0;
+}
+
+.titleGroup h3 {
+  font-size: 17px;
+  font-weight: 600;
+  color: #F8F6F2;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+}
+
+.category {
+  font-size: 11px;
+  padding: 2px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #94A3B8;
+  display: inline-block;
+}
+
+/* Description */
+.description {
+  font-size: 14px;
+  color: #94A3B8;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Best Score */
+.bestScore {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #D4AF37;
+  margin-bottom: 16px;
+}
+
+/* Play Button Area */
+.playArea {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.playLabel {
+  font-size: 13px;
+  color: #D4AF37;
+  font-weight: 500;
+  opacity: 0.6;
+  transition: opacity 280ms ease;
+}
+
+.card:hover .playLabel {
+  opacity: 1;
+}
+
+.playBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #D4AF37;
+  transition: all 280ms ease;
+}
+
+.card:hover .playBtn {
+  background: linear-gradient(135deg, #D4AF37, #b8941a);
+  border-color: #D4AF37;
+  color: #07111F;
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .card {
+    padding: 18px;
+    min-height: 160px;
+  }
+
+  .topBar {
+    margin: -18px -18px 12px -18px;
+  }
+
+  .iconWrapper {
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+  }
+
+  .titleGroup h3 {
+    font-size: 15px;
+  }
+
+  .description {
+    font-size: 13px;
+  }
+}
