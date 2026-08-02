@@ -7,93 +7,52 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setUser({
-          id: session.user.id,
-          email: session.user.email || '',
-          display_name: session.user.user_metadata?.display_name || session.user.email?.split('@')[0] || '',
-          avatar_url: session.user.user_metadata?.avatar_url || null,
-          plan: session.user.user_metadata?.plan || 'free',
-          xp: session.user.user_metadata?.xp || 0,
-          streak: session.user.user_metadata?.streak || 0,
-        })
-      }
+      if (session?.user) setUser(mapUser(session.user))
       setLoading(false)
-    }).catch((error) => {
-      console.error('Error getting session:', error)
-      setLoading(false)
-    })
+    }).catch(() => setLoading(false))
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setUser({
-          id: session.user.id,
-          email: session.user.email || '',
-          display_name: session.user.user_metadata?.display_name || session.user.email?.split('@')[0] || '',
-          avatar_url: session.user.user_metadata?.avatar_url || null,
-          plan: session.user.user_metadata?.plan || 'free',
-          xp: session.user.user_metadata?.xp || 0,
-          streak: session.user.user_metadata?.streak || 0,
-        })
-      } else {
-        setUser(null)
-      }
+      if (session?.user) setUser(mapUser(session.user))
+      else setUser(null)
       setLoading(false)
     })
 
     return () => subscription.unsubscribe()
   }, [])
 
+  const mapUser = (authUser: any): User => ({
+    id: authUser.id,
+    email: authUser.email || '',
+    display_name: authUser.user_metadata?.display_name || authUser.email?.split('@')[0] || '',
+    avatar_url: authUser.user_metadata?.avatar_url || null,
+    plan: authUser.user_metadata?.plan || 'free',
+    xp: authUser.user_metadata?.xp || 0,
+    streak: authUser.user_metadata?.streak || 0,
+  })
+
   const signInWithGoogle = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin
-        }
-      })
-      if (error) throw error
-    } catch (error) {
-      console.error('Error signing in:', error)
-      throw error
-    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: 'com.hyescriptures.app://login-callback'
+      }
+    })
+    if (error) throw error
   }
 
   const signOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut()
-      if (error) throw error
-      setUser(null)
-    } catch (error) {
-      console.error('Error signing out:', error)
-      throw error
-    }
+    const { error } = await supabase.auth.signOut()
+    if (error) throw error
+    setUser(null)
   }
 
   const updateProfile = async (updates: Partial<User>) => {
     if (!user) return
+    const { error } = await supabase.auth.updateUser({ data: updates })
+    if (error) throw error
+    setUser({ ...user, ...updates })
+  }
 
-    try {
-      const { error } = await supabase.auth.updateUser({
-        data: updates
-      })
-      if (error) throw error
-      setUser({ ...user, ...updates })
-    } catch (error) {
-      console.error('Error updating profile:', error)
-      throw error
+  return { user, loading, signInWithGoogle, signOut, updateProfile, isAuthenticated: !!user }
     }
-  }
-
-  return {
-    user,
-    loading,
-    signInWithGoogle,
-    signOut,
-    updateProfile,
-    isAuthenticated: !!user,
-  }
-}
