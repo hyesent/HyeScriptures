@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useBible } from '../../hooks/useBible'
-import { BookList } from '../BookList/BookList'
+import { BookList } from '../Booklist/BookList'
 import { ChapterList } from '../ChapterList/ChapterList'
 import { VerseView } from '../VerseView/VerseView'
 import { Search } from '../Search/Search'
