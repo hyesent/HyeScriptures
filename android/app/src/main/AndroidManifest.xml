@@ -27,211 +27,83 @@
         </activity>
 
         <!-- Icon: Kingdom -->
-        <activity-alias
-            android:name=".MainActivityKingdom"
-            android:enabled="false"
-            android:icon="@mipmap/ic_kingdom"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivityKingdom" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_kingdom" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <!-- Icon: Messiah -->
-        <activity-alias
-            android:name=".MainActivityMessiah"
-            android:enabled="false"
-            android:icon="@mipmap/ic_messiah"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivityMessiah" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_messiah" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <!-- Icon: Rose -->
-        <activity-alias
-            android:name=".MainActivityRose"
-            android:enabled="false"
-            android:icon="@mipmap/ic_rose"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivityRose" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_rose" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <!-- Icon: Ocean -->
-        <activity-alias
-            android:name=".MainActivityOcean"
-            android:enabled="false"
-            android:icon="@mipmap/ic_ocean"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivityOcean" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_ocean" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <!-- Icon: Genesis -->
-        <activity-alias
-            android:name=".MainActivityGenesis"
-            android:enabled="false"
-            android:icon="@mipmap/ic_genesis"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivityGenesis" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_genesis" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <!-- Icon: Heaven -->
-        <activity-alias
-            android:name=".MainActivityHeaven"
-            android:enabled="false"
-            android:icon="@mipmap/ic_heaven"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivityHeaven" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_heaven" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <!-- Icon: Eden -->
-        <activity-alias
-            android:name=".MainActivityEden"
-            android:enabled="false"
-            android:icon="@mipmap/ic_eden"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivityEden" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_eden" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <!-- Icon: Eclipse -->
-        <activity-alias
-            android:name=".MainActivityEclipse"
-            android:enabled="false"
-            android:icon="@mipmap/ic_eclipse"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivityEclipse" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_eclipse" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <!-- Icon: Sapphire -->
-        <activity-alias
-            android:name=".MainActivitySapphire"
-            android:enabled="false"
-            android:icon="@mipmap/ic_sapphire"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivitySapphire" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_sapphire" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <!-- Icon: Midnight -->
-        <activity-alias
-            android:name=".MainActivityMidnight"
-            android:enabled="false"
-            android:icon="@mipmap/ic_midnight"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivityMidnight" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_midnight" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <!-- Icon: Amethyst -->
-        <activity-alias
-            android:name=".MainActivityAmethyst"
-            android:enabled="false"
-            android:icon="@mipmap/ic_amethyst"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivityAmethyst" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_amethyst" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <!-- Icon: Aurora -->
-        <activity-alias
-            android:name=".MainActivityAurora"
-            android:enabled="false"
-            android:icon="@mipmap/ic_aurora"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivityAurora" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_aurora" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <!-- Icon: Glory -->
-        <activity-alias
-            android:name=".MainActivityGlory"
-            android:enabled="false"
-            android:icon="@mipmap/ic_glory"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivityGlory" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_glory" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <!-- Icon: Judgement -->
-        <activity-alias
-            android:name=".MainActivityJudgement"
-            android:enabled="false"
-            android:icon="@mipmap/ic_judgement"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivityJudgement" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_judgement" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <!-- Icon: Moonlight -->
-        <activity-alias
-            android:name=".MainActivityMoonlight"
-            android:enabled="false"
-            android:icon="@mipmap/ic_moonlight"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivityMoonlight" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_moonlight" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <!-- Icon: Sunrise -->
-        <activity-alias
-            android:name=".MainActivitySunrise"
-            android:enabled="false"
-            android:icon="@mipmap/ic_sunrise"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity-alias android:name=".MainActivitySunrise" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_sunrise" android:label="@string/app_name" android:targetActivity=".MainActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity-alias>
 
         <provider
