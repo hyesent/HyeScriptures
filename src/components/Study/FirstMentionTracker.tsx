@@ -73,6 +73,24 @@ export const FirstMentionTracker: React.FC<FirstMentionTrackerProps> = ({ onSele
     setSelectedItem(selectedItem?.id === item.id ? null : item)
   }
 
+  function getCategoryEmoji(category: string): React.ReactNode {
+    const emojis: Record<string, string> = {
+      theology: '📖',
+      creation: '🌍',
+      covenant: '📜',
+      sin: '⚠️',
+      salvation: '✅',
+      worship: '🙏',
+      relationships: '❤️',
+      prophecy: '✨',
+      law: '⚖️',
+      promise: '💎',
+      judgment: '⚡',
+      grace: '🕊️'
+    }
+    return emojis[category] || '🏷️'
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
