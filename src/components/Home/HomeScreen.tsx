@@ -3,11 +3,12 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { useBible } from '../../hooks/useBible'
 import { supabase } from '../../lib/supabase'
 import { useStreak } from '../../hooks/useStreak'
+import { useChapterProgress } from '../../hooks/useChapterProgress'
 import { Search } from '../Search/Search'
 import { NoteEditor } from '../Notes/NoteEditor'
 import { PrayerEditor } from '../Prayer/PrayerEditor'
 import { 
-  Search as SearchIcon, Headphones, PenLine, Heart, ChevronRight, X, Sparkles
+  Search as SearchIcon, Headphones, PenLine, Heart, ChevronRight, X, Sparkles, CheckCircle
 } from 'lucide-react'
 import './HomeScreen.css'
 
@@ -34,6 +35,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 }) => {
   const { bible, currentBook, currentChapter } = useBible()
   const { getStreak } = useStreak()
+  const { getStats } = useChapterProgress()
   const [devotional, setDevotional] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [greeting, setGreeting] = useState('Good Morning')
@@ -44,6 +46,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [lastPosition, setLastPosition] = useState<{book: string, chapter: number} | null>(null)
   const [planProgress, setPlanProgress] = useState<{day: number, name: string, percent: number} | null>(null)
   const [streak, setStreak] = useState(0)
+  const [chapterStats, setChapterStats] = useState({ totalChaptersRead: 0, booksCompleted: 0 })
 
   const verseOfTheDay = useMemo(() => {
     if (!bible || bible.verses.length === 0) return null
@@ -82,6 +85,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       }
     } catch {}
     const streakData = getStreak(); setStreak(streakData.currentStreak)
+    setChapterStats(getStats())
   }, [])
 
   const getCurrentContent = () => {
@@ -127,6 +131,23 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <h2>{getGreetingEmoji()} {greeting}</h2>
         <p>{userName}{streak > 0 ? ` · 🔥 ${streak} day streak` : ''}</p>
       </div>
+
+      {/* Reading Progress Card */}
+      {chapterStats.totalChaptersRead > 0 && (
+        <div className="home-card" style={{ borderLeft: '3px solid #22c55e' }}>
+          <div className="card-label"><CheckCircle size={12} style={{ display: 'inline', marginRight: 4 }} />Your Progress</div>
+          <div style={{ display: 'flex', gap: 24, marginTop: 8 }}>
+            <div>
+              <span style={{ fontSize: 22, fontWeight: 700, color: '#22c55e' }}>{chapterStats.totalChaptersRead}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block' }}>Chapters Read</span>
+            </div>
+            <div>
+              <span style={{ fontSize: 22, fontWeight: 700, color: 'var(--primary)' }}>{chapterStats.booksCompleted}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block' }}>Books Started</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {verseOfTheDay && (
         <div className="home-card verse-of-day-card">
