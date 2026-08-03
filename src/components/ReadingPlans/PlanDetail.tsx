@@ -13,21 +13,15 @@ import {
 } from '../../lib/reading-plans'
 import { 
   ChevronLeft, 
-  Calendar, 
   CheckCircle, 
   Circle, 
   BookOpen,
-  TrendingUp,
   Flame,
   ArrowRight,
   Clock,
-  MapPin,
-  Route,
-  Compass,
   Crown,
   Sparkles,
-  Sun,
-  Moon
+  Target
 } from 'lucide-react'
 import { TIMING, EASING } from '../../lib/animations'
 import styles from './PlanDetail.module.css'
@@ -43,13 +37,6 @@ interface PlanDetailProps {
 // ============================================================
 
 const Icons = {
-  Journey: () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2L2 7l10 5 10-5-10-5z" />
-      <path d="M2 17l10 5 10-5" />
-      <path d="M2 12l10 5 10-5" />
-    </svg>
-  ),
   Destination: () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -73,11 +60,17 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
       const progress = getPlanProgress(planId)
       if (progress) {
         setCompletedDays(progress.completedDays)
+        // Find first incomplete day
+        let foundIncomplete = false
         for (let i = 1; i <= found.totalDays; i++) {
           if (!progress.completedDays.includes(i)) {
             setCurrentDay(i)
+            foundIncomplete = true
             break
           }
+        }
+        if (!foundIncomplete && progress.completedDays.length === found.totalDays) {
+          setCurrentDay(found.totalDays)
         }
         setStreak(getStreak(planId))
       } else {
@@ -96,19 +89,30 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
     setShowCelebration(true)
     setTimeout(() => setShowCelebration(false), 3000)
     
-    // Move to next day if complete
+    // Move to next incomplete day
     if (progress.completedDays.includes(day)) {
-      for (let i = day + 1; i <= (plan?.totalDays || 0); i++) {
-        if (!progress.completedDays.includes(i)) {
-          setTimeout(() => setCurrentDay(i), 500)
-          break
+      const planData = readingPlans.find(p => p.id === planId)
+      if (planData) {
+        for (let i = day + 1; i <= planData.totalDays; i++) {
+          if (!progress.completedDays.includes(i)) {
+            setTimeout(() => setCurrentDay(i), 500)
+            break
+          }
+        }
+        // If all days completed, stay on last day
+        if (progress.completedDays.length === planData.totalDays) {
+          setCurrentDay(planData.totalDays)
         }
       }
     }
   }
 
-  const handleSelectChapter = (book: string, chapter: string) => {
-    onSelectVerse(`${book} ${chapter}`)
+  const handleSelectChapter = (book: string) => {
+    // Extract book name and chapter from "Book Chapter" format
+    const parts = book.split(' ')
+    const bookName = parts.slice(0, -1).join(' ')
+    const chapter = parts[parts.length - 1]
+    onSelectVerse(`${bookName} ${chapter}:1`)
   }
 
   if (!plan) {
@@ -121,7 +125,7 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
   const totalDays = plan.totalDays
   const isComplete = percentage === 100
 
-  // Daily verse
+  // Daily verse (rotating)
   const dailyVerses = [
     { text: 'Your word is a lamp to my feet and a light to my path.', ref: 'Psalm 119:105' },
     { text: 'Blessed is the man who walks not in the counsel of the wicked...', ref: 'Psalm 1:1' },
@@ -131,12 +135,31 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
     { text: 'All Scripture is breathed out by God and profitable for teaching.', ref: '2 Timothy 3:16' },
     { text: 'Open my eyes, that I may behold wondrous things out of your law.', ref: 'Psalm 119:18' }
   ]
-  const dailyVerse = dailyVerses[currentDay % dailyVerses.length]
+  const dailyVerse = dailyVerses[(currentDay - 1) % dailyVerses.length]
+
+  // Get atmosphere class
+  const getAtmosphereClass = () => {
+    const atmosphereMap: Record<string, string> = {
+      'sunrise': styles.atmosphereSunrise,
+      'sapphire': styles.atmosphereSapphire,
+      'emerald': styles.atmosphereEmerald,
+      'royal': styles.atmosphereRoyal,
+      'amber': styles.atmosphereAmber,
+      'golden': styles.atmosphereGolden,
+      'crimson': styles.atmosphereCrimson,
+      'fiery': styles.atmosphereFiery,
+      'starry': styles.atmosphereStarry,
+      'desert': styles.atmosphereDesert,
+      'mountain': styles.atmosphereMountain,
+      'still': styles.atmosphereStill
+    }
+    return atmosphereMap[plan.atmosphere] || styles.atmosphereDefault
+  }
 
   return (
     <div className={styles.container}>
-      {/* Ambient Background */}
-      <div className={styles.ambientGlow} />
+      {/* Ambient Background with plan atmosphere */}
+      <div className={`${styles.ambientGlow} ${getAtmosphereClass()}`} />
       
       <div className={styles.content}>
         {/* Header */}
@@ -163,7 +186,7 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
             <div className={styles.pathNodes}>
               {Array.from({ length: Math.min(totalDays, 12) }, (_, i) => {
                 const day = Math.floor((i / 11) * (totalDays - 1)) + 1
-                const isCompleted = day <= completedDays.length
+                const isCompleted = completedDays.includes(day)
                 const isCurrent = day === currentDay
                 return (
                   <div
@@ -189,9 +212,13 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: TIMING.NORMAL / 1000 }}
+          style={{
+            borderColor: `${plan.color}20`,
+            background: `linear-gradient(135deg, ${plan.color}08, #15253A)`
+          }}
         >
           <div className={styles.destinationHeader}>
-            <div className={styles.destinationBadge}>
+            <div className={styles.destinationBadge} style={{ color: plan.color }}>
               <Icons.Destination />
               <span>Today's Destination</span>
             </div>
@@ -199,20 +226,32 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
           </div>
 
           <h3 className={styles.destinationTitle}>{plan.name}</h3>
+          <p className={styles.destinationFocus}>
+            <Target size={14} style={{ color: plan.color }} />
+            {plan.focus}
+          </p>
           
           <div className={styles.destinationReading}>
             <h4 className={styles.destinationReadingTitle}>Today's Reading</h4>
             <div className={styles.destinationChapterList}>
-              {dayChapters.map((book) => (
-                <button
-                  key={book}
-                  className={styles.destinationChapter}
-                  onClick={() => handleSelectChapter(book, '1')}
-                >
-                  <span>{book}</span>
-                  <BookOpen size={14} />
-                </button>
-              ))}
+              {dayChapters.length > 0 ? (
+                dayChapters.map((book) => (
+                  <button
+                    key={book}
+                    className={styles.destinationChapter}
+                    onClick={() => handleSelectChapter(book)}
+                    style={{
+                      borderColor: `${plan.color}20`,
+                      hover: { borderColor: plan.color }
+                    }}
+                  >
+                    <span>{book}</span>
+                    <BookOpen size={14} style={{ color: plan.color }} />
+                  </button>
+                ))
+              ) : (
+                <span className={styles.noChapters}>Complete!</span>
+              )}
             </div>
           </div>
 
@@ -221,10 +260,14 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
               <Clock size={14} />
               ~{plan.chaptersPerDay * 3} min
             </span>
+            <span className={styles.destinationChapters}>
+              <BookOpen size={14} />
+              {plan.chaptersPerDay} chapter{plan.chaptersPerDay > 1 ? 's' : ''}
+            </span>
           </div>
 
           {/* Daily Verse */}
-          <div className={styles.dailyVerse}>
+          <div className={styles.dailyVerse} style={{ borderColor: `${plan.color}15` }}>
             <p className={styles.dailyVerseText}>"{dailyVerse.text}"</p>
             <p className={styles.dailyVerseRef}>— {dailyVerse.ref}</p>
           </div>
@@ -232,6 +275,11 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
           <button 
             className={`${styles.completeBtn} ${isDayComplete ? styles.completed : ''}`}
             onClick={() => handleToggleDay(currentDay)}
+            style={{
+              background: isDayComplete ? 'rgba(255,255,255,0.02)' : plan.gradient,
+              color: isDayComplete ? '#5FAF75' : '#07111F',
+              borderColor: isDayComplete ? 'rgba(95,175,117,0.15)' : 'transparent'
+            }}
           >
             {isDayComplete ? (
               <>
@@ -254,8 +302,8 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
 
           {/* Streak */}
           {streak > 0 && (
-            <div className={styles.streakDisplay}>
-              <Flame size={16} />
+            <div className={styles.streakDisplay} style={{ borderColor: `${plan.color}20` }}>
+              <Flame size={16} style={{ color: plan.color }} />
               <span>{streak} day{streak > 1 ? 's' : ''} streak</span>
             </div>
           )}
