@@ -1,7 +1,9 @@
 // src/components/AI/SermonBuilder.tsx
 import React, { useState, useEffect } from 'react'
 import { useAILimits } from '../../hooks/useAILimits'
+import { useSubscription } from '../../hooks/useSubscription'
 import { AICounter } from '../AICounter'
+import { Crown } from 'lucide-react'
 import styles from './SermonBuilder.module.css'
 
 type Step = 'type' | 'form' | 'result' | 'saved'
@@ -73,6 +75,7 @@ const formatContent = (text: string): string => {
 }
 
 export const SermonBuilder: React.FC = () => {
+  const { tier } = useSubscription()
   const [step, setStep] = useState<Step>('type')
   const [sermonType, setSermonType] = useState<SermonType | null>(null)
   const [formData, setFormData] = useState<SermonFormData>({ title: '', theme: '', audience: '', duration: '', tone: 'Teaching', translation: 'KJV' })
@@ -157,21 +160,29 @@ export const SermonBuilder: React.FC = () => {
   }
 
   const toggleSection = (id: string) => setSections(prev => prev.map(s => s.id === id ? { ...s, expanded: !s.expanded } : s))
-
   const initNotes = (id: string, content: string) => {
     if (!sectionNotes[id]) setSectionNotes(prev => ({ ...prev, [id]: content }))
     setSectionModes(prev => ({ ...prev, [id]: 'notes' }))
   }
-
   const handleBack = () => {
     if (step === 'form') { setStep('type'); setError(null) }
     else if (step === 'result') { setStep('form'); setSections([]) }
     else if (step === 'saved') setStep('type')
   }
-
   const copySermon = () => {
     const text = sections.map(s => `${s.title}\n\n${sectionNotes[s.id] || s.content}`).join('\n\n---\n\n')
     navigator.clipboard.writeText(text)
+  }
+
+  if (tier !== 'elder') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', padding: 32, textAlign: 'center', gap: 16 }}>
+        <Crown size={48} style={{ color: '#c9a84c', opacity: 0.6 }} />
+        <h2 style={{ fontSize: 20, fontWeight: 700 }}>Sermon Builder is for Elders</h2>
+        <p style={{ color: '#888', maxWidth: 300 }}>Upgrade to Elder to create AI-powered sermon outlines with historical context, Greek/Hebrew insights, and more.</p>
+        <button onClick={() => window.location.href = '/upgrade'} style={{ padding: '12px 28px', background: '#c9a84c', color: 'white', border: 'none', borderRadius: 12, fontWeight: 600, cursor: 'pointer', fontSize: 14 }}>Upgrade to Elder — $4.99/yr</button>
+      </div>
+    )
   }
 
   if (loading) {
@@ -282,28 +293,23 @@ export const SermonBuilder: React.FC = () => {
               <button className={styles.actionBtn} onClick={handleBack}><Icons.Sermon /> New Sermon</button>
             </div>
           </div>
-
-          {/* Points to Ponder */}
           <div className={styles.expansionSection}>
             <h4 className={styles.expansionTitle}>Points to Ponder</h4>
             <p className={styles.expansionDesc}>Use these prompts to deepen your message in your own words</p>
             <div className={styles.expansionList}>
               {[
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>), label: 'Personal Connection', text: 'Where have you personally experienced this truth? Write a 2-minute personal story that makes this real for your congregation.' },
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>), label: 'Conversational Question', text: 'What question could you ask the congregation that would make them lean in? Create an open-ended question that has no easy answer.' },
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>), label: 'Cultural Bridge', text: 'How does this biblical truth speak to what\'s happening in your community right now? Name a local event, struggle, or celebration that connects.' },
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>), label: 'Object Lesson', text: 'What everyday object could you hold up that would make this point unforgettable? Think of something sitting in the room right now.' },
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>), label: 'Fresh Perspective', text: 'What if the opposite were true? Argue against your own point for a moment — then resolve it. This creates tension that keeps people listening.' },
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>), label: 'Emotional Anchor', text: 'What emotion do you want people to leave with? Hope? Conviction? Awe? Write one sentence that captures that feeling and place it in your conclusion.' },
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>), label: 'Memorable Phrase', text: 'If people forget everything else, what one line should they remember? Craft a short, rhythmic phrase they can repeat. Make it rhyme if possible.' },
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>), label: 'Specific Person', text: 'Think of one person in your congregation. Write this section as if you\'re speaking directly to them. What do they need to hear today?' },
+                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/></svg>), label: 'Personal Connection', text: 'Where have you personally experienced this truth?' },
+                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>), label: 'Conversational Question', text: 'What question would make them lean in?' },
+                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>), label: 'Cultural Bridge', text: 'How does this speak to your community right now?' },
+                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>), label: 'Object Lesson', text: 'What everyday object would make this unforgettable?' },
+                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>), label: 'Fresh Perspective', text: 'What if the opposite were true?' },
+                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>), label: 'Emotional Anchor', text: 'What emotion do you want people to leave with?' },
+                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>), label: 'Memorable Phrase', text: 'What one line should they remember?' },
+                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>), label: 'Specific Person', text: 'Who in your congregation needs to hear this today?' },
               ].map((item, i) => (
                 <div key={i} className={styles.ponderCard}>
                   <div className={styles.ponderIcon}>{item.icon}</div>
-                  <div className={styles.ponderContent}>
-                    <span className={styles.ponderLabel}>{item.label}</span>
-                    <p>{item.text}</p>
-                  </div>
+                  <div className={styles.ponderContent}><span className={styles.ponderLabel}>{item.label}</span><p>{item.text}</p></div>
                 </div>
               ))}
             </div>
