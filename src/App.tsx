@@ -12,7 +12,7 @@ import { CommunityTab } from './components/Community/CommunityTab'
 import { MeTab } from './components/Me/MeTab'
 import { AudioBible } from './components/AudioBible/AudioBible'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { Crown, Sparkles,BookOpen } from 'lucide-react'
+import { Crown, BookOpen } from 'lucide-react'
 import { Home, Users, User } from 'lucide-react'
 import './App.css'
 
@@ -28,20 +28,6 @@ const BibleSvg = () => (
     <path d="M170 150 Q256 120 342 150 L342 360 Q256 332 170 360 Z" fill="none" stroke="url(#bibleGrad)" strokeWidth="18" strokeLinejoin="round"/>
     <path d="M256 138 L256 372" stroke="url(#bibleGrad)" strokeWidth="10" strokeLinecap="round"/>
     <path d="M256 185 L256 305 M220 235 L292 235" stroke="currentColor" strokeWidth="14" strokeLinecap="round" opacity="0.6"/>
-  </svg>
-)
-
-const StudySvg = () => (
-  <svg width="22" height="22" viewBox="0 0 512 512" fill="none">
-    <defs>
-      <linearGradient id="studyGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stopColor="#FFF1B2"/><stop offset="50%" stopColor="#F6D067"/><stop offset="100%" stopColor="#BD8A12"/>
-      </linearGradient>
-    </defs>
-    <path d="M170 150 Q256 120 342 150 L342 360 Q256 332 170 360 Z" fill="none" stroke="url(#studyGrad)" strokeWidth="18" strokeLinejoin="round"/>
-    <path d="M256 138 L256 372" stroke="url(#studyGrad)" strokeWidth="10" strokeLinecap="round"/>
-    <circle cx="256" cy="250" r="40" fill="none" stroke="currentColor" strokeWidth="12" opacity="0.5"/>
-    <path d="M240 250 L252 262 L276 238" stroke="currentColor" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" opacity="0.5"/>
   </svg>
 )
 
@@ -105,9 +91,9 @@ function App() {
     }
   }
 
-  const tierBadge = tier !== 'free' ? (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginLeft: 8, padding: '2px 10px', borderRadius: 999, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, background: tier === 'elder' ? 'linear-gradient(135deg, #c9a84c, #e8c96a)' : '#c9a84c', color: tier === 'elder' ? '#1a1a2e' : 'white' }}>
-      {tier === 'elder' ? <Crown size={10} /> : <Sparkles size={10} />}{tier}
+  const tierBadge = tier === 'elder' ? (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginLeft: 8, padding: '2px 10px', borderRadius: 999, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, background: 'linear-gradient(135deg, #c9a84c, #e8c96a)', color: '#1a1a2e' }}>
+      <Crown size={10} />Elder
     </span>
   ) : null
 
@@ -124,10 +110,8 @@ function App() {
         <nav className="bottom-nav">
           <button className={`nav-item ${currentTab === 'home' ? 'active' : ''}`} onClick={() => setCurrentTab('home')}><Home size={22} /><span className="nav-label">Home</span></button>
           <button className={`nav-item ${currentTab === 'bible' ? 'active' : ''}`} onClick={() => setCurrentTab('bible')}><BibleSvg /><span className="nav-label">Bible</span></button>
-         <button className={`nav-item ${currentTab === 'study' ? 'active' : ''}`} onClick={() => setCurrentTab('study')}>
-  <BookOpen size={22} /><span className="nav-label">Study</span>
-</button>
-         <button className={`nav-item ${currentTab === 'community' ? 'active' : ''}`} onClick={() => setCurrentTab('community')}><Users size={22} /><span className="nav-label">Community</span></button>
+          <button className={`nav-item ${currentTab === 'study' ? 'active' : ''}`} onClick={() => setCurrentTab('study')}><BookOpen size={22} /><span className="nav-label">Study</span></button>
+          <button className={`nav-item ${currentTab === 'community' ? 'active' : ''}`} onClick={() => setCurrentTab('community')}><Users size={22} /><span className="nav-label">Community</span></button>
           <button className={`nav-item ${currentTab === 'me' ? 'active' : ''}`} onClick={() => setCurrentTab('me')}><User size={22} /><span className="nav-label">Me</span></button>
         </nav>
       </div>
