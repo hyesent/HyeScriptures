@@ -10,21 +10,11 @@ import { ShareButton } from '../Share/ShareButton'
 import { useVoiceAudio } from '../../hooks/useVoiceAudio'
 import { useAILimits } from '../../hooks/useAILimits'
 import { useSubscription } from '../../hooks/useSubscription'
+import { useChapterProgress } from '../../hooks/useChapterProgress'
 import { PREMIUM_VOICES, VOICE_LABELS, VOICE_TOASTS } from '../../lib/voice'
 import { 
-  MoreVertical, 
-  Volume2, 
-  X, 
-  Bookmark,
-  Highlighter,
-  PenLine,
-  Sparkles,
-  Link,
-  Copy,
-  ChevronLeft,
-  ChevronRight,
-  BookOpen,
-  Crown,
+  MoreVertical, Volume2, X, Bookmark, Highlighter, PenLine,
+  Sparkles, Link, Copy, ChevronLeft, ChevronRight, BookOpen, Crown, CheckCircle, Circle
 } from 'lucide-react'
 import styles from './VerseView.module.css'
 
@@ -62,6 +52,7 @@ export const VerseView: React.FC<VerseViewProps> = ({
 }) => {
   const { isBookmarked, toggle: toggleBookmark } = useBookmarks()
   const { getColor, toggle: toggleHighlight } = useHighlights()
+  const { isChapterComplete, markChapterComplete } = useChapterProgress()
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null)
   const [showNoteEditor, setShowNoteEditor] = useState(false)
   const [noteVerseRef, setNoteVerseRef] = useState<string | null>(null)
@@ -76,6 +67,8 @@ export const VerseView: React.FC<VerseViewProps> = ({
   const [fontSize, setFontSize] = useState(getFontSize())
   const [chapterSummary, setChapterSummary] = useState<string | null>(null)
   const [loadingSummary, setLoadingSummary] = useState(false)
+  const [completed, setCompleted] = useState(false)
+  const [showCompletedToast, setShowCompletedToast] = useState(false)
 
   const verseRefs = useRef<(HTMLDivElement | null)[]>([])
   const touchStartX = useRef(0)
@@ -89,6 +82,10 @@ export const VerseView: React.FC<VerseViewProps> = ({
     document.documentElement.style.setProperty('--verse-font-size', `${fontSize}px`)
     saveFontSize(fontSize)
   }, [fontSize])
+
+  useEffect(() => {
+    setCompleted(isChapterComplete(book, chapter))
+  }, [book, chapter, isChapterComplete])
 
   const showToast = (message: string) => { setToast(message); setTimeout(() => setToast(null), 3000) }
 
@@ -107,7 +104,6 @@ export const VerseView: React.FC<VerseViewProps> = ({
   const handleAIExplain = async (index: number) => {
     const { allowed, message } = checkAndIncrement()
     if (!allowed) { showToast(message || 'AI limit reached'); return }
-
     const reference = getVerseReference(index)
     const verseText = verses[index]
     setLoadingAI(prev => ({ ...prev, [reference]: true }))
@@ -128,11 +124,17 @@ export const VerseView: React.FC<VerseViewProps> = ({
     handleActionComplete()
   }
 
+  const handleMarkComplete = () => {
+    markChapterComplete(book, chapter)
+    setCompleted(true)
+    setShowCompletedToast(true)
+    setTimeout(() => setShowCompletedToast(false), 3000)
+  }
+
   const handleSummarizeChapter = async () => {
     if (tier !== 'elder') { showToast('Chapter summary is an Elder exclusive feature. Upgrade to unlock.'); return }
     const { allowed, message } = checkAndIncrement()
     if (!allowed) { showToast(message || 'AI limit reached'); return }
-
     setLoadingSummary(true)
     try { const result = await summarizeChapter(book, chapter); setChapterSummary(result) }
     catch { showToast('Failed to generate summary') }
@@ -265,6 +267,32 @@ export const VerseView: React.FC<VerseViewProps> = ({
       <div className={styles.verses} onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX }} onTouchEnd={(e) => { const diff = touchStartX.current - e.changedTouches[0].clientX; if (Math.abs(diff) > 80) { if (diff > 0) onNext(); else onPrev() }}}>
         {verses.map((verse, index) => renderVerse(verse, index))}
       </div>
+
+      {/* Chapter Complete Button - At Bottom */}
+      <div style={{ padding: '20px 0 8px 0' }}>
+        <button
+          onClick={handleMarkComplete}
+          disabled={completed}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            width: '100%', padding: '14px 20px',
+            background: completed ? '#f0fdf4' : 'var(--bg-card)',
+            border: completed ? '1px solid #22c55e' : '1px solid var(--border-light)',
+            borderRadius: 16,
+            color: completed ? '#16a34a' : 'var(--text-secondary)',
+            fontSize: 14, fontWeight: 600,
+            cursor: completed ? 'default' : 'pointer',
+            transition: 'all 0.2s',
+          }}
+        >
+          {completed ? <CheckCircle size={18} /> : <Circle size={18} />}
+          {completed ? 'Chapter Completed' : 'Mark Chapter as Read'}
+        </button>
+      </div>
+
+      {showCompletedToast && (
+        <div className={styles.toast}>✅ Chapter marked as complete!</div>
+      )}
 
       {showNoteEditor && noteVerseRef && <NoteEditor onClose={() => { setShowNoteEditor(false); setNoteVerseRef(null) }} verseReference={noteVerseRef} />}
       {toast && <div className={styles.toast}>{toast}</div>}
