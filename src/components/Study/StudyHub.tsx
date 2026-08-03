@@ -2,25 +2,10 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { 
-  Sparkles, 
-  BookOpen, 
-  BookMarked, 
-  Map, 
-  Calendar, 
-  Link, 
-  ScrollText, 
-  Tag, 
-  Heart, 
-  Gamepad2, 
-  PenTool, 
-  Brain,
-  Award,
-  MessageSquare,
-  ChevronLeft,
-  Sun,
-  Crown,
+  Sparkles, BookOpen, BookMarked, Map, Calendar, Link, 
+  ScrollText, Tag, Heart, Gamepad2, PenTool, Brain,
+  Award, MessageSquare, ChevronLeft, Sun, Crown,
 } from 'lucide-react'
-import { TierGate } from '../TierGate'
 import { useSubscription } from '../../hooks/useSubscription'
 import { AIChat } from '../AI/AIChat'
 import { TopicsList } from './TopicsList'
@@ -40,7 +25,7 @@ import { MemoryVerseList } from '../Memory/MemoryVerseList'
 import { BadgeList } from '../Badges/BadgeList'
 import { JournalList } from '../Journal/JournalList'
 import { GameHub } from '../Games/GameHub'
-import type { Feature } from '../../types/subscription'
+import { UpgradePage } from '../UpgradePage'
 import styles from './StudyHub.module.css'
 
 type StudyView = 'hub' | 'ai' | 'topics' | 'topicDetail' | 'strongs' | 'maps' | 'timeline' | 'crossReferences' | 'prophecies' | 'prophecyDetail' | 'firstMentions' | 'emotions' | 'devotional' | 'games' | 'sermon' | 'memory' | 'badges' | 'journal' | 'upgrade'
@@ -51,7 +36,6 @@ interface StudyItem {
   label: string
   description: string
   view: StudyView
-  feature?: Feature
   isArena?: boolean
   isElder?: boolean
 }
@@ -63,21 +47,23 @@ export const StudyHub: React.FC = () => {
   const { tier } = useSubscription()
 
   const studyItems: StudyItem[] = [
-    { id: 'devotional', icon: Sun, label: 'Daily Devotional', description: 'Morning & Night prayers', view: 'devotional', feature: 'devotional' },
-    { id: 'ai', icon: Sparkles, label: 'Shepherd', description: 'Ask questions about Scripture', view: 'ai', feature: 'ai_chat' },
-    { id: 'topics', icon: BookOpen, label: 'Bible Topics', description: '500+ verses by topic', view: 'topics', feature: 'topics' },
-    { id: 'maps', icon: Map, label: 'Bible Maps', description: 'Interactive biblical locations', view: 'maps', feature: 'bible_maps' },
-    { id: 'timeline', icon: Calendar, label: 'Timeline', description: '4004 BC → 100 AD', view: 'timeline', feature: 'timeline' },
-    { id: 'crossReferences', icon: Link, label: 'Cross References', description: 'Related verses', view: 'crossReferences', feature: 'cross_references' },
-    { id: 'prophecies', icon: ScrollText, label: 'Prophecy Tracker', description: 'OT → NT fulfillment', view: 'prophecies', feature: 'prophecy_tracker' },
-    { id: 'firstMentions', icon: Tag, label: 'First Mentions', description: 'First appearance of words', view: 'firstMentions', feature: 'first_mentions' },
-    { id: 'emotions', icon: Heart, label: 'Emotion Heat Map', description: 'Peace, Anger, Joy', view: 'emotions', feature: 'emotion_heatmap' },
-    { id: 'games', icon: Gamepad2, label: 'Arena', description: 'Train. Remember. Grow.', view: 'games', feature: 'bible_games', isArena: true },
-    { id: 'memory', icon: Brain, label: 'Memory Verses', description: 'Spaced repetition', view: 'memory', feature: 'memory_verses' },
-    { id: 'journal', icon: MessageSquare, label: 'Journal', description: 'Personal reflections', view: 'journal', feature: 'journal' },
-    { id: 'badges', icon: Award, label: 'Achievements', description: 'Your progress', view: 'badges', feature: 'badges' },
-    { id: 'sermon', icon: PenTool, label: 'Sermon Builder', description: 'AI sermon outlines', view: 'sermon', feature: 'sermon_builder', isElder: true },
-    { id: 'strongs', icon: BookMarked, label: "Strong's Concordance", description: 'Greek & Hebrew word studies', view: 'strongs', feature: 'strongs', isElder: true },
+    // Free — everyone
+    { id: 'devotional', icon: Sun, label: 'Daily Devotional', description: 'Morning & Night prayers', view: 'devotional' },
+    { id: 'topics', icon: BookOpen, label: 'Bible Topics', description: '500+ verses by topic', view: 'topics' },
+    { id: 'maps', icon: Map, label: 'Bible Maps', description: 'Interactive biblical locations', view: 'maps' },
+    { id: 'timeline', icon: Calendar, label: 'Timeline', description: '4004 BC → 100 AD', view: 'timeline' },
+    { id: 'crossReferences', icon: Link, label: 'Cross References', description: 'Related verses', view: 'crossReferences' },
+    { id: 'prophecies', icon: ScrollText, label: 'Prophecy Tracker', description: 'OT → NT fulfillment', view: 'prophecies' },
+    { id: 'firstMentions', icon: Tag, label: 'First Mentions', description: 'First appearance of words', view: 'firstMentions' },
+    { id: 'emotions', icon: Heart, label: 'Emotion Heat Map', description: 'Peace, Anger, Joy', view: 'emotions' },
+    { id: 'games', icon: Gamepad2, label: 'Arena', description: 'Train. Remember. Grow.', view: 'games', isArena: true },
+    { id: 'memory', icon: Brain, label: 'Memory Verses', description: 'Spaced repetition', view: 'memory' },
+    { id: 'journal', icon: MessageSquare, label: 'Journal', description: 'Personal reflections', view: 'journal' },
+    { id: 'badges', icon: Award, label: 'Achievements', description: 'Your progress', view: 'badges' },
+    // Elder — AI + premium
+    { id: 'ai', icon: Sparkles, label: 'Shepherd', description: 'Ask questions about Scripture', view: 'ai', isElder: true },
+    { id: 'sermon', icon: PenTool, label: 'Sermon Builder', description: 'AI sermon outlines', view: 'sermon', isElder: true },
+    { id: 'strongs', icon: BookMarked, label: "Strong's Concordance", description: 'Greek & Hebrew word studies', view: 'strongs', isElder: true },
   ]
 
   const handleSelect = (view: StudyView) => setCurrentView(view)
@@ -108,14 +94,16 @@ export const StudyHub: React.FC = () => {
                 const Icon = item.icon
                 const isArena = item.isArena || false
                 const isElder = item.isElder || false
+
+                const isLocked = isElder && tier !== 'elder'
                 
                 const card = (
                   <motion.button
                     key={item.id}
-                    className={`${styles.studyItem} ${isArena ? styles.arenaEntry : ''}`}
-                    onClick={() => handleSelect(item.view)}
-                    whileHover={{ y: -4, scale: 1.02 }}
-                    whileTap={{ scale: 0.96 }}
+                    className={`${styles.studyItem} ${isArena ? styles.arenaEntry : ''} ${isLocked ? styles.locked : ''}`}
+                    onClick={() => isLocked ? handleUpgrade() : handleSelect(item.view)}
+                    whileHover={isLocked ? {} : { y: -4, scale: 1.02 }}
+                    whileTap={isLocked ? {} : { scale: 0.96 }}
                     transition={{ duration: 0.18 }}
                   >
                     <div className={`${styles.iconWrapper} ${isArena ? styles.arenaIconWrapper : ''}`}>
@@ -125,16 +113,21 @@ export const StudyHub: React.FC = () => {
                     <span className={styles.description}>{item.description}</span>
                     {isElder && <span className={styles.elderBadge}><Crown size={10} />Elder</span>}
                     {isArena && <span className={styles.arenaIndicator}><Crown size={12} />Enter</span>}
+                    {isLocked && (
+                      <span className={styles.lockedOverlay}>
+                        <Crown size={16} style={{ color: '#c9a84c' }} />
+                        <span style={{ fontSize: 10, color: '#c9a84c', fontWeight: 600 }}>Elder</span>
+                      </span>
+                    )}
                   </motion.button>
                 )
 
-                if (item.feature) return <TierGate key={item.id} feature={item.feature} onUpgrade={handleUpgrade}>{card}</TierGate>
                 return card
               })}
             </div>
 
-            {/* Pro → Elder Upsell */}
-            {tier === 'pro' && (
+            {/* Free → Elder Upsell */}
+            {tier === 'free' && (
               <motion.div
                 className={styles.upsellBanner}
                 initial={{ opacity: 0, y: 10 }}
@@ -146,11 +139,11 @@ export const StudyHub: React.FC = () => {
                   <Crown size={24} style={{ color: '#c9a84c' }} />
                   <div>
                     <span className={styles.upsellTitle}>Unlock Elder</span>
-                    <span className={styles.upsellDesc}>Sermon Builder, Strong's Greek/Hebrew, full audio Bible + exclusive perks</span>
+                    <span className={styles.upsellDesc}>AI Chat, Sermon Builder, Strong's Greek/Hebrew, full audio Bible + exclusive perks</span>
                   </div>
                 </div>
                 <div className={styles.upsellRight}>
-                  <span className={styles.upsellPrice}>$19.99/yr</span>
+                  <span className={styles.upsellPrice}>$4.99/yr</span>
                   <ChevronLeft size={16} style={{ transform: 'rotate(180deg)' }} />
                 </div>
               </motion.div>
@@ -190,8 +183,6 @@ export const StudyHub: React.FC = () => {
             <ChevronLeft size={20} />
           </button>
           <span className={styles.backTitle}>
-            {currentView === 'topicDetail' && 'Topic Detail'}
-            {currentView === 'prophecyDetail' && 'Prophecy Detail'}
             {currentView === 'ai' && 'Shepherd'}
             {currentView === 'devotional' && 'Daily Devotional'}
             {currentView === 'topics' && 'Bible Topics'}
@@ -206,7 +197,9 @@ export const StudyHub: React.FC = () => {
             {currentView === 'memory' && 'Memory Verses'}
             {currentView === 'badges' && 'Badges'}
             {currentView === 'journal' && 'Journal'}
-            {currentView === 'upgrade' && 'Upgrade Plan'}
+            {currentView === 'upgrade' && 'Upgrade to Elder'}
+            {currentView === 'topicDetail' && 'Topic Detail'}
+            {currentView === 'prophecyDetail' && 'Prophecy Detail'}
           </span>
         </div>
       )}
