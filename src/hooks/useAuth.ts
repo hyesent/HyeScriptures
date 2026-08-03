@@ -32,18 +32,13 @@ export const useAuth = () => {
   })
 
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: 'com.hyescriptures.app://login-callback'
-      }
     })
-    if (error) throw error
   }
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) throw error
+    await supabase.auth.signOut()
     setUser(null)
   }
 
@@ -55,4 +50,4 @@ export const useAuth = () => {
   }
 
   return { user, loading, signInWithGoogle, signOut, updateProfile, isAuthenticated: !!user }
-    }
+}
