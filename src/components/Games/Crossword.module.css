@@ -194,8 +194,8 @@
   gap: 6px;
 }
 
-.gameProgress {
-  font-size: 12px;
+.gameTitle {
+  font-size: 13px;
   color: #94A3B8;
   display: block;
   margin-top: 2px;
@@ -204,7 +204,7 @@
 .gameStats {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .gameTime {
@@ -215,12 +215,29 @@
   gap: 4px;
 }
 
+.gameProgress {
+  font-size: 13px;
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gameScore {
+  font-size: 13px;
+  color: #D4AF37;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
 .progressTrack {
   width: 100%;
   height: 4px;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 4px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   overflow: hidden;
 }
 
@@ -245,6 +262,7 @@
   overflow-x: auto;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
 }
 
 .grid {
@@ -270,10 +288,11 @@
   border: 1px solid rgba(255, 255, 255, 0.06);
   color: #F8F6F2;
   text-transform: uppercase;
+  user-select: none;
 }
 
-.cellEmpty {
-  background: transparent;
+.cellBlack {
+  background: #0a1628;
   border: none;
   cursor: default;
 }
@@ -286,15 +305,24 @@
 }
 
 .cellHighlighted {
-  background: rgba(212, 175, 55, 0.06);
+  background: rgba(212, 175, 55, 0.08);
 }
 
-.cellCorrect {
+.cellCompleted {
   color: #5FAF75;
+  background: rgba(95, 175, 117, 0.08);
 }
 
 .cellWrong {
   color: #B86161;
+  background: rgba(184, 97, 97, 0.15);
+  animation: shake 0.5s ease;
+  border-color: #B86161;
+}
+
+.selected {
+  transform: scale(1.04);
+  box-shadow: 0 0 24px rgba(212, 175, 55, 0.2);
 }
 
 .clueNumber {
@@ -304,19 +332,18 @@
   font-size: 8px;
   font-weight: 600;
   color: #4a5568;
+  pointer-events: none;
 }
 
-.selected {
-  transform: scale(1.04);
-  box-shadow: 0 0 24px rgba(212, 175, 55, 0.2);
-}
+/* ============================================
+   CLUES PANEL
+   ============================================ */
 
-/* Clues Panel */
 .cluesPanel {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-height: 500px;
+  max-height: 520px;
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -335,48 +362,148 @@
   border-radius: 4px;
 }
 
-.selectedClue {
-  padding: 12px 16px;
-  background: rgba(212, 175, 55, 0.06);
+/* Input Section */
+.inputSection {
+  padding: 14px 16px;
+  background: rgba(212, 175, 55, 0.04);
   border: 1px solid rgba(212, 175, 55, 0.12);
   border-radius: 12px;
   flex-shrink: 0;
 }
 
-.selectedClueLabel {
-  font-size: 11px;
-  font-weight: 600;
-  color: #D4AF37;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin: 0 0 4px 0;
+.inputLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
-.selectedClueText {
+.inputDirection {
   font-size: 14px;
-  color: #F8F6F2;
-  margin: 0;
-}
-
-.selectedClueNumber {
   font-weight: 700;
   color: #D4AF37;
-  margin-right: 4px;
 }
 
-.selectedClueContent {
+.inputClue {
+  font-size: 13px;
   color: #DDE7F2;
 }
 
-.selectedClueReference {
-  font-size: 12px;
-  color: #94A3B8;
+.inputWrapper {
   display: flex;
+  gap: 8px;
   align-items: center;
-  gap: 4px;
-  margin: 4px 0 0 0;
 }
 
+.wordInput {
+  flex: 1;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: #F8F6F2;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: all 280ms ease;
+}
+
+.wordInput:focus {
+  outline: none;
+  border-color: rgba(212, 175, 55, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.wordInput.wrong {
+  border-color: #B86161;
+  background: rgba(184, 97, 97, 0.1);
+  animation: shake 0.5s ease;
+}
+
+.wordInput.correct {
+  border-color: #5FAF75;
+  background: rgba(95, 175, 117, 0.1);
+}
+
+.wordInput::placeholder {
+  color: #4a5568;
+  letter-spacing: 0.5px;
+  font-weight: 400;
+}
+
+.submitBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 10px;
+  color: #D4AF37;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+}
+
+.submitBtn:hover {
+  background: rgba(212, 175, 55, 0.2);
+}
+
+.submitBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.wrongFeedback {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #B86161;
+  animation: fadeIn 0.3s ease;
+}
+
+.correctFeedback {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #5FAF75;
+  animation: fadeIn 0.3s ease;
+}
+
+.inputHint {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 11px;
+  color: #4a5568;
+}
+
+/* Clue Stats */
+.clueStats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 4px 0 4px;
+}
+
+.clueStatsText {
+  font-size: 12px;
+  color: #94A3B8;
+}
+
+.clueStatsComplete {
+  font-size: 12px;
+  color: #5FAF75;
+  font-weight: 600;
+}
+
+/* Clue Items */
 .clueGroup {
   flex-shrink: 0;
 }
@@ -398,6 +525,7 @@
   cursor: pointer;
   transition: all 180ms ease;
   display: flex;
+  align-items: center;
   gap: 4px;
 }
 
@@ -409,6 +537,17 @@
 .clueItem.active {
   background: rgba(212, 175, 55, 0.06);
   color: #D4AF37;
+}
+
+.clueItem.completed {
+  color: #4a5568;
+  text-decoration: line-through;
+  cursor: default;
+}
+
+.clueItem.completed:hover {
+  background: transparent;
+  color: #4a5568;
 }
 
 .clueNumber {
@@ -424,6 +563,13 @@
   flex: 1;
 }
 
+.clueCheck {
+  color: #5FAF75;
+  font-weight: 700;
+  margin-left: auto;
+}
+
+/* Instructions */
 .instructions {
   padding: 12px 16px;
   background: rgba(255, 255, 255, 0.02);
@@ -440,6 +586,9 @@
   font-size: 11px;
   color: #4a5568;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* ============================================
@@ -551,6 +700,10 @@
   cursor: pointer;
   transition: all 280ms ease;
   font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .resultsButtons .primary:hover {
@@ -578,6 +731,23 @@
 }
 
 /* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(-4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
    RESPONSIVE
    ============================================ */
 
@@ -590,8 +760,10 @@
   .resultsStats { grid-template-columns: repeat(3, 1fr); }
   .resultsButtons { flex-direction: column; }
   .gameHeader { flex-direction: column; align-items: flex-start; }
-  .gameStats { width: 100%; justify-content: flex-start; }
+  .gameStats { width: 100%; justify-content: flex-start; flex-wrap: wrap; gap: 8px; }
   .instructions { grid-template-columns: 1fr 1fr; }
+  .inputSection { padding: 12px; }
+  .wordInput { font-size: 14px; padding: 8px 12px; }
 }
 
 @media (max-width: 480px) {
@@ -603,4 +775,8 @@
   .chipGroup { flex-wrap: wrap; }
   .selectedClueText { font-size: 13px; }
   .instructions { grid-template-columns: 1fr; }
+  .gameStats { gap: 6px; }
+  .gameTime { font-size: 11px; }
+  .gameProgress { font-size: 11px; }
+  .gameScore { font-size: 11px; }
 }
