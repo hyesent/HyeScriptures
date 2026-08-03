@@ -11,7 +11,6 @@ export const UpgradeSuccess: React.FC = () => {
   const navigate = useNavigate()
   
   const reference = searchParams.get('reference')
-  const plan = searchParams.get('plan')
 
   useEffect(() => {
     if (!reference) {
@@ -25,7 +24,7 @@ export const UpgradeSuccess: React.FC = () => {
       .then(data => {
         if (data.success || data.data?.status === 'success') {
           setStatus('success')
-          setMessage(`Welcome to ${plan === 'elder' ? 'Elder' : 'Pro'}! Your subscription is now active.`)
+          setMessage('Welcome to Elder! Your subscription is now active.')
           setTimeout(() => navigate('/'), 3000)
         } else {
           setStatus('error')
@@ -36,7 +35,7 @@ export const UpgradeSuccess: React.FC = () => {
         setStatus('error')
         setMessage('Could not verify payment. Please check your connection.')
       })
-  }, [reference, plan])
+  }, [reference])
 
   return (
     <div style={{
