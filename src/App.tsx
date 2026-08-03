@@ -1,5 +1,5 @@
 // src/App.tsx
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAuth } from './hooks/useAuth'
 import { useStreak } from './hooks/useStreak'
 import { useSubscription } from './hooks/useSubscription'
@@ -17,6 +17,8 @@ import { Home, Users, User } from 'lucide-react'
 import './App.css'
 
 type Tab = 'home' | 'bible' | 'study' | 'community' | 'me' | 'audio'
+
+const AUTH_CACHE_KEY = 'hyescriptures_auth_cache'
 
 const BibleSvg = () => (
   <svg width="28" height="28" viewBox="0 0 512 512" fill="none">
@@ -68,17 +70,68 @@ const LoadingScreen = () => (
   </div>
 )
 
+// Check cache BEFORE anything else
+const hasCachedAuth = (): boolean => {
+  try {
+    const data = localStorage.getItem(AUTH_CACHE_KEY)
+    if (!data) return false
+    const cache = JSON.parse(data)
+    return Date.now() - cache.cachedAt < 7 * 24 * 60 * 60 * 1000
+  } catch { return false }
+}
+
 function App() {
+  const [showLoading, setShowLoading] = useState(true)
+  const [bypassAuth, setBypassAuth] = useState(false)
+
+  // Check cache BEFORE useAuth even initializes
+  useEffect(() => {
+    const cached = hasCachedAuth()
+    if (cached) {
+      // Has cache — skip auth, go straight to app
+      setBypassAuth(true)
+    }
+    // Always show loading for at least 1.5s for smooth transition
+    const timer = setTimeout(() => setShowLoading(false), cached ? 800 : 1500)
+    return () => clearTimeout(timer)
+  }, [])
+
   const { user, loading: authLoading } = useAuth()
   const { updateStreak } = useStreak()
   const { tier } = useSubscription()
   const [currentTab, setCurrentTab] = React.useState<Tab>('home')
 
-  useEffect(() => { updateStreak() }, [])
+  useEffect(() => { if (user) updateStreak() }, [user])
 
-  if (!authLoading && !user) return <ThemeProvider><Login /></ThemeProvider>
+  // Show loading screen while timer is running
+  if (showLoading) return <LoadingScreen />
+
+  // If cache existed, go straight to app (auth will resolve in background)
+  if (bypassAuth) {
+    return (
+      <ThemeProvider>
+        <AppContent tier={tier} currentTab={currentTab} setCurrentTab={setCurrentTab} />
+      </ThemeProvider>
+    )
+  }
+
+  // No cache — normal flow
   if (authLoading) return <LoadingScreen />
+  if (!user) return <ThemeProvider><Login /></ThemeProvider>
 
+  return (
+    <ThemeProvider>
+      <AppContent tier={tier} currentTab={currentTab} setCurrentTab={setCurrentTab} />
+    </ThemeProvider>
+  )
+}
+
+// Extracted to avoid duplication
+const AppContent: React.FC<{
+  tier: string
+  currentTab: Tab
+  setCurrentTab: (tab: Tab) => void
+}> = ({ tier, currentTab, setCurrentTab }) => {
   const renderContent = () => {
     switch (currentTab) {
       case 'home': return <HomeScreen onNavigateToDevotional={() => setCurrentTab('study')} onNavigateToAudio={() => setCurrentTab('audio')} />
@@ -98,24 +151,22 @@ function App() {
   ) : null
 
   return (
-    <ThemeProvider>
-      <div className="app">
-        <header className="app-header">
-          <div className="header-content">
-            <h1 style={{ display: 'flex', alignItems: 'center' }}><AppLogo />Hyescriptures{tierBadge}</h1>
-            <span className="subtitle">{currentTab === 'home' && 'Home'}{currentTab === 'bible' && 'Bible'}{currentTab === 'study' && 'Study'}{currentTab === 'community' && 'Community'}{currentTab === 'me' && 'Me'}{currentTab === 'audio' && 'Audio Bible'}</span>
-          </div>
-        </header>
-        <main className="app-main"><ErrorBoundary>{renderContent()}</ErrorBoundary></main>
-        <nav className="bottom-nav">
-          <button className={`nav-item ${currentTab === 'home' ? 'active' : ''}`} onClick={() => setCurrentTab('home')}><Home size={22} /><span className="nav-label">Home</span></button>
-          <button className={`nav-item ${currentTab === 'bible' ? 'active' : ''}`} onClick={() => setCurrentTab('bible')}><BibleSvg /><span className="nav-label">Bible</span></button>
-          <button className={`nav-item ${currentTab === 'study' ? 'active' : ''}`} onClick={() => setCurrentTab('study')}><BookOpen size={22} /><span className="nav-label">Study</span></button>
-          <button className={`nav-item ${currentTab === 'community' ? 'active' : ''}`} onClick={() => setCurrentTab('community')}><Users size={22} /><span className="nav-label">Community</span></button>
-          <button className={`nav-item ${currentTab === 'me' ? 'active' : ''}`} onClick={() => setCurrentTab('me')}><User size={22} /><span className="nav-label">Me</span></button>
-        </nav>
-      </div>
-    </ThemeProvider>
+    <div className="app">
+      <header className="app-header">
+        <div className="header-content">
+          <h1 style={{ display: 'flex', alignItems: 'center' }}><AppLogo />Hyescriptures{tierBadge}</h1>
+          <span className="subtitle">{currentTab === 'home' && 'Home'}{currentTab === 'bible' && 'Bible'}{currentTab === 'study' && 'Study'}{currentTab === 'community' && 'Community'}{currentTab === 'me' && 'Me'}{currentTab === 'audio' && 'Audio Bible'}</span>
+        </div>
+      </header>
+      <main className="app-main"><ErrorBoundary>{renderContent()}</ErrorBoundary></main>
+      <nav className="bottom-nav">
+        <button className={`nav-item ${currentTab === 'home' ? 'active' : ''}`} onClick={() => setCurrentTab('home')}><Home size={22} /><span className="nav-label">Home</span></button>
+        <button className={`nav-item ${currentTab === 'bible' ? 'active' : ''}`} onClick={() => setCurrentTab('bible')}><BibleSvg /><span className="nav-label">Bible</span></button>
+        <button className={`nav-item ${currentTab === 'study' ? 'active' : ''}`} onClick={() => setCurrentTab('study')}><BookOpen size={22} /><span className="nav-label">Study</span></button>
+        <button className={`nav-item ${currentTab === 'community' ? 'active' : ''}`} onClick={() => setCurrentTab('community')}><Users size={22} /><span className="nav-label">Community</span></button>
+        <button className={`nav-item ${currentTab === 'me' ? 'active' : ''}`} onClick={() => setCurrentTab('me')}><User size={22} /><span className="nav-label">Me</span></button>
+      </nav>
+    </div>
   )
 }
 
