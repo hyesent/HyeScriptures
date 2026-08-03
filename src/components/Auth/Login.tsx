@@ -1,7 +1,7 @@
 // src/components/Auth/Login.tsx
 import React, { useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, ArrowRight, AlertCircle, Smartphone } from 'lucide-react'
 import styles from './Login.module.css'
 
 const AppLogo = () => (
@@ -34,16 +34,20 @@ const GoogleIcon = () => (
 
 type AuthMode = 'login' | 'register' | 'forgot'
 
+const REMEMBER_KEY = 'hyescriptures_remember_me'
+
 export const Login: React.FC = () => {
   const { signInWithEmail, signUp, resetPassword, signInWithGoogle } = useAuth()
   const [mode, setMode] = useState<AuthMode>('login')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(() => localStorage.getItem(REMEMBER_KEY) || '')
   const [password, setPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem(REMEMBER_KEY))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
+  const [showGoogleInfo, setShowGoogleInfo] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,10 +57,16 @@ export const Login: React.FC = () => {
 
     try {
       if (mode === 'login') {
+        // Save or clear remember me
+        if (rememberMe) {
+          localStorage.setItem(REMEMBER_KEY, email)
+        } else {
+          localStorage.removeItem(REMEMBER_KEY)
+        }
         await signInWithEmail(email, password)
       } else if (mode === 'register') {
         await signUp(email, password, displayName)
-        setMessage('Account created! Check your email to confirm.')
+        setMessage('Account created! You can now sign in.')
         setMode('login')
       } else if (mode === 'forgot') {
         await resetPassword(email)
@@ -67,6 +77,18 @@ export const Login: React.FC = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithGoogle()
+    } catch (err: any) {
+      setError(err.message || 'Google sign in failed')
+    }
+  }
+
+  const isCapacitor = (): boolean => {
+    return !!(window as any).Capacitor?.isNativePlatform?.()
   }
 
   return (
@@ -140,6 +162,28 @@ export const Login: React.FC = () => {
             </div>
           )}
 
+          {/* Remember Me + Forgot Password (login only) */}
+          {mode === 'login' && (
+            <div className={styles.rememberRow}>
+              <label className={styles.rememberLabel}>
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={e => setRememberMe(e.target.checked)}
+                  className={styles.checkbox}
+                />
+                <span>Remember me</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => setMode('forgot')}
+                className={styles.forgotLink}
+              >
+                Forgot password?
+              </button>
+            </div>
+          )}
+
           {/* Submit */}
           <button type="submit" className={styles.submitBtn} disabled={loading}>
             {loading ? 'Please wait...' : (
@@ -158,18 +202,32 @@ export const Login: React.FC = () => {
         </div>
 
         {/* Google Button */}
-        <button className={styles.googleBtn} onClick={signInWithGoogle} disabled={loading}>
+        <button className={styles.googleBtn} onClick={handleGoogleSignIn} disabled={loading}>
           <GoogleIcon />
           <span>Continue with Google</span>
         </button>
+
+        {/* Google info toggle */}
+        <button className={styles.infoToggle} onClick={() => setShowGoogleInfo(!showGoogleInfo)}>
+          <AlertCircle size={12} />
+          <span>Important note about Google sign in</span>
+        </button>
+
+        {showGoogleInfo && (
+          <div className={styles.infoBox}>
+            <Smartphone size={16} />
+            <div>
+              <p><strong>Web only:</strong> Google sign in works on the web version. Not available in the Android app yet.</p>
+              <p><strong>⚠️ One account per method:</strong> Signing in with Google and signing up with the same Gmail creates <em>two separate accounts</em>. They are not linked. Pick one method and stick with it.</p>
+            </div>
+          </div>
+        )}
 
         {/* Mode switchers */}
         <div className={styles.switcher}>
           {mode === 'login' && (
             <>
               <button onClick={() => setMode('register')} className={styles.switchBtn}>Create account</button>
-              <span className={styles.switchDot}>·</span>
-              <button onClick={() => setMode('forgot')} className={styles.switchBtn}>Forgot password?</button>
             </>
           )}
           {mode === 'register' && (
@@ -182,4 +240,4 @@ export const Login: React.FC = () => {
       </div>
     </div>
   )
-    }
+  }
