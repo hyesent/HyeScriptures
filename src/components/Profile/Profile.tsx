@@ -6,7 +6,7 @@ import { useSubscription } from '../../hooks/useSubscription'
 import { 
   User, Mail, Bookmark, PenLine, BookOpen, Calendar, Brain,
   Award, Heart, LogOut, ChevronRight, Edit2, X, Check,
-  Palette, CreditCard, Crown, Sparkles, Smartphone
+  Palette, Crown, Smartphone
 } from 'lucide-react'
 import styles from './Profile.module.css'
 
@@ -64,9 +64,7 @@ export const Profile: React.FC<ProfileProps> = ({
     setEditing(false)
   }
 
-  const tierIcon = tier === 'elder' ? Crown : tier === 'pro' ? Sparkles : CreditCard
-  const tierLabel = tier === 'elder' ? 'Elder' : tier === 'pro' ? 'Pro' : 'Free'
-  const TierIconComponent = tierIcon
+  const tierLabel = tier === 'elder' ? 'Elder' : 'Free'
 
   const menuItems = [
     { icon: Bookmark, label: 'Bookmarks', onClick: onNavigateToBookmarks },
@@ -79,13 +77,9 @@ export const Profile: React.FC<ProfileProps> = ({
     ...(tier === 'elder' ? [
       { icon: Smartphone, label: 'App Icon', onClick: onNavigateToAppIcon },
       { icon: Crown, label: 'Elder Subscription', onClick: onNavigateToUpgrade },
-    ] : []),
-    ...(tier === 'pro' ? [
+    ] : [
       { icon: Crown, label: 'Upgrade to Elder', onClick: onNavigateToUpgrade },
-    ] : []),
-    ...(tier === 'free' ? [
-      { icon: Sparkles, label: 'Upgrade Plan', onClick: onNavigateToUpgrade },
-    ] : []),
+    ]),
   ]
 
   return (
