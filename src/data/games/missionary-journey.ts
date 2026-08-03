@@ -32,6 +32,7 @@ export interface Journey {
   keyPeople?: string[]
   keyBook?: string
   chapters?: string
+  color?: string
 }
 
 // ============================================================
@@ -48,7 +49,8 @@ const createJourney = (
   totalDistance?: string,
   keyPeople?: string[],
   keyBook?: string,
-  chapters?: string
+  chapters?: string,
+  color?: string
 ): Journey => ({
   id,
   name,
@@ -59,16 +61,17 @@ const createJourney = (
   totalDistance,
   keyPeople,
   keyBook,
-  chapters
+  chapters,
+  color
 })
 
 // ============================================================
-// FIRST MISSIONARY JOURNEY (Acts 13-14)
+// 1. FIRST MISSIONARY JOURNEY (Acts 13-14)
 // ============================================================
 
 const firstJourneyLocations: JourneyLocation[] = [
   {
-    id: 'antioch',
+    id: 'f1-antioch',
     name: 'Antioch',
     region: 'Syria',
     description: 'The starting point of Paul\'s missionary journeys. The church here sent Paul and Barnabas out with prayer and fasting.',
@@ -94,7 +97,7 @@ const firstJourneyLocations: JourneyLocation[] = [
     verse: 'Acts 13:1-3'
   },
   {
-    id: 'seleucia',
+    id: 'f1-seleucia',
     name: 'Seleucia',
     region: 'Syria',
     description: 'The port city from which Paul and Barnabas sailed to Cyprus.',
@@ -114,7 +117,7 @@ const firstJourneyLocations: JourneyLocation[] = [
     verse: 'Acts 13:4'
   },
   {
-    id: 'salamis',
+    id: 'f1-salamis',
     name: 'Salamis',
     region: 'Cyprus',
     description: 'Paul and Barnabas preached in the synagogues of Salamis, the largest city on Cyprus.',
@@ -134,7 +137,7 @@ const firstJourneyLocations: JourneyLocation[] = [
     verse: 'Acts 13:5'
   },
   {
-    id: 'paphos',
+    id: 'f1-paphos',
     name: 'Paphos',
     region: 'Cyprus',
     description: 'Paul confronted Elymas the sorcerer here. The proconsul Sergius Paulus believed.',
@@ -160,7 +163,7 @@ const firstJourneyLocations: JourneyLocation[] = [
     verse: 'Acts 13:6-12'
   },
   {
-    id: 'perga',
+    id: 'f1-perga',
     name: 'Perga',
     region: 'Pamphylia',
     description: 'A city in Asia Minor where John Mark left Paul and Barnabas and returned to Jerusalem.',
@@ -180,7 +183,7 @@ const firstJourneyLocations: JourneyLocation[] = [
     verse: 'Acts 13:13'
   },
   {
-    id: 'pisidian-antioch',
+    id: 'f1-pisidian',
     name: 'Pisidian Antioch',
     region: 'Pisidia',
     description: 'Paul preached a powerful sermon in the synagogue here, revealing Jesus as the promised Messiah.',
@@ -206,7 +209,7 @@ const firstJourneyLocations: JourneyLocation[] = [
     verse: 'Acts 13:14-52'
   },
   {
-    id: 'iconium',
+    id: 'f1-iconium',
     name: 'Iconium',
     region: 'Lycaonia',
     description: 'A city where Paul and Barnabas faced persecution and a plot to stone them.',
@@ -226,7 +229,7 @@ const firstJourneyLocations: JourneyLocation[] = [
     verse: 'Acts 14:1-5'
   },
   {
-    id: 'lystra',
+    id: 'f1-lystra',
     name: 'Lystra',
     region: 'Lycaonia',
     description: 'Paul healed a crippled man here and was later stoned and left for dead.',
@@ -258,7 +261,7 @@ const firstJourneyLocations: JourneyLocation[] = [
     verse: 'Acts 14:8-20'
   },
   {
-    id: 'derbe',
+    id: 'f1-derbe',
     name: 'Derbe',
     region: 'Lycaonia',
     description: 'A city where many believed the Gospel and disciples were made.',
@@ -278,7 +281,7 @@ const firstJourneyLocations: JourneyLocation[] = [
     verse: 'Acts 14:21'
   },
   {
-    id: 'antioch-return',
+    id: 'f1-return',
     name: 'Return to Antioch',
     region: 'Syria',
     description: 'Paul and Barnabas returned to Antioch, reporting all that God had done.',
@@ -300,7 +303,7 @@ const firstJourneyLocations: JourneyLocation[] = [
 ]
 
 // ============================================================
-// SECOND MISSIONARY JOURNEY (Acts 15-18)
+// 2. SECOND MISSIONARY JOURNEY (Acts 15-18)
 // ============================================================
 
 const secondJourneyLocations: JourneyLocation[] = [
@@ -527,7 +530,7 @@ const secondJourneyLocations: JourneyLocation[] = [
     verse: 'Acts 18:1-18'
   },
   {
-    id: 's2-ephesus-return',
+    id: 's2-ephesus',
     name: 'Ephesus (brief stop)',
     region: 'Asia',
     description: 'Paul briefly stopped in Ephesus on his way to Jerusalem.',
@@ -549,7 +552,7 @@ const secondJourneyLocations: JourneyLocation[] = [
 ]
 
 // ============================================================
-// THIRD MISSIONARY JOURNEY (Acts 18-21)
+// 3. THIRD MISSIONARY JOURNEY (Acts 18-21)
 // ============================================================
 
 const thirdJourneyLocations: JourneyLocation[] = [
@@ -768,7 +771,7 @@ const thirdJourneyLocations: JourneyLocation[] = [
 ]
 
 // ============================================================
-// PAUL'S JOURNEY TO ROME (Acts 27-28)
+// 4. PAUL'S JOURNEY TO ROME (Acts 27-28)
 // ============================================================
 
 const romeJourneyLocations: JourneyLocation[] = [
@@ -861,7 +864,7 @@ const romeJourneyLocations: JourneyLocation[] = [
 ]
 
 // ============================================================
-// PHILIP'S JOURNEY (Acts 8)
+// 5. PHILIP'S JOURNEY (Acts 8)
 // ============================================================
 
 const philipJourneyLocations: JourneyLocation[] = [
@@ -954,7 +957,7 @@ const philipJourneyLocations: JourneyLocation[] = [
 ]
 
 // ============================================================
-// PETER'S JOURNEY (Acts 9-12)
+// 6. PETER'S JOURNEY (Acts 9-12)
 // ============================================================
 
 const peterJourneyLocations: JourneyLocation[] = [
@@ -1047,114 +1050,1206 @@ const peterJourneyLocations: JourneyLocation[] = [
 ]
 
 // ============================================================
-// THE JOURNEY OF THE ARK (Genesis 6-9)
+// 7. ABRAHAM'S JOURNEY (Genesis 11-25)
 // ============================================================
 
-const arkJourneyLocations: JourneyLocation[] = [
+const abrahamJourneyLocations: JourneyLocation[] = [
   {
-    id: 'ark-build',
-    name: 'Building the Ark',
-    region: 'Mesopotamia',
-    description: 'Noah built the ark according to God\'s instructions.',
-    emoji: '🔨',
-    coordinates: { x: 30, y: 50 },
-    people: ['Noah', 'Shem', 'Ham', 'Japheth'],
-    keyEvent: 'Construction of the ark',
+    id: 'ab-ur',
+    name: 'Ur',
+    region: 'Chaldea',
+    description: 'Abraham was called by God to leave his homeland and go to a land God would show him.',
+    emoji: '🏠',
+    coordinates: { x: 15, y: 55 },
+    people: ['Abraham', 'Sarah', 'Lot'],
+    keyEvent: 'Call of Abraham',
     questions: [
       {
-        question: 'How long did Noah take to build the ark?',
-        options: ['50 years', '100 years', '120 years', '150 years'],
-        correct: 2,
-        explanation: 'Noah built the ark for 120 years (Genesis 6:3).'
-      }
-    ],
-    trivia: 'The ark was 450 feet long, 75 feet wide, and 45 feet high.',
-    verse: 'Genesis 6:14-16'
-  },
-  {
-    id: 'ark-enter',
-    name: 'Entering the Ark',
-    region: 'Mesopotamia',
-    description: 'Noah and his family entered the ark, and the flood began.',
-    emoji: '🚪',
-    coordinates: { x: 30, y: 50 },
-    people: ['Noah', 'Shem', 'Ham', 'Japheth', 'Mrs. Noah'],
-    keyEvent: 'Entering the ark',
-    questions: [
-      {
-        question: 'How many people entered the ark?',
-        options: ['4', '6', '8', '10'],
-        correct: 2,
-        explanation: 'Eight people entered the ark (Genesis 7:7, 1 Peter 3:20).'
-      }
-    ],
-    trivia: 'Noah and his family were in the ark for about one year.',
-    verse: 'Genesis 7:7-13'
-  },
-  {
-    id: 'ark-flood',
-    name: 'The Flood',
-    region: 'Worldwide',
-    description: 'The flood covered the entire earth.',
-    emoji: '🌊',
-    coordinates: { x: 30, y: 50 },
-    people: ['Noah'],
-    keyEvent: 'The deluge',
-    questions: [
-      {
-        question: 'How long did the rain fall during the flood?',
-        options: ['40 days', '60 days', '80 days', '100 days'],
+        question: 'Where did God call Abraham from?',
+        options: ['Ur of the Chaldeans', 'Haran', 'Canaan', 'Egypt'],
         correct: 0,
-        explanation: 'The rain fell for 40 days and 40 nights (Genesis 7:12).'
+        explanation: 'God called Abraham from Ur of the Chaldeans (Genesis 11:31-12:1).'
       }
     ],
-    trivia: 'The flood waters covered even the highest mountains.',
-    verse: 'Genesis 7:17-24'
+    trivia: 'Ur was a major city in ancient Mesopotamia.',
+    verse: 'Genesis 12:1-4'
   },
   {
-    id: 'ark-dove',
-    name: 'The Dove',
-    region: 'Worldwide',
-    description: 'Noah sent out a dove to find dry land.',
-    emoji: '🕊️',
-    coordinates: { x: 30, y: 50 },
-    people: ['Noah'],
-    keyEvent: 'Searching for land',
+    id: 'ab-haran',
+    name: 'Haran',
+    region: 'Syria',
+    description: 'Abraham stopped in Haran with his family before continuing to Canaan.',
+    emoji: '⛺',
+    coordinates: { x: 20, y: 48 },
+    people: ['Abraham', 'Sarah', 'Lot', 'Terah'],
+    keyEvent: 'Stop in Haran',
     questions: [
       {
-        question: 'What did the dove bring back to Noah?',
-        options: ['A twig', 'An olive leaf', 'A branch', 'A flower'],
-        correct: 1,
-        explanation: 'The dove brought back a freshly plucked olive leaf (Genesis 8:11).'
+        question: 'Who died in Haran?',
+        options: ['Abraham', 'Sarah', 'Terah', 'Lot'],
+        correct: 2,
+        explanation: 'Terah, Abraham\'s father, died in Haran (Genesis 11:32).'
       }
     ],
-    trivia: 'The olive leaf became a symbol of peace.',
-    verse: 'Genesis 8:8-12'
+    trivia: 'Haran was a major trade center.',
+    verse: 'Genesis 11:31-32'
   },
   {
-    id: 'ark-rainbow',
-    name: 'The Rainbow',
-    region: 'Worldwide',
-    description: 'God made a covenant with Noah and set the rainbow as a sign.',
-    emoji: '🌈',
-    coordinates: { x: 30, y: 50 },
-    people: ['Noah', 'God'],
-    keyEvent: 'Covenant and rainbow',
+    id: 'ab-shechem',
+    name: 'Shechem',
+    region: 'Canaan',
+    description: 'Abraham arrived in Canaan and built an altar at Shechem.',
+    emoji: '⛪',
+    coordinates: { x: 30, y: 40 },
+    people: ['Abraham'],
+    keyEvent: 'Arrival in Canaan',
     questions: [
       {
-        question: 'What was the sign of God\'s covenant with Noah?',
-        options: ['A star', 'A rainbow', 'A flame', 'A pillar of cloud'],
+        question: 'What did Abraham do when he arrived in Canaan?',
+        options: ['Built a city', 'Built an altar', 'Marched to Jerusalem', 'Went to Egypt'],
         correct: 1,
-        explanation: 'The rainbow was the sign of God\'s covenant (Genesis 9:12-17).'
+        explanation: 'Abraham built an altar to the Lord at Shechem (Genesis 12:6-7).'
       }
     ],
-    trivia: 'The rainbow is a symbol of God\'s faithfulness.',
-    verse: 'Genesis 9:12-17'
+    trivia: 'Shechem was a significant city in the land of Canaan.',
+    verse: 'Genesis 12:6-8'
+  },
+  {
+    id: 'ab-bethel',
+    name: 'Bethel',
+    region: 'Canaan',
+    description: 'Abraham built another altar at Bethel and called on the name of the Lord.',
+    emoji: '🏔️',
+    coordinates: { x: 32, y: 38 },
+    people: ['Abraham'],
+    keyEvent: 'Worship at Bethel',
+    questions: [
+      {
+        question: 'What did Abraham do at Bethel?',
+        options: ['Built a city', 'Built an altar', 'Fought a battle', 'Met the king of Sodom'],
+        correct: 1,
+        explanation: 'Abraham built an altar at Bethel and called on the name of the Lord (Genesis 12:8).'
+      }
+    ],
+    trivia: 'Bethel means "House of God".',
+    verse: 'Genesis 12:8'
+  },
+  {
+    id: 'ab-egypt',
+    name: 'Egypt',
+    region: 'Egypt',
+    description: 'Abraham went to Egypt during a famine but was sent back by Pharaoh.',
+    emoji: '🇪🇬',
+    coordinates: { x: 25, y: 70 },
+    people: ['Abraham', 'Sarah', 'Pharaoh'],
+    keyEvent: 'Sojourn in Egypt',
+    questions: [
+      {
+        question: 'Why did Abraham go to Egypt?',
+        options: ['To escape persecution', 'Because of a famine', 'To trade goods', 'To visit relatives'],
+        correct: 1,
+        explanation: 'Abraham went to Egypt because there was a famine in the land (Genesis 12:10).'
+      }
+    ],
+    trivia: 'Abraham lied about Sarah being his sister in Egypt.',
+    verse: 'Genesis 12:10-20'
+  },
+  {
+    id: 'ab-mamre',
+    name: 'Mamre (Hebron)',
+    region: 'Canaan',
+    description: 'Abraham settled in Hebron and built an altar to the Lord.',
+    emoji: '🌳',
+    coordinates: { x: 30, y: 35 },
+    people: ['Abraham', 'Sarah'],
+    keyEvent: 'Settlement in Hebron',
+    questions: [
+      {
+        question: 'Where did Abraham settle in Canaan?',
+        options: ['Shechem', 'Bethel', 'Hebron', 'Beersheba'],
+        correct: 2,
+        explanation: 'Abraham settled in Hebron (Genesis 13:18).'
+      }
+    ],
+    trivia: 'Abraham bought the cave of Machpelah in Hebron for Sarah\'s burial.',
+    verse: 'Genesis 13:18'
+  },
+  {
+    id: 'ab-moriah',
+    name: 'Mount Moriah',
+    region: 'Canaan',
+    description: 'Abraham was tested by God to sacrifice Isaac on Mount Moriah.',
+    emoji: '🗻',
+    coordinates: { x: 35, y: 25 },
+    people: ['Abraham', 'Isaac'],
+    keyEvent: 'Testing of Abraham',
+    questions: [
+      {
+        question: 'Where did Abraham go to sacrifice Isaac?',
+        options: ['Mount Sinai', 'Mount Moriah', 'Mount Carmel', 'Mount Zion'],
+        correct: 1,
+        explanation: 'Abraham went to Mount Moriah to sacrifice Isaac (Genesis 22:2).'
+      },
+      {
+        question: 'What did God provide as a substitute sacrifice?',
+        options: ['A lamb', 'A ram', 'A goat', 'A bull'],
+        correct: 1,
+        explanation: 'God provided a ram caught in a thicket as a substitute (Genesis 22:13).'
+      }
+    ],
+    trivia: 'Mount Moriah later became the site of Solomon\'s Temple.',
+    verse: 'Genesis 22:1-14'
+  },
+  {
+    id: 'ab-beersheba',
+    name: 'Beersheba',
+    region: 'Canaan',
+    description: 'Abraham made a covenant with Abimelech at Beersheba.',
+    emoji: '⛲',
+    coordinates: { x: 28, y: 32 },
+    people: ['Abraham', 'Abimelech'],
+    keyEvent: 'Covenant at Beersheba',
+    questions: [
+      {
+        question: 'What did Abraham and Abimelech make at Beersheba?',
+        options: ['A treaty', 'An alliance', 'A covenant', 'A trade agreement'],
+        correct: 2,
+        explanation: 'Abraham and Abimelech made a covenant at Beersheba (Genesis 21:27-32).'
+      }
+    ],
+    trivia: 'Beersheba means "well of the oath".',
+    verse: 'Genesis 21:22-34'
   }
 ]
 
 // ============================================================
-// THE EXODUS JOURNEY (Exodus 1-40)
+// 8. JACOB'S JOURNEY (Genesis 27-35)
+// ============================================================
+
+const jacobJourneyLocations: JourneyLocation[] = [
+  {
+    id: 'jac-beersheba',
+    name: 'Beersheba',
+    region: 'Canaan',
+    description: 'Jacob left Beersheba to flee from Esau and find a wife.',
+    emoji: '🏠',
+    coordinates: { x: 28, y: 32 },
+    people: ['Jacob', 'Isaac', 'Rebekah'],
+    keyEvent: 'Departure from Beersheba',
+    questions: [
+      {
+        question: 'Why did Jacob leave Beersheba?',
+        options: ['To escape Esau\'s anger', 'To find a wife', 'To seek his fortune', 'Both A and B'],
+        correct: 3,
+        explanation: 'Jacob left to escape Esau\'s anger and to find a wife (Genesis 27:41-28:2).'
+      }
+    ],
+    trivia: 'Jacob was fleeing from his brother Esau who wanted to kill him.',
+    verse: 'Genesis 28:1-5'
+  },
+  {
+    id: 'jac-bethel',
+    name: 'Bethel',
+    region: 'Canaan',
+    description: 'Jacob had a dream of a ladder reaching to heaven at Bethel.',
+    emoji: '🪜',
+    coordinates: { x: 32, y: 38 },
+    people: ['Jacob'],
+    keyEvent: 'Jacob\'s ladder vision',
+    questions: [
+      {
+        question: 'What did Jacob see in his dream at Bethel?',
+        options: ['A pillar of fire', 'A ladder reaching to heaven', 'Angels singing', 'A burning bush'],
+        correct: 1,
+        explanation: 'Jacob saw a ladder reaching to heaven with angels ascending and descending (Genesis 28:12).'
+      }
+    ],
+    trivia: 'Jacob renamed the place Bethel, meaning "House of God".',
+    verse: 'Genesis 28:10-22'
+  },
+  {
+    id: 'jac-haran',
+    name: 'Haran',
+    region: 'Syria',
+    description: 'Jacob stayed in Haran for 20 years, worked for Laban, and married Leah and Rachel.',
+    emoji: '🏛️',
+    coordinates: { x: 20, y: 48 },
+    people: ['Jacob', 'Leah', 'Rachel', 'Laban'],
+    keyEvent: 'Laban\'s household',
+    questions: [
+      {
+        question: 'How long did Jacob work for Laban?',
+        options: ['7 years', '14 years', '20 years', '40 years'],
+        correct: 2,
+        explanation: 'Jacob worked for Laban for 20 years (Genesis 31:38-41).'
+      },
+      {
+        question: 'Who were Jacob\'s wives?',
+        options: ['Leah and Rachel', 'Sarah and Hagar', 'Rebecca and Leah', 'Rachel and Esther'],
+        correct: 0,
+        explanation: 'Jacob married Leah and Rachel, the daughters of Laban (Genesis 29:21-30).'
+      }
+    ],
+    trivia: 'Jacob married two sisters and had 12 sons who became the 12 tribes of Israel.',
+    verse: 'Genesis 29-31'
+  },
+  {
+    id: 'jac-peniel',
+    name: 'Peniel',
+    region: 'Transjordan',
+    description: 'Jacob wrestled with God at Peniel and was renamed Israel.',
+    emoji: '🤼',
+    coordinates: { x: 38, y: 45 },
+    people: ['Jacob'],
+    keyEvent: 'Wrestling with God',
+    questions: [
+      {
+        question: 'What happened to Jacob at Peniel?',
+        options: ['He was injured', 'He wrestled with God', 'His name was changed to Israel', 'All of the above'],
+        correct: 3,
+        explanation: 'Jacob wrestled with God, was injured, and his name was changed to Israel (Genesis 32:24-32).'
+      }
+    ],
+    trivia: 'Peniel means "face of God" because Jacob saw God face to face.',
+    verse: 'Genesis 32:22-32'
+  },
+  {
+    id: 'jac-succoth',
+    name: 'Succoth',
+    region: 'Canaan',
+    description: 'Jacob built a place for himself at Succoth after returning from Haran.',
+    emoji: '🏗️',
+    coordinates: { x: 36, y: 40 },
+    people: ['Jacob'],
+    keyEvent: 'Settlement in Succoth',
+    questions: [
+      {
+        question: 'What did Jacob build at Succoth?',
+        options: ['An altar', 'A city', 'A house for himself and booths for his livestock', 'A temple'],
+        correct: 2,
+        explanation: 'Jacob built a house for himself and made booths for his livestock at Succoth (Genesis 33:17).'
+      }
+    ],
+    trivia: 'The name Succoth means "booths".',
+    verse: 'Genesis 33:17'
+  },
+  {
+    id: 'jac-shechem',
+    name: 'Shechem',
+    region: 'Canaan',
+    description: 'Jacob settled in Shechem and bought land there.',
+    emoji: '⛺',
+    coordinates: { x: 30, y: 40 },
+    people: ['Jacob', 'Hamor', 'Shechem'],
+    keyEvent: 'Settlement in Shechem',
+    questions: [
+      {
+        question: 'What happened to Jacob\'s daughter Dinah in Shechem?',
+        options: ['She married the prince', 'She was kidnapped and violated', 'She became a prophetess', 'She went back to Haran'],
+        correct: 1,
+        explanation: 'Dinah was kidnapped and violated by Shechem, the son of Hamor (Genesis 34:1-2).'
+      }
+    ],
+    trivia: 'Jacob\'s sons Simeon and Levi avenged Dinah by killing the men of Shechem.',
+    verse: 'Genesis 34:1-31'
+  },
+  {
+    id: 'jac-bethel-return',
+    name: 'Return to Bethel',
+    region: 'Canaan',
+    description: 'Jacob returned to Bethel and built an altar, as God had commanded.',
+    emoji: '⛪',
+    coordinates: { x: 32, y: 38 },
+    people: ['Jacob'],
+    keyEvent: 'Return to Bethel',
+    questions: [
+      {
+        question: 'Why did Jacob return to Bethel?',
+        options: ['To find his family', 'To build an altar as God commanded', 'To fight a battle', 'To buy more land'],
+        correct: 1,
+        explanation: 'God told Jacob to return to Bethel and build an altar (Genesis 35:1).'
+      }
+    ],
+    trivia: 'This was Jacob\'s second visit to Bethel.',
+    verse: 'Genesis 35:1-15'
+  },
+  {
+    id: 'jac-hebron',
+    name: 'Hebron',
+    region: 'Canaan',
+    description: 'Jacob returned to Hebron, where his father Isaac lived.',
+    emoji: '🏡',
+    coordinates: { x: 30, y: 35 },
+    people: ['Jacob', 'Isaac'],
+    keyEvent: 'Return to Hebron',
+    questions: [
+      {
+        question: 'Where did Jacob finally settle after all his travels?',
+        options: ['Shechem', 'Bethel', 'Hebron', 'Beersheba'],
+        correct: 2,
+        explanation: 'Jacob came to Hebron where his father Isaac lived (Genesis 35:27).'
+      }
+    ],
+    trivia: 'Jacob returned to Hebron after 20 years away.',
+    verse: 'Genesis 35:27-29'
+  }
+]
+
+// ============================================================
+// 9. JOSEPH'S JOURNEY (Genesis 37-50)
+// ============================================================
+
+const josephJourneyLocations: JourneyLocation[] = [
+  {
+    id: 'joe-canaan',
+    name: 'Canaan (Hebron)',
+    region: 'Canaan',
+    description: 'Joseph was the favorite son of Jacob, living in Canaan with his family.',
+    emoji: '🏠',
+    coordinates: { x: 30, y: 35 },
+    people: ['Joseph', 'Jacob', 'Brothers'],
+    keyEvent: 'Favorite son',
+    questions: [
+      {
+        question: 'What did Jacob give Joseph that made his brothers jealous?',
+        options: ['A ring', 'A coat of many colors', 'A sword', 'A kingdom'],
+        correct: 1,
+        explanation: 'Jacob gave Joseph a coat of many colors (Genesis 37:3).'
+      }
+    ],
+    trivia: 'Joseph\'s coat was a sign of his father\'s favor.',
+    verse: 'Genesis 37:1-4'
+  },
+  {
+    id: 'joe-dothan',
+    name: 'Dothan',
+    region: 'Canaan',
+    description: 'Joseph was sold into slavery by his brothers in Dothan.',
+    emoji: '⛓️',
+    coordinates: { x: 35, y: 42 },
+    people: ['Joseph', 'Brothers', 'Midianite traders'],
+    keyEvent: 'Sold into slavery',
+    questions: [
+      {
+        question: 'Who sold Joseph into slavery?',
+        options: ['His brothers', 'His father', 'Strangers', 'The Egyptians'],
+        correct: 0,
+        explanation: 'Joseph\'s brothers sold him to Midianite traders for 20 pieces of silver (Genesis 37:25-28).'
+      }
+    ],
+    trivia: 'Reuben tried to save Joseph but was too late.',
+    verse: 'Genesis 37:18-28'
+  },
+  {
+    id: 'joe-egypt',
+    name: 'Egypt',
+    region: 'Egypt',
+    description: 'Joseph was sold to Potiphar in Egypt and later rose to power.',
+    emoji: '🇪🇬',
+    coordinates: { x: 25, y: 70 },
+    people: ['Joseph', 'Potiphar', 'Pharaoh'],
+    keyEvent: 'Rise to power',
+    questions: [
+      {
+        question: 'What position did Joseph eventually hold in Egypt?',
+        options: ['Baker', 'Cupbearer', 'Second in command to Pharaoh', 'Soldier'],
+        correct: 2,
+        explanation: 'Joseph became second in command to Pharaoh (Genesis 41:39-44).'
+      },
+      {
+        question: 'Who was Joseph\'s master in Egypt?',
+        options: ['Pharaoh', 'Potiphar', 'The king\'s cupbearer', 'The baker'],
+        correct: 1,
+        explanation: 'Joseph was bought by Potiphar, the captain of the guard (Genesis 39:1).'
+      }
+    ],
+    trivia: 'Joseph interpreted Pharaoh\'s dream of seven years of plenty and seven years of famine.',
+    verse: 'Genesis 39-41'
+  },
+  {
+    id: 'joe-goshen',
+    name: 'Goshen',
+    region: 'Egypt',
+    description: 'Joseph\'s family came to Egypt and settled in the land of Goshen.',
+    emoji: '🌾',
+    coordinates: { x: 28, y: 72 },
+    people: ['Joseph', 'Jacob', 'Brothers'],
+    keyEvent: 'Family reunites',
+    questions: [
+      {
+        question: 'How many people came to Egypt with Jacob?',
+        options: ['30', '50', '70', '100'],
+        correct: 2,
+        explanation: 'Seventy persons came to Egypt with Jacob (Genesis 46:26-27).'
+      }
+    ],
+    trivia: 'The land of Goshen was the best part of Egypt for shepherds.',
+    verse: 'Genesis 46:28-47:6'
+  },
+  {
+    id: 'joe-return',
+    name: 'Return to Canaan (Joseph\'s bones)',
+    region: 'Canaan',
+    description: 'Joseph\'s bones were carried back to Canaan as he had requested.',
+    emoji: '⚰️',
+    coordinates: { x: 30, y: 35 },
+    people: ['Joseph', 'Israelites'],
+    keyEvent: 'Joseph\'s bones return',
+    questions: [
+      {
+        question: 'Who took Joseph\'s bones back to Canaan?',
+        options: ['Jacob', 'Moses', 'Joshua', 'David'],
+        correct: 2,
+        explanation: 'Joshua took Joseph\'s bones back to Canaan (Joshua 24:32).'
+      }
+    ],
+    trivia: 'Joseph\'s bones were buried at Shechem.',
+    verse: 'Joshua 24:32'
+  }
+]
+
+// ============================================================
+// 10. JOSHUA'S CONQUEST (Joshua 1-12)
+// ============================================================
+
+const joshuaJourneyLocations: JourneyLocation[] = [
+  {
+    id: 'jos-shittim',
+    name: 'Shittim',
+    region: 'Moab',
+    description: 'Joshua prepared the people to cross the Jordan River at Shittim.',
+    emoji: '⛺',
+    coordinates: { x: 38, y: 50 },
+    people: ['Joshua', 'Israelites'],
+    keyEvent: 'Preparation to cross',
+    questions: [
+      {
+        question: 'What was the first thing God told Joshua to do after Moses\' death?',
+        options: ['Build an altar', 'Cross the Jordan', 'March around Jericho', 'Conquer Jerusalem'],
+        correct: 1,
+        explanation: 'God told Joshua to cross the Jordan River (Joshua 1:2).'
+      }
+    ],
+    trivia: 'Shittim was the last camp before crossing the Jordan.',
+    verse: 'Joshua 3:1'
+  },
+  {
+    id: 'jos-jordan',
+    name: 'Jordan River',
+    region: 'Transjordan/Canaan',
+    description: 'Joshua led Israel across the Jordan River on dry ground.',
+    emoji: '🌊',
+    coordinates: { x: 40, y: 42 },
+    people: ['Joshua', 'Priests', 'Israelites'],
+    keyEvent: 'Crossing the Jordan',
+    questions: [
+      {
+        question: 'What happened when the priests stepped into the Jordan?',
+        options: ['They swam across', 'The water stopped flowing', 'They turned back', 'They built a bridge'],
+        correct: 1,
+        explanation: 'The water stopped flowing and the people crossed on dry ground (Joshua 3:15-17).'
+      }
+    ],
+    trivia: 'The Jordan River parted just like the Red Sea.',
+    verse: 'Joshua 3:14-17'
+  },
+  {
+    id: 'jos-gilgal',
+    name: 'Gilgal',
+    region: 'Canaan',
+    description: 'Israel set up camp at Gilgal and Joshua set up twelve stones as a memorial.',
+    emoji: '🪨',
+    coordinates: { x: 42, y: 38 },
+    people: ['Joshua', 'Israelites'],
+    keyEvent: 'Camp at Gilgal',
+    questions: [
+      {
+        question: 'What did Joshua set up at Gilgal as a memorial?',
+        options: ['An altar', 'Twelve stones', 'A pillar', 'A monument'],
+        correct: 1,
+        explanation: 'Joshua set up twelve stones as a memorial of crossing the Jordan (Joshua 4:19-24).'
+      }
+    ],
+    trivia: 'The memorial stones were to remind future generations of God\'s faithfulness.',
+    verse: 'Joshua 4:19-24'
+  },
+  {
+    id: 'jos-jericho',
+    name: 'Jericho',
+    region: 'Canaan',
+    description: 'The walls of Jericho fell after the Israelites marched around them for seven days.',
+    emoji: '🏛️',
+    coordinates: { x: 44, y: 35 },
+    people: ['Joshua', 'Israelites'],
+    keyEvent: 'Fall of Jericho',
+    questions: [
+      {
+        question: 'How many days did Israel march around Jericho?',
+        options: ['3 days', '7 days', '14 days', '40 days'],
+        correct: 1,
+        explanation: 'Israel marched around Jericho for seven days (Joshua 6:1-16).'
+      },
+      {
+        question: 'Who was saved in Jericho?',
+        options: ['All the people', 'Rahab and her family', 'The priests', 'The king of Jericho'],
+        correct: 1,
+        explanation: 'Rahab and her family were saved because she hid the spies (Joshua 6:22-25).'
+      }
+    ],
+    trivia: 'The walls of Jericho fell after the people shouted.',
+    verse: 'Joshua 6:1-27'
+  },
+  {
+    id: 'jos-ai',
+    name: 'Ai',
+    region: 'Canaan',
+    description: 'Israel was defeated at Ai because Achan took devoted things.',
+    emoji: '⚔️',
+    coordinates: { x: 46, y: 36 },
+    people: ['Joshua', 'Achan', 'Israelites'],
+    keyEvent: 'Defeat at Ai',
+    questions: [
+      {
+        question: 'Why was Israel defeated at Ai?',
+        options: ['They were outnumbered', 'Achan took devoted things', 'They didn\'t trust God', 'They fought on the wrong day'],
+        correct: 1,
+        explanation: 'Israel was defeated because Achan took devoted things from Jericho (Joshua 7:1-5).'
+      }
+    ],
+    trivia: 'Achan\'s sin affected the entire nation.',
+    verse: 'Joshua 7:1-26'
+  },
+  {
+    id: 'jos-gibeon',
+    name: 'Gibeon',
+    region: 'Canaan',
+    description: 'The Gibeonites tricked Joshua into making a treaty with them.',
+    emoji: '🤝',
+    coordinates: { x: 43, y: 33 },
+    people: ['Joshua', 'Gibeonites'],
+    keyEvent: 'Treaty with Gibeon',
+    questions: [
+      {
+        question: 'How did the Gibeonites trick Joshua?',
+        options: ['They pretended to be from a distant land', 'They offered him a bribe', 'They attacked at night', 'They sent a messenger with false information'],
+        correct: 0,
+        explanation: 'The Gibeonites pretended to be from a distant land to make a treaty (Joshua 9:3-15).'
+      }
+    ],
+    trivia: 'The Gibeonites became servants to Israel because of their deception.',
+    verse: 'Joshua 9:1-27'
+  },
+  {
+    id: 'jos-sun',
+    name: 'Valley of Aijalon',
+    region: 'Canaan',
+    description: 'Joshua prayed for the sun to stand still during the battle.',
+    emoji: '☀️',
+    coordinates: { x: 42, y: 30 },
+    people: ['Joshua'],
+    keyEvent: 'Sun stands still',
+    questions: [
+      {
+        question: 'What did Joshua pray for during the battle?',
+        options: ['For rain', 'For the sun to stand still', 'For more soldiers', 'For the enemy to surrender'],
+        correct: 1,
+        explanation: 'Joshua prayed for the sun to stand still (Joshua 10:12-14).'
+      }
+    ],
+    trivia: 'The sun stood still for about a full day.',
+    verse: 'Joshua 10:12-14'
+  },
+  {
+    id: 'jos-shechem',
+    name: 'Shechem',
+    region: 'Canaan',
+    description: 'Joshua renewed the covenant with Israel at Shechem.',
+    emoji: '📜',
+    coordinates: { x: 30, y: 40 },
+    people: ['Joshua', 'Israelites'],
+    keyEvent: 'Covenant renewal',
+    questions: [
+      {
+        question: 'What did Joshua say at Shechem?',
+        options: ['Choose this day whom you will serve', 'The Lord is my shepherd', 'Go and make disciples', 'Love the Lord your God'],
+        correct: 0,
+        explanation: 'Joshua said, "Choose this day whom you will serve" (Joshua 24:15).'
+      }
+    ],
+    trivia: '"As for me and my house, we will serve the Lord" is from this passage.',
+    verse: 'Joshua 24:1-28'
+  }
+]
+
+// ============================================================
+// 11. ELIJAH'S JOURNEY (1 Kings 17-19, 2 Kings 2)
+// ============================================================
+
+const elijahJourneyLocations: JourneyLocation[] = [
+  {
+    id: 'el-gilead',
+    name: 'Gilead',
+    region: 'Transjordan',
+    description: 'Elijah appeared in Gilead during the drought declared by God.',
+    emoji: '🌵',
+    coordinates: { x: 40, y: 50 },
+    people: ['Elijah'],
+    keyEvent: 'Beginning of ministry',
+    questions: [
+      {
+        question: 'What did Elijah declare to Ahab?',
+        options: ['That it would rain', 'That there would be no rain', 'That he would conquer Israel', 'That he would be killed'],
+        correct: 1,
+        explanation: 'Elijah declared that there would be no rain except by his word (1 Kings 17:1).'
+      }
+    ],
+    trivia: 'Elijah was a prophet from Tishbe in Gilead.',
+    verse: '1 Kings 17:1'
+  },
+  {
+    id: 'el-kerith',
+    name: 'Brook Cherith',
+    region: 'Transjordan',
+    description: 'Elijah was hidden by God at the Brook Cherith, where ravens fed him.',
+    emoji: '🐦',
+    coordinates: { x: 38, y: 48 },
+    people: ['Elijah'],
+    keyEvent: 'Fed by ravens',
+    questions: [
+      {
+        question: 'How did God provide for Elijah at Cherith?',
+        options: ['Through manna from heaven', 'Through ravens that brought food', 'Through the widow\'s provision', 'Through angels'],
+        correct: 1,
+        explanation: 'God commanded ravens to bring Elijah food at Cherith (1 Kings 17:2-6).'
+      }
+    ],
+    trivia: 'Cherith was east of the Jordan River.',
+    verse: '1 Kings 17:2-7'
+  },
+  {
+    id: 'el-zarephath',
+    name: 'Zarephath',
+    region: 'Sidon',
+    description: 'Elijah stayed with a widow in Zarephath, and God provided for them.',
+    emoji: '🏠',
+    coordinates: { x: 25, y: 28 },
+    people: ['Elijah', 'Widow', 'Her son'],
+    keyEvent: 'Widow of Zarephath',
+    questions: [
+      {
+        question: 'What miracle happened in Zarephath?',
+        options: ['Water turned to wine', 'The widow\'s flour and oil did not run out', 'A dead man was raised', 'The sun stood still'],
+        correct: 1,
+        explanation: 'The widow\'s flour and oil did not run out during the drought (1 Kings 17:10-16).'
+      }
+    ],
+    trivia: 'Jesus mentioned this widow in Luke 4.',
+    verse: '1 Kings 17:8-16'
+  },
+  {
+    id: 'el-carmel',
+    name: 'Mount Carmel',
+    region: 'Israel',
+    description: 'Elijah challenged the prophets of Baal on Mount Carmel.',
+    emoji: '🔥',
+    coordinates: { x: 30, y: 35 },
+    people: ['Elijah', 'Prophets of Baal', 'Ahab'],
+    keyEvent: 'Contest on Mount Carmel',
+    questions: [
+      {
+        question: 'What happened on Mount Carmel?',
+        options: ['Elijah killed the prophets of Baal', 'God sent fire from heaven', 'It rained after the drought', 'All of the above'],
+        correct: 3,
+        explanation: 'God sent fire from heaven, Elijah killed the prophets of Baal, and rain came (1 Kings 18:20-46).'
+      }
+    ],
+    trivia: 'Elijah had 450 prophets of Baal and 400 prophets of Asherah killed.',
+    verse: '1 Kings 18:16-46'
+  },
+  {
+    id: 'el-horeb',
+    name: 'Mount Horeb',
+    region: 'Sinai',
+    description: 'Elijah fled from Jezebel and heard God\'s still small voice on Mount Horeb.',
+    emoji: '🗻',
+    coordinates: { x: 25, y: 65 },
+    people: ['Elijah'],
+    keyEvent: 'God\'s still small voice',
+    questions: [
+      {
+        question: 'How did God speak to Elijah on Mount Horeb?',
+        options: ['In a loud voice', 'In a whirlwind', 'In a still small voice', 'Through an angel'],
+        correct: 2,
+        explanation: 'God spoke to Elijah in a still small voice (1 Kings 19:11-13).'
+      }
+    ],
+    trivia: 'Elijah was given a new commission on Mount Horeb.',
+    verse: '1 Kings 19:1-18'
+  },
+  {
+    id: 'el-jordan',
+    name: 'Jordan River',
+    region: 'Transjordan',
+    description: 'Elijah crossed the Jordan with Elisha and was taken to heaven.',
+    emoji: '🌊',
+    coordinates: { x: 40, y: 42 },
+    people: ['Elijah', 'Elisha'],
+    keyEvent: 'Taken to heaven',
+    questions: [
+      {
+        question: 'What happened to Elijah at the Jordan?',
+        options: ['He walked on water', 'He was taken to heaven in a chariot of fire', 'He crossed on dry ground', 'He was swallowed by a fish'],
+        correct: 1,
+        explanation: 'Elijah was taken to heaven in a chariot of fire (2 Kings 2:11).'
+      }
+    ],
+    trivia: 'Elisha saw Elijah taken up and inherited his mantle.',
+    verse: '2 Kings 2:1-14'
+  }
+]
+
+// ============================================================
+// 12. THE RETURN FROM EXILE (Ezra 1-6)
+// ============================================================
+
+const returnJourneyLocations: JourneyLocation[] = [
+  {
+    id: 're-babylon',
+    name: 'Babylon',
+    region: 'Babylonia',
+    description: 'Cyrus allowed the Jews to return to Jerusalem after 70 years of exile.',
+    emoji: '🏛️',
+    coordinates: { x: 18, y: 52 },
+    people: ['Cyrus', 'Zerubbabel', 'Jeshua'],
+    keyEvent: 'Decree of Cyrus',
+    questions: [
+      {
+        question: 'Who decreed that the Jews could return to Jerusalem?',
+        options: ['Darius', 'Artaxerxes', 'Cyrus', 'Nebuchadnezzar'],
+        correct: 2,
+        explanation: 'Cyrus made a decree allowing the Jews to return to Jerusalem (Ezra 1:1-4).'
+      }
+    ],
+    trivia: 'The exile lasted 70 years as prophesied by Jeremiah.',
+    verse: 'Ezra 1:1-4'
+  },
+  {
+    id: 're-jerusalem',
+    name: 'Jerusalem',
+    region: 'Judea',
+    description: 'The Jews returned to Jerusalem and began rebuilding the Temple.',
+    emoji: '🏗️',
+    coordinates: { x: 45, y: 20 },
+    people: ['Zerubbabel', 'Jeshua', 'Jews'],
+    keyEvent: 'Rebuilding the Temple',
+    questions: [
+      {
+        question: 'What was the first thing the returning Jews did in Jerusalem?',
+        options: ['Built homes', 'Rebuilt the walls', 'Built the altar', 'Planted crops'],
+        correct: 2,
+        explanation: 'The first thing they did was rebuild the altar of God (Ezra 3:2-3).'
+      }
+    ],
+    trivia: 'The foundation of the Temple was laid with great celebration.',
+    verse: 'Ezra 3:1-13'
+  },
+  {
+    id: 're-temple',
+    name: 'The Temple Site',
+    region: 'Judea',
+    description: 'The Second Temple was completed and dedicated despite opposition.',
+    emoji: '⛪',
+    coordinates: { x: 45, y: 20 },
+    people: ['Zerubbabel', 'Haggai', 'Zechariah'],
+    keyEvent: 'Temple completed',
+    questions: [
+      {
+        question: 'Who encouraged the people to finish the Temple?',
+        options: ['Ezra', 'Nehemiah', 'Haggai and Zechariah', 'Malachi'],
+        correct: 2,
+        explanation: 'The prophets Haggai and Zechariah encouraged the people to finish the Temple (Ezra 5:1-2).'
+      }
+    ],
+    trivia: 'The Second Temple was completed in 516 BC.',
+    verse: 'Ezra 6:13-18'
+  },
+  {
+    id: 're-walls',
+    name: 'Jerusalem Walls',
+    region: 'Judea',
+    description: 'Nehemiah later rebuilt the walls of Jerusalem.',
+    emoji: '🧱',
+    coordinates: { x: 45, y: 20 },
+    people: ['Nehemiah'],
+    keyEvent: 'Walls rebuilt',
+    questions: [
+      {
+        question: 'How long did it take to rebuild the walls of Jerusalem?',
+        options: ['52 days', '3 months', '6 months', '1 year'],
+        correct: 0,
+        explanation: 'The walls were rebuilt in 52 days (Nehemiah 6:15).'
+      }
+    ],
+    trivia: 'The wall rebuilding was opposed by Sanballat and Tobiah.',
+    verse: 'Nehemiah 6:15-16'
+  },
+  {
+    id: 're-law',
+    name: 'Water Gate, Jerusalem',
+    region: 'Judea',
+    description: 'Ezra read the Law to the people at the Water Gate.',
+    emoji: '📖',
+    coordinates: { x: 45, y: 20 },
+    people: ['Ezra', 'Nehemiah', 'Levites'],
+    keyEvent: 'Law read',
+    questions: [
+      {
+        question: 'What happened when Ezra read the Law?',
+        options: ['The people rejoiced and wept', 'They ignored it', 'They left Jerusalem', 'They built a new temple'],
+        correct: 0,
+        explanation: 'The people wept and rejoiced when they heard the Law (Nehemiah 8:1-12).'
+      }
+    ],
+    trivia: 'The reading of the Law led to a great revival.',
+    verse: 'Nehemiah 8:1-12'
+  }
+]
+
+// ============================================================
+// 13. MARY & JOSEPH'S JOURNEY TO BETHLEHEM (Luke 2)
+// ============================================================
+
+const nativityJourneyLocations: JourneyLocation[] = [
+  {
+    id: 'nat-nazareth',
+    name: 'Nazareth',
+    region: 'Galilee',
+    description: 'Mary and Joseph lived in Nazareth before the birth of Jesus.',
+    emoji: '🏠',
+    coordinates: { x: 30, y: 30 },
+    people: ['Mary', 'Joseph'],
+    keyEvent: 'Annunciation',
+    questions: [
+      {
+        question: 'What did the angel Gabriel tell Mary in Nazareth?',
+        options: ['She would have a son named Jesus', 'She would be queen', 'She would travel to Egypt', 'She would become a prophet'],
+        correct: 0,
+        explanation: 'Gabriel told Mary she would conceive and bear a son named Jesus (Luke 1:26-33).'
+      }
+    ],
+    trivia: 'Nazareth was a small, insignificant town in Galilee.',
+    verse: 'Luke 1:26-38'
+  },
+  {
+    id: 'nat-bethlehem',
+    name: 'Bethlehem',
+    region: 'Judea',
+    description: 'Mary and Joseph traveled to Bethlehem for the census, and Jesus was born there.',
+    emoji: '⭐',
+    coordinates: { x: 44, y: 25 },
+    people: ['Mary', 'Joseph', 'Jesus'],
+    keyEvent: 'Birth of Jesus',
+    questions: [
+      {
+        question: 'Why did Mary and Joseph go to Bethlehem?',
+        options: ['To visit relatives', 'For a census', 'To escape persecution', 'To buy land'],
+        correct: 1,
+        explanation: 'They went to Bethlehem for the census (Luke 2:1-4).'
+      },
+      {
+        question: 'Where was Jesus born in Bethlehem?',
+        options: ['In a house', 'In an inn', 'In a stable', 'In a palace'],
+        correct: 2,
+        explanation: 'Jesus was born in a stable because there was no room in the inn (Luke 2:7).'
+      }
+    ],
+    trivia: 'Bethlehem was the city of David, fulfilling the prophecy.',
+    verse: 'Luke 2:1-7'
+  },
+  {
+    id: 'nat-shepherds',
+    name: 'Fields of Bethlehem',
+    region: 'Judea',
+    description: 'Shepherds visited Jesus after an angel appeared to them.',
+    emoji: '🐑',
+    coordinates: { x: 44, y: 25 },
+    people: ['Shepherds', 'Angels'],
+    keyEvent: 'Shepherds visit',
+    questions: [
+      {
+        question: 'What did the angels proclaim to the shepherds?',
+        options: ['A great victory', 'The birth of a Savior', 'A new king in Jerusalem', 'A famine coming'],
+        correct: 1,
+        explanation: 'The angels proclaimed the birth of a Savior, Christ the Lord (Luke 2:10-11).'
+      }
+    ],
+    trivia: 'The shepherds were the first to hear the good news of Jesus\' birth.',
+    verse: 'Luke 2:8-20'
+  },
+  {
+    id: 'nat-temple',
+    name: 'Jerusalem Temple',
+    region: 'Judea',
+    description: 'Mary and Joseph presented Jesus at the Temple in Jerusalem.',
+    emoji: '🕍',
+    coordinates: { x: 45, y: 20 },
+    people: ['Mary', 'Joseph', 'Simeon', 'Anna'],
+    keyEvent: 'Presentation at Temple',
+    questions: [
+      {
+        question: 'Who recognized Jesus as the Messiah at the Temple?',
+        options: ['Simeon and Anna', 'The priests', 'The Pharisees', 'The Sadducees'],
+        correct: 0,
+        explanation: 'Simeon and Anna recognized Jesus as the Messiah at the Temple (Luke 2:25-38).'
+      }
+    ],
+    trivia: 'Simeon had been told he would not die before seeing the Messiah.',
+    verse: 'Luke 2:22-38'
+  },
+  {
+    id: 'nat-egypt',
+    name: 'Egypt',
+    region: 'Egypt',
+    description: 'Joseph and Mary fled to Egypt to escape Herod\'s decree.',
+    emoji: '🇪🇬',
+    coordinates: { x: 25, y: 70 },
+    people: ['Mary', 'Joseph', 'Jesus'],
+    keyEvent: 'Flight to Egypt',
+    questions: [
+      {
+        question: 'Why did Mary and Joseph flee to Egypt?',
+        options: ['To escape the famine', 'To find work', 'To escape Herod\'s decree', 'To visit relatives'],
+        correct: 2,
+        explanation: 'They fled to Egypt to escape Herod\'s decree to kill all male infants (Matthew 2:13-14).'
+      }
+    ],
+    trivia: 'The flight to Egypt fulfilled the prophecy, "Out of Egypt I called my son".',
+    verse: 'Matthew 2:13-15'
+  },
+  {
+    id: 'nat-return',
+    name: 'Return to Nazareth',
+    region: 'Galilee',
+    description: 'After Herod\'s death, Mary and Joseph returned to Nazareth.',
+    emoji: '🏠',
+    coordinates: { x: 30, y: 30 },
+    people: ['Mary', 'Joseph', 'Jesus'],
+    keyEvent: 'Return to Nazareth',
+    questions: [
+      {
+        question: 'What did Mary and Joseph do after Herod\'s death?',
+        options: ['They went to Bethlehem', 'They returned to Nazareth', 'They went to Egypt', 'They went to Jerusalem'],
+        correct: 1,
+        explanation: 'After Herod\'s death, they returned to Nazareth (Matthew 2:19-23).'
+      }
+    ],
+    trivia: 'Nazareth was the hometown of Jesus.',
+    verse: 'Matthew 2:19-23'
+  }
+]
+
+// ============================================================
+// 14. JONAH'S JOURNEY (Jonah 1-4)
+// ============================================================
+
+const jonahJourneyLocations: JourneyLocation[] = [
+  {
+    id: 'jon-joppa',
+    name: 'Joppa',
+    region: 'Judea',
+    description: 'Jonah fled from God\'s call at Joppa and boarded a ship to Tarshish.',
+    emoji: '⛵',
+    coordinates: { x: 42, y: 23 },
+    people: ['Jonah'],
+    keyEvent: 'Flight from God',
+    questions: [
+      {
+        question: 'Where did Jonah try to flee from God?',
+        options: ['Nineveh', 'Tarshish', 'Babylon', 'Egypt'],
+        correct: 1,
+        explanation: 'Jonah tried to flee to Tarshish (Jonah 1:3).'
+      }
+    ],
+    trivia: 'Joppa was a port city on the Mediterranean coast.',
+    verse: 'Jonah 1:1-3'
+  },
+  {
+    id: 'jon-ship',
+    name: 'The Ship',
+    region: 'Mediterranean Sea',
+    description: 'Jonah was on a ship going to Tarshish when God sent a storm.',
+    emoji: '⛵',
+    coordinates: { x: 35, y: 55 },
+    people: ['Jonah', 'Sailors'],
+    keyEvent: 'Great storm',
+    questions: [
+      {
+        question: 'What did Jonah do during the storm?',
+        options: ['He prayed', 'He was sleeping', 'He helped the sailors', 'He jumped overboard'],
+        correct: 1,
+        explanation: 'Jonah was sleeping during the storm (Jonah 1:5).'
+      }
+    ],
+    trivia: 'The sailors were terrified and cried out to their gods.',
+    verse: 'Jonah 1:4-16'
+  },
+  {
+    id: 'jon-fish',
+    name: 'The Great Fish',
+    region: 'Mediterranean Sea',
+    description: 'Jonah was swallowed by a great fish and spent three days inside it.',
+    emoji: '🐋',
+    coordinates: { x: 35, y: 55 },
+    people: ['Jonah'],
+    keyEvent: 'Swallowed by fish',
+    questions: [
+      {
+        question: 'How long was Jonah in the belly of the fish?',
+        options: ['Three hours', 'Three days', 'Three weeks', 'Three months'],
+        correct: 1,
+        explanation: 'Jonah was in the belly of the fish for three days and three nights (Jonah 1:17).'
+      }
+    ],
+    trivia: 'Jesus compared his time in the tomb to Jonah\'s three days in the fish.',
+    verse: 'Jonah 1:17'
+  },
+  {
+    id: 'jon-nineveh',
+    name: 'Nineveh',
+    region: 'Assyria',
+    description: 'Jonah finally preached to Nineveh, and the people repented.',
+    emoji: '🏛️',
+    coordinates: { x: 10, y: 45 },
+    people: ['Jonah', 'King of Nineveh'],
+    keyEvent: 'Preaching and repentance',
+    questions: [
+      {
+        question: 'What did the people of Nineveh do when Jonah preached?',
+        options: ['They attacked him', 'They repented', 'They ignored him', 'They killed him'],
+        correct: 1,
+        explanation: 'The people of Nineveh repented and turned from their evil ways (Jonah 3:5-10).'
+      }
+    ],
+    trivia: 'Nineveh was the capital of Assyria, a brutal nation.',
+    verse: 'Jonah 3:1-10'
+  },
+  {
+    id: 'jon-plant',
+    name: 'Outside Nineveh',
+    region: 'Assyria',
+    description: 'Jonah was angry at God\'s mercy and sat outside Nineveh.',
+    emoji: '🌿',
+    coordinates: { x: 10, y: 45 },
+    people: ['Jonah'],
+    keyEvent: 'Jonah\'s anger',
+    questions: [
+      {
+        question: 'What happened to the plant that shaded Jonah?',
+        options: ['It grew tall', 'It was eaten by a worm', 'It withered in the sun', 'It was uprooted by the wind'],
+        correct: 1,
+        explanation: 'A worm ate the plant that shaded Jonah (Jonah 4:7).'
+      }
+    ],
+    trivia: 'God used the plant to teach Jonah about His compassion.',
+    verse: 'Jonah 4:1-11'
+  }
+]
+
+// ============================================================
+// 15. NEHEMIAH'S JOURNEY (Nehemiah 1-7)
+// ============================================================
+
+const nehemiahJourneyLocations: JourneyLocation[] = [
+  {
+    id: 'ne-susa',
+    name: 'Susa',
+    region: 'Persia',
+    description: 'Nehemiah was the cupbearer to King Artaxerxes in Susa.',
+    emoji: '🏛️',
+    coordinates: { x: 20, y: 50 },
+    people: ['Nehemiah', 'Artaxerxes'],
+    keyEvent: 'Cupbearer to the king',
+    questions: [
+      {
+        question: 'What was Nehemiah\'s position in Persia?',
+        options: ['Scribe', 'Cupbearer to the king', 'Governor', 'Prophet'],
+        correct: 1,
+        explanation: 'Nehemiah was the cupbearer to King Artaxerxes (Nehemiah 1:11).'
+      }
+    ],
+    trivia: 'Susa was the winter capital of the Persian Empire.',
+    verse: 'Nehemiah 1:1-11'
+  },
+  {
+    id: 'ne-jerusalem',
+    name: 'Jerusalem',
+    region: 'Judea',
+    description: 'Nehemiah arrived in Jerusalem and inspected the walls.',
+    emoji: '🏗️',
+    coordinates: { x: 45, y: 20 },
+    people: ['Nehemiah'],
+    keyEvent: 'Arrival and inspection',
+    questions: [
+      {
+        question: 'What did Nehemiah do when he arrived in Jerusalem?',
+        options: ['He immediately started rebuilding', 'He inspected the walls by night', 'He called a meeting', 'He prayed for 40 days'],
+        correct: 1,
+        explanation: 'Nehemiah inspected the walls by night (Nehemiah 2:11-16).'
+      }
+    ],
+    trivia: 'Nehemiah kept his inspection secret.',
+    verse: 'Nehemiah 2:11-20'
+  },
+  {
+    id: 'ne-walls',
+    name: 'Jerusalem Walls',
+    region: 'Judea',
+    description: 'Nehemiah led the rebuilding of the walls of Jerusalem.',
+    emoji: '🧱',
+    coordinates: { x: 45, y: 20 },
+    people: ['Nehemiah', 'Jews'],
+    keyEvent: 'Rebuilding the walls',
+    questions: [
+      {
+        question: 'Who opposed Nehemiah\'s rebuilding?',
+        options: ['Sanballat, Tobiah, and Geshem', 'The Assyrians', 'The Babylonians', 'The Greeks'],
+        correct: 0,
+        explanation: 'Sanballat, Tobiah, and Geshem opposed the rebuilding (Nehemiah 4:1-8).'
+      },
+      {
+        question: 'How did Nehemiah defend against opposition?',
+        options: ['By building a wall', 'With armed guards', 'By praying and working', 'All of the above'],
+        correct: 3,
+        explanation: 'Nehemiah prayed, worked, and set guards to defend against opposition (Nehemiah 4:9-23).'
+      }
+    ],
+    trivia: 'The workers built with one hand and held a weapon in the other.',
+    verse: 'Nehemiah 4:1-23'
+  },
+  {
+    id: 'ne-complete',
+    name: 'Jerusalem Walls Completed',
+    region: 'Judea',
+    description: 'The walls were completed in 52 days, and the people celebrated.',
+    emoji: '🎉',
+    coordinates: { x: 45, y: 20 },
+    people: ['Nehemiah', 'Jews'],
+    keyEvent: 'Walls completed',
+    questions: [
+      {
+        question: 'How long did it take to rebuild the walls of Jerusalem?',
+        options: ['52 days', '3 months', '6 months', '1 year'],
+        correct: 0,
+        explanation: 'The walls were rebuilt in 52 days (Nehemiah 6:15).'
+      }
+    ],
+    trivia: 'The completion caused fear among the surrounding nations.',
+    verse: 'Nehemiah 6:15-16'
+  }
+]
+
+// ============================================================
+// 16. THE EXODUS JOURNEY (Exodus 1-40)
 // ============================================================
 
 const exodusJourneyLocations: JourneyLocation[] = [
@@ -1182,7 +2277,7 @@ const exodusJourneyLocations: JourneyLocation[] = [
     id: 'ex-moses',
     name: 'Call of Moses',
     region: 'Midian',
-    description: 'Moses encountered God at the burning bush.',
+    description: 'Moses encountered God at the burning bush on Mount Horeb.',
     emoji: '🔥',
     coordinates: { x: 28, y: 75 },
     people: ['Moses', 'God'],
@@ -1239,23 +2334,23 @@ const exodusJourneyLocations: JourneyLocation[] = [
     verse: 'Exodus 12:1-14'
   },
   {
-    id: 'ex-exodus',
-    name: 'The Exodus',
+    id: 'ex-redsea',
+    name: 'Red Sea',
     region: 'Egypt to Sinai',
-    description: 'The Israelites left Egypt and crossed the Red Sea.',
-    emoji: '🏃',
+    description: 'The Israelites crossed the Red Sea on dry ground.',
+    emoji: '🌊',
     coordinates: { x: 28, y: 68 },
-    people: ['Moses', 'Aaron', 'Israelites'],
-    keyEvent: 'Departure from Egypt',
+    people: ['Moses', 'Israelites'],
+    keyEvent: 'Crossing the Red Sea',
     questions: [
       {
-        question: 'How did the Israelites cross the Red Sea?',
-        options: ['They swam across', 'They built boats', 'The sea was parted', 'They walked around it'],
-        correct: 2,
-        explanation: 'The Red Sea was parted and the Israelites walked across on dry ground (Exodus 14:21-22).'
+        question: 'What happened to the Egyptian army in the Red Sea?',
+        options: ['They crossed safely', 'They were destroyed', 'They turned back', 'They made a treaty'],
+        correct: 1,
+        explanation: 'The Egyptian army was destroyed when the waters returned (Exodus 14:26-28).'
       }
     ],
-    trivia: 'The Egyptian army was destroyed in the Red Sea.',
+    trivia: 'The crossing of the Red Sea is one of the greatest miracles in the Bible.',
     verse: 'Exodus 14:21-31'
   },
   {
@@ -1277,6 +2372,26 @@ const exodusJourneyLocations: JourneyLocation[] = [
     ],
     trivia: 'The Ten Commandments are the foundation of God\'s moral law.',
     verse: 'Exodus 20:1-17'
+  },
+  {
+    id: 'ex-tabernacle',
+    name: 'Wilderness',
+    region: 'Sinai',
+    description: 'The Tabernacle was built according to God\'s instructions.',
+    emoji: '🏕️',
+    coordinates: { x: 32, y: 65 },
+    people: ['Moses', 'Bezalel', 'Israelites'],
+    keyEvent: 'Tabernacle built',
+    questions: [
+      {
+        question: 'What was the purpose of the Tabernacle?',
+        options: ['A place of worship', 'A meeting tent', 'A dwelling place for God', 'All of the above'],
+        correct: 3,
+        explanation: 'The Tabernacle was a dwelling place for God among His people (Exodus 40:34-38).'
+      }
+    ],
+    trivia: 'The Tabernacle was the portable sanctuary in the wilderness.',
+    verse: 'Exodus 40:1-38'
   }
 ]
 
@@ -1295,7 +2410,8 @@ export const missionaryJourneys: Journey[] = [
     '~1,400 miles',
     ['Paul', 'Barnabas', 'John Mark'],
     'Acts',
-    '13-14'
+    '13-14',
+    '#D4AF37'
   ),
   createJourney(
     'second-journey',
@@ -1307,7 +2423,8 @@ export const missionaryJourneys: Journey[] = [
     '~2,800 miles',
     ['Paul', 'Silas', 'Timothy', 'Luke'],
     'Acts',
-    '15-18'
+    '15-18',
+    '#D4AF37'
   ),
   createJourney(
     'third-journey',
@@ -1319,7 +2436,8 @@ export const missionaryJourneys: Journey[] = [
     '~3,500 miles',
     ['Paul', 'Aquila', 'Priscilla', 'Apollos'],
     'Acts',
-    '18-21'
+    '18-21',
+    '#D4AF37'
   ),
   createJourney(
     'rome-journey',
@@ -1331,7 +2449,8 @@ export const missionaryJourneys: Journey[] = [
     '~2,000 miles',
     ['Paul', 'Julius', 'Luke', 'Aristarchus'],
     'Acts',
-    '27-28'
+    '27-28',
+    '#D4AF37'
   ),
   createJourney(
     'philip-journey',
@@ -1343,7 +2462,8 @@ export const missionaryJourneys: Journey[] = [
     '~200 miles',
     ['Philip', 'Ethiopian eunuch'],
     'Acts',
-    '8'
+    '8',
+    '#D4AF37'
   ),
   createJourney(
     'peter-journey',
@@ -1355,31 +2475,138 @@ export const missionaryJourneys: Journey[] = [
     '~500 miles',
     ['Peter', 'Cornelius', 'Tabitha', 'John Mark'],
     'Acts',
-    '9-12'
+    '9-12',
+    '#D4AF37'
   ),
   createJourney(
-    'ark-journey',
-    "Noah's Journey",
-    'Travel with Noah through the greatest cataclysm in human history.',
-    'Building the Ark',
-    'Mount Ararat',
-    arkJourneyLocations,
-    '~1,000 miles (by boat)',
-    ['Noah', 'Shem', 'Ham', 'Japheth', 'Mrs. Noah'],
+    'abraham-journey',
+    "Abraham's Journey",
+    'Follow Abraham as he leaves his homeland and travels to the land God promised.',
+    'Ur',
+    'Hebron',
+    abrahamJourneyLocations,
+    '~1,500 miles',
+    ['Abraham', 'Sarah', 'Lot', 'Isaac'],
     'Genesis',
-    '6-9'
+    '11-25',
+    '#8B5CF6'
+  ),
+  createJourney(
+    'jacob-journey',
+    "Jacob's Journey",
+    'Travel with Jacob as he flees his brother, works for Laban, and returns to Canaan.',
+    'Beersheba',
+    'Hebron',
+    jacobJourneyLocations,
+    '~1,000 miles',
+    ['Jacob', 'Leah', 'Rachel', 'Laban'],
+    'Genesis',
+    '27-35',
+    '#8B5CF6'
+  ),
+  createJourney(
+    'joseph-journey',
+    "Joseph's Journey",
+    'Follow Joseph from the pit to the palace in Egypt.',
+    'Canaan',
+    'Egypt',
+    josephJourneyLocations,
+    '~500 miles',
+    ['Joseph', 'Jacob', 'Brothers', 'Pharaoh'],
+    'Genesis',
+    '37-50',
+    '#8B5CF6'
+  ),
+  createJourney(
+    'joshua-journey',
+    "Joshua's Conquest",
+    'Journey with Joshua as he leads Israel to conquer the Promised Land.',
+    'Shittim',
+    'Shechem',
+    joshuaJourneyLocations,
+    '~300 miles',
+    ['Joshua', 'Israelites'],
+    'Joshua',
+    '1-12',
+    '#F59E0B'
+  ),
+  createJourney(
+    'elijah-journey',
+    "Elijah's Journey",
+    'Follow the prophet Elijah as he confronts kings and hears God\'s voice.',
+    'Gilead',
+    'Jordan River',
+    elijahJourneyLocations,
+    '~500 miles',
+    ['Elijah', 'Elisha', 'Ahab', 'Jezebel'],
+    '1 Kings, 2 Kings',
+    '17-19, 2',
+    '#EF4444'
+  ),
+  createJourney(
+    'return-journey',
+    "The Return from Exile",
+    'Follow the Jews as they return from Babylon and rebuild the Temple.',
+    'Babylon',
+    'Jerusalem',
+    returnJourneyLocations,
+    '~800 miles',
+    ['Cyrus', 'Zerubbabel', 'Ezra', 'Nehemiah'],
+    'Ezra',
+    '1-6',
+    '#22C55E'
+  ),
+  createJourney(
+    'nativity-journey',
+    "The Nativity Journey",
+    'Travel with Mary and Joseph as they journey to Bethlehem and beyond.',
+    'Nazareth',
+    'Nazareth',
+    nativityJourneyLocations,
+    '~500 miles',
+    ['Mary', 'Joseph', 'Jesus', 'Shepherds', 'Simeon', 'Anna'],
+    'Luke, Matthew',
+    '1-2',
+    '#D4AF37'
+  ),
+  createJourney(
+    'jonah-journey',
+    "Jonah's Journey",
+    'Follow the reluctant prophet Jonah as he learns about God\'s mercy.',
+    'Joppa',
+    'Nineveh',
+    jonahJourneyLocations,
+    '~1,500 miles',
+    ['Jonah', 'Sailors', 'King of Nineveh'],
+    'Jonah',
+    '1-4',
+    '#3B82F6'
+  ),
+  createJourney(
+    'nehemiah-journey',
+    "Nehemiah's Journey",
+    'Follow Nehemiah as he returns to rebuild the walls of Jerusalem.',
+    'Susa',
+    'Jerusalem',
+    nehemiahJourneyLocations,
+    '~1,000 miles',
+    ['Nehemiah', 'Artaxerxes', 'Sanballat', 'Tobiah'],
+    'Nehemiah',
+    '1-7',
+    '#22C55E'
   ),
   createJourney(
     'exodus-journey',
     "The Exodus Journey",
-    'Follow Moses and the Israelites from slavery in Egypt to the Promised Land.',
+    'Follow Moses and the Israelites from slavery in Egypt to Mount Sinai.',
     'Egypt',
     'Mount Sinai',
     exodusJourneyLocations,
     '~500 miles',
     ['Moses', 'Aaron', 'Miriam', 'Joshua'],
     'Exodus',
-    '1-40'
+    '1-40',
+    '#EF4444'
   ),
 ]
 
