@@ -3,7 +3,9 @@ import React, { useState, useRef, useEffect } from 'react'
 import type { AIMessage } from '../../lib/ai'
 import { chatWithAI } from '../../lib/ai'
 import { useAILimits } from '../../hooks/useAILimits'
+import { useSubscription } from '../../hooks/useSubscription'
 import { AICounter } from '../AICounter'
+import { Crown } from 'lucide-react'
 import styles from './AIChat.module.css'
 
 const DoveIcon = () => (
@@ -28,6 +30,7 @@ const SendIcon = () => (
 )
 
 export const AIChat: React.FC = () => {
+  const { tier } = useSubscription()
   const [messages, setMessages] = useState<AIMessage[]>([
     { role: 'assistant', content: 'Hello! I\'m your Bible study assistant. Ask me anything about Scripture, theology, or faith.' }
   ])
@@ -35,7 +38,7 @@ export const AIChat: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { checkAndIncrement, remaining, tier } = useAILimits()
+  const { checkAndIncrement, remaining } = useAILimits()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -76,6 +79,22 @@ export const AIChat: React.FC = () => {
       e.preventDefault()
       handleSend()
     }
+  }
+
+  if (tier !== 'elder') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', padding: 32, textAlign: 'center', gap: 16 }}>
+        <Crown size={48} style={{ color: '#c9a84c', opacity: 0.6 }} />
+        <h2 style={{ fontSize: 20, fontWeight: 700 }}>Shepherd is for Elders</h2>
+        <p style={{ color: '#888', maxWidth: 300 }}>Upgrade to Elder to chat with Shepherd, your AI Bible study assistant.</p>
+        <button
+          onClick={() => window.location.href = '/upgrade'}
+          style={{ padding: '12px 28px', background: '#c9a84c', color: 'white', border: 'none', borderRadius: 12, fontWeight: 600, cursor: 'pointer', fontSize: 14 }}
+        >
+          Upgrade to Elder — $4.99/yr
+        </button>
+      </div>
+    )
   }
 
   return (
