@@ -9,9 +9,6 @@ const ELDER_EMAILS: string[] = [
   'inemhilda52@gmail.com',
 ]
 
-const PRO_EMAILS: string[] = [
-  'pro.user@gmail.com',
-]
 export const useSubscription = () => {
   const { user } = useAuth()
   const [tier, setTier] = useState<Tier>('free')
@@ -26,7 +23,6 @@ export const useSubscription = () => {
     const email = user?.email || ''
 
     if (ELDER_EMAILS.includes(email)) { setTier('elder'); setLoading(false); return }
-    if (PRO_EMAILS.includes(email)) { setTier('pro'); setLoading(false); return }
 
     const { data } = await supabase.from('subscriptions')
       .select('tier, status, expires_at')
