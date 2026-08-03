@@ -1,300 +1,460 @@
+/* PlanDetail.module.css - The Pilgrimage Detail */
+
 .container {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 8px 0 16px;
+  min-height: 100vh;
+  background: #07111F;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
 }
+
+.ambientGlow {
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 50% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 30%, rgba(212, 175, 55, 0.015) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.content {
+  max-width: 720px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-light);
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.header h2 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text);
+  margin-bottom: 24px;
 }
 
 .backBtn {
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: none;
-  border: none;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 215, 120, 0.06);
+  border-radius: 10px;
+  padding: 8px 14px;
+  color: #94A3B8;
   font-size: 14px;
-  color: var(--text-secondary);
   cursor: pointer;
-  transition: color var(--transition);
-  font-family: var(--font-sans);
+  transition: all 280ms ease;
+  font-family: inherit;
 }
 
 .backBtn:hover {
-  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  color: #F8F6F2;
+  border-color: rgba(212, 175, 55, 0.1);
 }
 
-.percentage {
+.headerInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.headerPlan {
   font-size: 14px;
-  font-weight: 600;
-  color: var(--primary);
+  font-weight: 500;
+  color: #DDE7F2;
 }
 
-.progressSection {
+.headerProgress {
+  font-size: 13px;
+  font-weight: 600;
+  color: #D4AF37;
+  padding: 2px 12px;
+  background: rgba(212, 175, 55, 0.08);
+  border-radius: 12px;
+}
+
+/* ============================================
+   JOURNEY PATH
+   ============================================ */
+
+.journeyPath {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 215, 120, 0.04);
+  border-radius: 16px;
+  padding: 20px 24px;
   margin-bottom: 20px;
 }
 
-.progressBar {
-  width: 100%;
-  height: 6px;
-  background: var(--border);
-  border-radius: 3px;
-  overflow: hidden;
+.pathContainer {
+  position: relative;
 }
 
-.progressFill {
+.pathLine {
+  position: relative;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+  margin: 8px 0 12px;
+}
+
+.pathLineFill {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--primary-light));
-  border-radius: 3px;
-  transition: width 0.5s ease;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #D4AF37, #b8941a);
+  transition: width 0.8s ease;
 }
 
-.progressInfo {
-  text-align: right;
-  font-size: 13px;
-  color: var(--text-muted);
+.pathNodes {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2px;
+  margin-top: -10px;
+}
+
+.node {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 280ms ease;
+  background: rgba(255, 255, 255, 0.02);
+  border: 2px solid rgba(255, 255, 255, 0.04);
+  color: #4a5568;
+}
+
+.node:hover {
+  transform: scale(1.1);
+}
+
+.nodeCompleted {
+  background: rgba(212, 175, 55, 0.08);
+  border-color: #D4AF37;
+  color: #D4AF37;
+}
+
+.nodeCurrent {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: #D4AF37;
+  color: #D4AF37;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+  animation: pulseNode 2s ease-in-out infinite;
+}
+
+@keyframes pulseNode {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.pathLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #4a5568;
   margin-top: 4px;
 }
 
-.content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 20px;
+/* ============================================
+   DESTINATION CARD
+   ============================================ */
+
+.destinationCard {
+  background: #15253A;
+  border: 1px solid rgba(255, 215, 120, 0.06);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 16px;
 }
 
-.daySelector {
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-sm);
-  padding: 16px 20px;
-  text-align: center;
-}
-
-.daySelector h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text);
-  margin: 0 0 4px;
-}
-
-.dayDescription {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin: 0 0 12px;
-}
-
-.dayNav {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  margin-bottom: 12px;
-}
-
-.dayNavBtn {
-  padding: 6px 16px;
-  background: var(--bg-hover);
-  border: none;
-  border-radius: var(--radius-xs);
-  font-size: 13px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all var(--transition);
-  font-family: var(--font-sans);
-}
-
-.dayNavBtn:hover:not(:disabled) {
-  background: var(--primary);
-  color: white;
-}
-
-.dayNavBtn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.completeBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px;
-  width: 100%;
-  background: var(--primary);
-  color: white;
-  border: none;
-  border-radius: var(--radius-xs);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition);
-  font-family: var(--font-sans);
-}
-
-.completeBtn:hover {
-  background: var(--primary-dark);
-}
-
-.completeBtn.completed {
-  background: #22c55e;
-}
-
-.completeBtn.completed:hover {
-  background: #16a34a;
-}
-
-.chapters {
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-sm);
-  padding: 16px 20px;
-}
-
-.chapters h4 {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  margin: 0 0 12px;
-}
-
-.chapterList {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.chapterItem {
+.destinationHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  background: var(--bg-hover);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-xs);
-  cursor: pointer;
-  transition: all var(--transition);
-  font-family: var(--font-sans);
+  margin-bottom: 12px;
 }
 
-.chapterItem:hover {
-  border-color: var(--primary);
-  transform: translateX(4px);
-}
-
-.chapterBook {
-  font-size: 14px;
+.destinationBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #D4AF37;
   font-weight: 500;
-  color: var(--text);
 }
 
-.chapterArrow {
-  color: var(--text-muted);
+.destinationBadge svg {
+  width: 16px;
+  height: 16px;
 }
 
-.calendar {
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-sm);
-  padding: 16px 20px;
+.destinationDay {
+  font-size: 12px;
+  color: #4a5568;
 }
 
-.calendar h4 {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  margin: 0 0 12px;
+.destinationTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #F8F6F2;
+  margin: 0 0 16px 0;
 }
 
-.calendarGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+.destinationReading {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.destinationReadingTitle {
+  font-size: 12px;
+  font-weight: 500;
+  color: #94A3B8;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.destinationChapterList {
+  display: flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
-.calendarDay {
+.destinationChapter {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 215, 120, 0.04);
+  border-radius: 8px;
+  color: #DDE7F2;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+}
+
+.destinationChapter:hover {
+  background: rgba(212, 175, 55, 0.04);
+  border-color: rgba(212, 175, 55, 0.08);
+  transform: translateY(-1px);
+}
+
+.destinationChapter svg {
+  color: #4a5568;
+}
+
+.destinationMeta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.destinationTime {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #4a5568;
+}
+
+.destinationTime svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ============================================
+   DAILY VERSE
+   ============================================ */
+
+.dailyVerse {
+  background: rgba(212, 175, 55, 0.02);
+  border: 1px solid rgba(212, 175, 55, 0.04);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.dailyVerseText {
+  font-size: 14px;
+  font-style: italic;
+  color: #DDE7F2;
+  line-height: 1.6;
+  margin: 0 0 4px 0;
+}
+
+.dailyVerseRef {
+  font-size: 12px;
+  color: #4a5568;
+  margin: 0;
+}
+
+/* ============================================
+   COMPLETE BUTTON
+   ============================================ */
+
+.completeBtn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 6px 4px;
-  text-align: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #D4AF37, #b8941a);
+  color: #07111F;
+}
+
+.completeBtn:hover:not(.completed) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.15);
+}
+
+.completeBtn.completed {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(95, 175, 117, 0.15);
+  color: #5FAF75;
+  cursor: default;
+}
+
+.completeBtn.completed svg {
+  color: #5FAF75;
+}
+
+/* ============================================
+   STREAK
+   ============================================ */
+
+.streakDisplay {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  background: rgba(212, 175, 55, 0.04);
+  border: 1px solid rgba(212, 175, 55, 0.04);
+  border-radius: 10px;
+  color: #D4AF37;
   font-size: 13px;
-  border-radius: var(--radius-xs);
-  background: var(--bg-hover);
-  cursor: pointer;
-  transition: all var(--transition);
-  color: var(--text-muted);
-  border: 1px solid transparent;
+  font-weight: 500;
 }
 
-.calendarDay:hover {
-  border-color: var(--primary);
-  transform: scale(1.05);
+/* ============================================
+   CELEBRATION
+   ============================================ */
+
+.celebration {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(7, 17, 31, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 100;
 }
 
-.calendarDay.completedDay {
-  background: #22c55e;
-  color: white;
-  border-color: #22c55e;
+.celebrationContent {
+  background: #15253A;
+  border: 1px solid rgba(212, 175, 55, 0.12);
+  border-radius: 20px;
+  padding: 32px;
+  text-align: center;
+  max-width: 360px;
+  width: 90%;
 }
 
-.calendarDay.completedDay svg {
-  stroke: white;
+.celebrationIcon {
+  color: #D4AF37;
+  margin-bottom: 8px;
 }
+
+.celebrationContent h4 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #F8F6F2;
+  margin: 0 0 4px 0;
+}
+
+.celebrationContent p {
+  font-size: 14px;
+  color: #94A3B8;
+  margin: 0;
+}
+
+/* ============================================
+   STATS FOOTER
+   ============================================ */
+
+.statsFooter {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0;
+  border-top: 1px solid rgba(255, 215, 120, 0.04);
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statValue {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  color: #D4AF37;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: #4a5568;
+}
+
+/* ============================================
+   LOADING
+   ============================================ */
 
 .loading {
-  text-align: center;
-  padding: 40px;
-  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  color: #94A3B8;
+  font-size: 16px;
 }
 
-@media (max-width: 700px) {
-  .content {
-    grid-template-columns: 1fr;
-  }
+/* ============================================
+   RESPONSIVE
+   ============================================ */
 
-  .calendarGrid {
-    grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
-  }
+@media (max-width: 768px) {
+  .container { padding: 16px; }
+  .header { flex-wrap: wrap; gap: 8px; }
+  .destinationCard { padding: 18px; }
+  .destinationTitle { font-size: 18px; }
 }
 
-@media (max-width: 600px) {
-  .header {
-    flex-direction: column;
-    align-items: stretch;
-    text-align: center;
-  }
-
-  .percentage {
-    text-align: center;
-  }
-
-  .backBtn {
-    justify-content: center;
-  }
-
-  .calendarGrid {
-    grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
-  }
-
-  .calendarDay {
-    font-size: 11px;
-    padding: 4px 2px;
-  }
+@media (max-width: 480px) {
+  .pathNodes { gap: 4px; }
+  .node { width: 16px; height: 16px; font-size: 8px; }
+  .destinationChapterList { gap: 4px; }
+  .destinationChapter { font-size: 12px; padding: 3px 10px; }
+  .celebrationContent { padding: 24px; }
+  .statsFooter { flex-wrap: wrap; gap: 8px; }
 }
