@@ -2,24 +2,92 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import type { User } from '../lib/supabase'
 
+const AUTH_CACHE_KEY = 'hyescriptures_auth_cache'
+
+interface AuthCache {
+  userId: string
+  email: string
+  display_name: string
+  avatar_url: string | null
+  cachedAt: number
+}
+
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) setUser(mapUser(session.user))
-      setLoading(false)
-    }).catch(() => setLoading(false))
+    checkAuth()
+  }, [])
 
+  const checkAuth = async () => {
+    // STEP 1: Check localStorage cache first (instant load)
+    const cached = getCachedAuth()
+    if (cached) {
+      setUser({
+        id: cached.userId,
+        email: cached.email,
+        display_name: cached.display_name,
+        avatar_url: cached.avatar_url,
+        plan: 'free',
+        xp: 0,
+        streak: 0,
+      })
+      setLoading(false)
+    }
+
+    // STEP 2: Verify with Supabase session
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.user) {
+      const mappedUser = mapUser(session.user)
+      setUser(mappedUser)
+      saveAuthCache(mappedUser)
+    } else if (!cached) {
+      setUser(null)
+    }
+    setLoading(false)
+
+    // STEP 3: Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) setUser(mapUser(session.user))
-      else setUser(null)
+      if (session?.user) {
+        const mappedUser = mapUser(session.user)
+        setUser(mappedUser)
+        saveAuthCache(mappedUser)
+      } else {
+        setUser(null)
+        clearAuthCache()
+      }
       setLoading(false)
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }
+
+  const getCachedAuth = (): AuthCache | null => {
+    try {
+      const data = localStorage.getItem(AUTH_CACHE_KEY)
+      if (!data) return null
+      const cache: AuthCache = JSON.parse(data)
+      if (Date.now() - cache.cachedAt > 7 * 24 * 60 * 60 * 1000) {
+        localStorage.removeItem(AUTH_CACHE_KEY)
+        return null
+      }
+      return cache
+    } catch { return null }
+  }
+
+  const saveAuthCache = (userData: User) => {
+    const cache: AuthCache = {
+      userId: userData.id,
+      email: userData.email,
+      display_name: userData.display_name || userData.email?.split('@')[0] || '',
+      avatar_url: userData.avatar_url,
+      cachedAt: Date.now(),
+    }
+    localStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(cache))
+  }
+
+  const clearAuthCache = () => localStorage.removeItem(AUTH_CACHE_KEY)
 
   const mapUser = (authUser: any): User => ({
     id: authUser.id,
@@ -37,20 +105,13 @@ export const useAuth = () => {
 
   const signInWithGoogle = async () => {
     const options: any = {}
-
-    // Only use custom redirect for APK
-    if (isCapacitor()) {
-      options.redirectTo = 'com.hyescriptures.app://login-callback'
-    }
-
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options,
-    })
+    if (isCapacitor()) options.redirectTo = 'com.hyescriptures.app://login-callback'
+    await supabase.auth.signInWithOAuth({ provider: 'google', options })
   }
 
   const signOut = async () => {
     await supabase.auth.signOut()
+    clearAuthCache()
     setUser(null)
   }
 
@@ -58,7 +119,9 @@ export const useAuth = () => {
     if (!user) return
     const { error } = await supabase.auth.updateUser({ data: updates })
     if (error) throw error
-    setUser({ ...user, ...updates })
+    const updated = { ...user, ...updates }
+    setUser(updated)
+    saveAuthCache(updated)
   }
 
   return { user, loading, signInWithGoogle, signOut, updateProfile, isAuthenticated: !!user }
