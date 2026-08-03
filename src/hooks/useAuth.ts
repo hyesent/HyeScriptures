@@ -31,9 +31,21 @@ export const useAuth = () => {
     streak: authUser.user_metadata?.streak || 0,
   })
 
+  const isCapacitor = (): boolean => {
+    return !!(window as any).Capacitor?.isNativePlatform?.()
+  }
+
   const signInWithGoogle = async () => {
+    const options: any = {}
+
+    // Only use custom redirect for APK
+    if (isCapacitor()) {
+      options.redirectTo = 'com.hyescriptures.app://login-callback'
+    }
+
     await supabase.auth.signInWithOAuth({
       provider: 'google',
+      options,
     })
   }
 
