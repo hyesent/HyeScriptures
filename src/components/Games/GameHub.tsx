@@ -28,13 +28,14 @@ import {
   BarChart,
   PenTool,
   GripVertical,
-  TrendingUp
+  TrendingUp,
+  Compass
 } from 'lucide-react';
 import GameCard from './GameCard';
 import { gameEngine } from '../../lib/games/game-engine';
 import { TIMING, EASING } from '../../lib/animations';
 import { getLevelIcon } from '../../components/Icons/LevelIcons';
-import { getNextLevel, getLevelTitle } from '../../lib/games/level'; // ✅ Fixed import
+import { getNextLevel } from '../../lib/games/level';
 import styles from './GameHub.module.css';
 
 // ============================================================
@@ -42,7 +43,6 @@ import styles from './GameHub.module.css';
 // ============================================================
 
 const Icons = {
-  // Bible Quiz
   Bible: () => (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
@@ -52,40 +52,30 @@ const Icons = {
       <line x1="10" y1="16" x2="12" y2="16" />
     </svg>
   ),
-  
-  // Who Said It?
   Quote: () => (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
       <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" />
     </svg>
   ),
-  
-  // Book Order
   Books: () => (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
       <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
     </svg>
   ),
-  
-  // Finish the Verse
   Pencil: () => (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 20h9" />
       <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
     </svg>
   ),
-  
-  // Who Am I?
   Character: () => (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
       <circle cx="12" cy="7" r="4" />
     </svg>
   ),
-  
-  // Hangman
   Hangman: () => (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 2v8" />
@@ -94,8 +84,6 @@ const Icons = {
       <circle cx="12" cy="12" r="10" />
     </svg>
   ),
-  
-  // Verse Puzzle
   Puzzle: () => (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M19 3h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4" />
@@ -106,8 +94,6 @@ const Icons = {
       <path d="M9 21h4a2 2 0 0 0 2-2v-2" />
     </svg>
   ),
-  
-  // Memory Verse
   Memory: () => (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 2v4" />
@@ -121,8 +107,6 @@ const Icons = {
       <circle cx="12" cy="12" r="4" />
     </svg>
   ),
-  
-  // Timeline
   Timeline: () => (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <line x1="3" y1="12" x2="21" y2="12" />
@@ -134,15 +118,11 @@ const Icons = {
       <line x1="18" y1="8" x2="18" y2="16" />
     </svg>
   ),
-  
-  // Rapid Fire
   Rapid: () => (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
     </svg>
   ),
-  
-  // Crossword
   Crossword: () => (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
@@ -152,8 +132,6 @@ const Icons = {
       <line x1="15" y1="3" x2="15" y2="21" />
     </svg>
   ),
-  
-  // Daily Challenge
   Daily: () => (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -168,8 +146,13 @@ const Icons = {
       <path d="M16 18h.01" />
     </svg>
   ),
-  
-  // Extra
+  Compass: () => (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10-4-10-8-10-8 4-8 10 8 10 8 10z" />
+      <path d="M12 6v12" />
+      <path d="M12 6l-4 6 4 6 4-6-4-6z" />
+    </svg>
+  ),
   Scroll: () => (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -189,7 +172,7 @@ const Icons = {
 };
 
 // ============================================================
-// GAME REGISTRY - Add all games here with their imports
+// GAME REGISTRY
 // ============================================================
 
 interface GameConfig {
@@ -211,7 +194,6 @@ interface GameConfig {
 // LAZY LOAD ALL GAME COMPONENTS
 // ============================================================
 
-// ALL GAMES UNLOCKED
 const BibleQuiz = lazy(() => import('./BibleQuiz'));
 const WhoSaidIt = lazy(() => import('./WhoSaidIt'));
 const BookOrder = lazy(() => import('./BookOrder'));
@@ -224,6 +206,7 @@ const WhoAmI = lazy(() => import('./WhoAmI'));
 const MemoryVerse = lazy(() => import('./MemoryVerse'));
 const RapidFire = lazy(() => import('./RapidFire'));
 const DailyChallenge = lazy(() => import('./DailyChallenge'));
+const MissionaryJourney = lazy(() => import('./MissionaryJourney'));
 
 // ============================================================
 // GAME REGISTRY - ALL GAMES UNLOCKED
@@ -349,6 +332,18 @@ const GAME_REGISTRY: GameConfig[] = [
     component: TimelineChallenge,
     getBestScore: () => gameEngine.getBestScore('timeline')
   },
+  {
+    id: 'missionary-journey',
+    title: 'Missionary Journey',
+    icon: <Icons.Compass />,
+    description: 'Travel with Paul and spread the Gospel',
+    category: 'History',
+    difficulty: 'Intermediate',
+    reward: '350 XP',
+    component: MissionaryJourney,
+    isNew: true,
+    getBestScore: () => gameEngine.getBestScore('missionary-journey')
+  },
 
   // ===== SPEED =====
   {
@@ -380,6 +375,55 @@ const GAME_REGISTRY: GameConfig[] = [
 ];
 
 // ============================================================
+// LOADING COMPONENT (Enhanced)
+// ============================================================
+
+const LoadingState: React.FC = () => {
+  // Random loading messages
+  const messages = [
+    'Preparing the Sacred Arena...',
+    'Sharpening the Sword of the Spirit...',
+    'Gathering the Scrolls of Wisdom...',
+    'Lighting the Path of Truth...',
+    'Calling the Warriors of Faith...',
+    'Opening the Gates of Knowledge...',
+    'Revealing the Mysteries of Scripture...',
+    'Kindling the Flame of Understanding...'
+  ];
+
+  const [messageIndex, setMessageIndex] = useState(0);
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setMessageIndex((prev) => (prev + 1) % messages.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className={styles.loadingContainer}>
+      <div className={styles.loadingContent}>
+        <div className={styles.loadingIcon}>
+          <Loader2 size={48} className={styles.loadingSpinner} />
+        </div>
+        <div className={styles.loadingVerse}>
+          <p className={styles.loadingVerseText}>
+            "Your word is a lamp to my feet and a light to my path."
+          </p>
+          <p className={styles.loadingVerseRef}>— Psalm 119:105</p>
+        </div>
+        <p className={styles.loadingMessage}>{messages[messageIndex]}</p>
+        <div className={styles.loadingDots}>
+          <span className={styles.loadingDot} />
+          <span className={styles.loadingDot} />
+          <span className={styles.loadingDot} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
 // GAME HUB COMPONENT
 // ============================================================
 
@@ -392,44 +436,25 @@ export const GameHub: React.FC<GameHubProps> = ({ onBack }) => {
   const [activeFilter, setActiveFilter] = useState<string>('All');
   const stats = gameEngine.getStats();
   
-  // Get level info from game engine
   const levelInfo = gameEngine.getLevelInfo();
   const LevelIcon = getLevelIcon(levelInfo.title);
-  
-  // Get next level title using proper import
   const nextLevel = getNextLevel(levelInfo.xp);
-  const nextLevelTitle = nextLevel ? nextLevel.title : 'Max Level';
 
-  // Get unique categories from registry
   const allCategories = ['All', ...new Set(GAME_REGISTRY.map(g => g.category))];
   
-  // Filter games
   const filteredGames = activeFilter === 'All' 
     ? GAME_REGISTRY 
     : GAME_REGISTRY.filter(g => g.category === activeFilter);
 
-  // Find daily game
   const dailyGame = GAME_REGISTRY.find(g => g.isDaily);
-
-  // Find selected game config
   const selectedGame = GAME_REGISTRY.find(g => g.id === selectedGameId);
 
-  // Loading fallback
-  const LoadingFallback = () => (
-    <div className={styles.loadingContainer}>
-      <Loader2 size={40} className={styles.loadingSpinner} />
-      <p>Loading Arena...</p>
-    </div>
-  );
-
-  // Render selected game with lazy loading
   const renderGame = () => {
     if (!selectedGame) return null;
-
     const GameComponent = selectedGame.component;
 
     return (
-      <Suspense fallback={<LoadingFallback />}>
+      <Suspense fallback={<LoadingState />}>
         <GameComponent onBack={() => setSelectedGameId(null)} />
       </Suspense>
     );
@@ -459,7 +484,6 @@ export const GameHub: React.FC<GameHubProps> = ({ onBack }) => {
             </div>
           </div>
           <div className={styles.headerRight}>
-            {/* Updated: Show biblical level title instead of number */}
             <span 
               className={styles.headerLevel}
               style={{ 
@@ -495,7 +519,6 @@ export const GameHub: React.FC<GameHubProps> = ({ onBack }) => {
           </motion.p>
         </section>
 
-        {/* XP Progress Bar */}
         <motion.div 
           className={styles.xpBarContainer}
           initial={{ opacity: 0, y: 10 }}
