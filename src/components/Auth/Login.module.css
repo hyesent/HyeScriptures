@@ -100,7 +100,7 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
-  color: #fff;
+  color: #111111;
   font-size: 14px;
   outline: none;
   transition: all 0.2s;
@@ -205,3 +205,80 @@
   font-size: 12px;
   text-align: center;
   }
+.rememberRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.rememberLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #8899aa;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #c9a84c;
+  cursor: pointer;
+}
+
+.forgotLink {
+  background: none;
+  border: none;
+  color: #8899aa;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.forgotLink:hover { color: #c9a84c; }
+
+.infoToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  background: none;
+  border: none;
+  color: #556677;
+  font-size: 11px;
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+}
+
+.infoToggle:hover { color: #8899aa; }
+
+.infoBox {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: rgba(201, 168, 76, 0.08);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: 12px;
+  font-size: 11px;
+  color: #8899aa;
+  line-height: 1.6;
+}
+
+.infoBox svg {
+  flex-shrink: 0;
+  color: #c9a84c;
+  margin-top: 2px;
+}
+
+.infoBox p {
+  margin: 0 0 6px;
+}
+
+.infoBox p:last-child { margin: 0; }
+
+.infoBox strong { color: #c9a84c; }
+
+.infoBox em { color: #e8c96a; font-style: normal; }
