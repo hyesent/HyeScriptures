@@ -1,5 +1,5 @@
 // src/components/Games/Crossword.tsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, 
@@ -18,14 +18,18 @@ import {
   Puzzle,
   Grid,
   LayoutGrid,
-  ChevronRight
+  ChevronRight,
+  RefreshCw,
+  Sparkles,
+  Award
 } from 'lucide-react';
 import { 
   getRandomCrossword,
   getTotalPuzzles,
-  getAllThemes
+  getAllThemes,
+  getCrosswordsByTheme
 } from '../../data/games/crossword';
-import type { CrosswordPuzzle,  CrosswordClue } from '../../data/games/crossword';
+import type { CrosswordPuzzle, CrosswordClue } from '../../data/games/crossword';
 import { gameEngine } from '../../lib/games/game-engine';
 import { TIMING, EASING } from '../../lib/animations';
 import styles from './Crossword.module.css';
@@ -34,204 +38,308 @@ interface CrosswordProps {
   onBack: () => void;
 }
 
-// ============================================================
-// SVG ICONS
-// ============================================================
-
-const Icons = {
-  Crossword: () => (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-      <line x1="3" y1="9" x2="21" y2="9" />
-      <line x1="3" y1="15" x2="21" y2="15" />
-      <line x1="9" y1="3" x2="9" y2="21" />
-      <line x1="15" y1="3" x2="15" y2="21" />
-    </svg>
-  ),
-  Theme: () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2L2 7l10 5 10-5-10-5z" />
-      <path d="M2 17l10 5 10-5" />
-      <path d="M2 12l10 5 10-5" />
-    </svg>
-  )
-};
-
 const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
+  // ================================================================
+  // STATE
+  // ================================================================
+  
   const [puzzle, setPuzzle] = useState<CrosswordPuzzle | null>(null);
   const [grid, setGrid] = useState<string[][]>([]);
+  const [userGrid, setUserGrid] = useState<string[][]>([]);
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
+  const [selectedClue, setSelectedClue] = useState<CrosswordClue | null>(null);
   const [selectedDirection, setSelectedDirection] = useState<'across' | 'down'>('across');
+  const [wordInput, setWordInput] = useState<string>('');
+  const [isWrong, setIsWrong] = useState<boolean>(false);
+  const [isCorrect, setIsCorrect] = useState<boolean>(false);
+  const [completedWords, setCompletedWords] = useState<Set<string>>(new Set());
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [time, setTime] = useState(0);
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
-  const [filledCells, setFilledCells] = useState(0);
-  const [totalCells, setTotalCells] = useState(0);
-  const [clueSelected, setClueSelected] = useState<CrosswordClue | null>(null);
-  const [showClue, setShowClue] = useState<CrosswordClue | null>(null);
   const [selectedTheme, setSelectedTheme] = useState<string>('all');
+  const [showReference, setShowReference] = useState<boolean>(false);
+  const [totalCorrect, setTotalCorrect] = useState(0);
+  const [totalWrong, setTotalWrong] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
   const [bestScore, setBestScore] = useState(0);
-  const [isComplete, setIsComplete] = useState(false);
-  const [revealed, setRevealed] = useState<string[]>([]);
+  const [wrongWord, setWrongWord] = useState<string>('');
 
+  const inputRef = useRef<HTMLInputElement>(null);
   const themes = ['all', ...getAllThemes()];
+
+  // ================================================================
+  // GAME INITIALIZATION
+  // ================================================================
 
   const startGame = () => {
     let newPuzzle: CrosswordPuzzle;
     
     if (selectedTheme !== 'all') {
-      // Get puzzles by theme
       const themedPuzzles = getCrosswordsByTheme(selectedTheme);
-      newPuzzle = themedPuzzles[Math.floor(Math.random() * themedPuzzles.length)];
+      if (themedPuzzles.length === 0) {
+        newPuzzle = getRandomCrossword();
+      } else {
+        newPuzzle = themedPuzzles[Math.floor(Math.random() * themedPuzzles.length)];
+      }
     } else {
       newPuzzle = getRandomCrossword();
     }
     
     setPuzzle(newPuzzle);
-    const newGrid = newPuzzle.grid.map(row => [...row]);
-    setGrid(newGrid);
     
-    let total = 0;
-    newGrid.forEach(row => {
-      row.forEach(cell => {
-        if (cell !== '') total++;
-      });
-    });
-    setTotalCells(total);
-    setFilledCells(0);
-    setIsComplete(false);
-    setRevealed([]);
+    // Initialize grids
+    const puzzleGrid = newPuzzle.grid.map(row => [...row]);
+    setGrid(puzzleGrid);
     
+    // User grid starts empty (only show black cells)
+    const userGridCopy = puzzleGrid.map(row => 
+      row.map(cell => cell === '■' ? '■' : '')
+    );
+    setUserGrid(userGridCopy);
+    
+    setCompletedWords(new Set());
+    setSelectedCell(null);
+    setSelectedClue(null);
+    setWordInput('');
+    setIsWrong(false);
+    setIsCorrect(false);
     setGameStarted(true);
     setGameOver(false);
     setScore(0);
     setTime(0);
+    setTotalCorrect(0);
+    setTotalWrong(0);
+    setCompletedCount(0);
+    setIsComplete(false);
     setXpEarned(0);
-    setSelectedCell(null);
-    setClueSelected(null);
-    setShowClue(null);
+    setWrongWord('');
     setBestScore(gameEngine.getBestScore('crossword'));
     
-    if (timerInterval) clearInterval(timerInterval);
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      setTimerInterval(null);
+    }
+    
     const interval = setInterval(() => {
       setTime(prev => prev + 1);
     }, 1000);
     setTimerInterval(interval);
+    
+    // Focus input after a delay
+    setTimeout(() => inputRef.current?.focus(), 200);
   };
 
-  // Helper to get puzzles by theme
-  const getCrosswordsByTheme = (theme: string): CrosswordPuzzle[] => {
-    // This would need to be implemented in your data file
-    // For now, return a single random puzzle
-    return [getRandomCrossword()];
+  // ================================================================
+  // CLUE SELECTION
+  // ================================================================
+
+  const selectClue = (clue: CrosswordClue) => {
+    if (completedWords.has(clue.id)) return;
+    
+    setSelectedClue(clue);
+    setSelectedDirection(clue.direction);
+    setWordInput('');
+    setIsWrong(false);
+    setIsCorrect(false);
+    
+    // Highlight the first cell of the clue
+    setSelectedCell({ row: clue.row, col: clue.col });
+    
+    // Focus input
+    setTimeout(() => inputRef.current?.focus(), 50);
   };
 
   const handleCellClick = (row: number, col: number) => {
     if (gameOver) return;
-    if (grid[row][col] === '') return;
+    if (grid[row]?.[col] === '■') return;
     
-    setSelectedCell({ row, col });
-    
-    const clue = puzzle?.clues.find(c => 
-      (c.direction === 'across' && c.row === row && c.col <= col && c.col + c.length > col) ||
-      (c.direction === 'down' && c.col === col && c.row <= row && c.row + c.length > row)
-    );
+    // Find which clue this cell belongs to
+    const clue = puzzle?.clues.find(c => {
+      if (c.direction === 'across') {
+        return c.row === row && c.col <= col && c.col + c.length > col;
+      } else {
+        return c.col === col && c.row <= row && c.row + c.length > row;
+      }
+    });
     
     if (clue) {
-      setClueSelected(clue);
-      setSelectedDirection(clue.direction);
-      setShowClue(clue);
+      // If clicking on a completed word, don't allow selection
+      if (completedWords.has(clue.id)) return;
+      selectClue(clue);
     }
   };
 
-  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-    if (!selectedCell || !puzzle) return;
+  // ================================================================
+  // WORD INPUT HANDLING
+  // ================================================================
+
+  const handleWordSubmit = () => {
+    if (!selectedClue || !puzzle) return;
+    if (completedWords.has(selectedClue.id)) return;
     if (gameOver) return;
     
-    const { row, col } = selectedCell;
-    const key = e.key.toUpperCase();
+    const word = wordInput.trim().toUpperCase();
+    if (word.length === 0) return;
     
-    if (key >= 'A' && key <= 'Z' && key.length === 1) {
-      const newGrid = grid.map(r => [...r]);
-      newGrid[row][col] = key;
-      setGrid(newGrid);
+    const isCorrectWord = word === selectedClue.answer;
+    
+    if (isCorrectWord) {
+      // ✅ CORRECT!
+      setIsCorrect(true);
+      setIsWrong(false);
+      setTotalCorrect(prev => prev + 1);
+      setCompletedCount(prev => prev + 1);
       
-      let newFilled = 0;
-      newGrid.forEach(r => {
-        r.forEach(c => {
-          if (c !== '') newFilled++;
-        });
-      });
-      setFilledCells(newFilled);
+      // Fill the grid with the word
+      const newUserGrid = userGrid.map(row => [...row]);
+      const clue = selectedClue;
       
-      // Move to next cell in direction
+      for (let i = 0; i < clue.answer.length; i++) {
+        const r = clue.direction === 'down' ? clue.row + i : clue.row;
+        const c = clue.direction === 'across' ? clue.col + i : clue.col;
+        newUserGrid[r][c] = clue.answer[i];
+      }
+      
+      setUserGrid(newUserGrid);
+      
+      // Mark word as completed
+      setCompletedWords(prev => new Set([...prev, clue.id]));
+      
+      // Update score
+      const timeBonus = Math.max(0, 10 - Math.floor(time / 10));
+      const points = 10 + timeBonus;
+      setScore(prev => prev + points);
+      
+      // Clear input and reset
+      setWordInput('');
+      
+      // Show correct animation
+      setTimeout(() => {
+        setIsCorrect(false);
+      }, 500);
+      
+      // Auto-select next clue
+      autoSelectNextClue();
+      
+      // Check if puzzle is complete
+      if (completedWords.size + 1 === puzzle.clues.length) {
+        handlePuzzleComplete();
+      }
+      
+    } else {
+      // ❌ WRONG!
+      setIsWrong(true);
+      setIsCorrect(false);
+      setTotalWrong(prev => prev + 1);
+      setWrongWord(word);
+      
+      // Highlight all cells in the clue with red glow
+      const clue = selectedClue;
+      const newUserGrid = userGrid.map(row => [...row]);
+      
+      // Mark cells as wrong by adding a special marker
+      for (let i = 0; i < clue.answer.length; i++) {
+        const r = clue.direction === 'down' ? clue.row + i : clue.row;
+        const c = clue.direction === 'across' ? clue.col + i : clue.col;
+        // Add a temporary wrong marker
+        newUserGrid[r][c] = userGrid[r][c] || '✗';
+      }
+      setUserGrid(newUserGrid);
+      
+      // Clear the input and wrong state after delay
+      setTimeout(() => {
+        // Restore the grid (remove wrong markers)
+        const restoredGrid = userGrid.map(row => [...row]);
+        setUserGrid(restoredGrid);
+        setWordInput('');
+        setIsWrong(false);
+        setWrongWord('');
+        // Focus back on input
+        inputRef.current?.focus();
+      }, 1200);
+    }
+  };
+
+  const autoSelectNextClue = () => {
+    if (!puzzle) return;
+    
+    // Find the next unanswered clue (try same direction first)
+    let nextClue = puzzle.clues.find(c => 
+      c.direction === selectedDirection && !completedWords.has(c.id)
+    );
+    
+    // If none in same direction, find any unanswered clue
+    if (!nextClue) {
+      nextClue = puzzle.clues.find(c => !completedWords.has(c.id));
+    }
+    
+    if (nextClue) {
+      selectClue(nextClue);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleWordSubmit();
+    }
+    
+    if (e.key === 'Escape') {
+      setWordInput('');
+      setIsWrong(false);
+      setIsCorrect(false);
+    }
+    
+    if (e.key === 'Tab') {
+      e.preventDefault();
       if (selectedDirection === 'across') {
-        if (col + 1 < grid[row].length && grid[row][col + 1] !== '') {
-          setSelectedCell({ row, col: col + 1 });
-        }
+        const nextClue = puzzle?.clues.find(c => 
+          c.direction === 'across' && !completedWords.has(c.id) && c.id !== selectedClue?.id
+        );
+        if (nextClue) selectClue(nextClue);
       } else {
-        if (row + 1 < grid.length && grid[row + 1][col] !== '') {
-          setSelectedCell({ row: row + 1, col });
-        }
+        const nextClue = puzzle?.clues.find(c => 
+          c.direction === 'down' && !completedWords.has(c.id) && c.id !== selectedClue?.id
+        );
+        if (nextClue) selectClue(nextClue);
       }
-      
-      if (newFilled === totalCells) {
-        setGameOver(true);
-        setIsComplete(true);
-        if (timerInterval) {
-          clearInterval(timerInterval);
-          setTimerInterval(null);
-        }
-        const result = gameEngine.recordAnswer('crossword', true, 'mixed');
-        const timeBonus = Math.max(0, 100 - time);
-        const bonusScore = result.score + timeBonus;
-        setScore(bonusScore);
-        const baseXP = 50;
-        const timeBonusXP = Math.floor(time / 10);
-        setXpEarned(baseXP + timeBonusXP);
-      }
+    }
+  };
+
+  // ================================================================
+  // PUZZLE COMPLETE
+  // ================================================================
+
+  const handlePuzzleComplete = () => {
+    setGameOver(true);
+    setIsComplete(true);
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      setTimerInterval(null);
     }
     
-    if (e.key === 'Backspace') {
-      const newGrid = grid.map(r => [...r]);
-      newGrid[row][col] = '';
-      setGrid(newGrid);
-      
-      if (selectedDirection === 'across') {
-        if (col - 1 >= 0 && grid[row][col - 1] !== '') {
-          setSelectedCell({ row, col: col - 1 });
-        }
-      } else {
-        if (row - 1 >= 0 && grid[row - 1][col] !== '') {
-          setSelectedCell({ row: row - 1, col });
-        }
-      }
-    }
+    const result = gameEngine.recordAnswer('crossword', true, 'mixed');
+    const timeBonus = Math.max(0, 100 - time);
+    const accuracy = totalCorrect + totalWrong > 0 
+      ? Math.round((totalCorrect / (totalCorrect + totalWrong)) * 100) 
+      : 100;
+    const accuracyBonus = Math.round(accuracy / 10) * 5;
+    const finalScore = result.score + timeBonus + accuracyBonus;
     
-    if (e.key === 'ArrowRight' && selectedDirection === 'across') {
-      if (col + 1 < grid[row].length && grid[row][col + 1] !== '') {
-        setSelectedCell({ row, col: col + 1 });
-      }
-    }
-    if (e.key === 'ArrowDown' && selectedDirection === 'down') {
-      if (row + 1 < grid.length && grid[row + 1][col] !== '') {
-        setSelectedCell({ row: row + 1, col });
-      }
-    }
-    if (e.key === 'ArrowLeft' && selectedDirection === 'across') {
-      if (col - 1 >= 0 && grid[row][col - 1] !== '') {
-        setSelectedCell({ row, col: col - 1 });
-      }
-    }
-    if (e.key === 'ArrowUp' && selectedDirection === 'down') {
-      if (row - 1 >= 0 && grid[row - 1][col] !== '') {
-        setSelectedCell({ row: row - 1, col });
-      }
-    }
-  }, [selectedCell, grid, puzzle, gameOver, selectedDirection, timerInterval, totalCells]);
+    setScore(finalScore);
+    const baseXP = 50;
+    const timeBonusXP = Math.floor(time / 10);
+    const accuracyXP = Math.floor(accuracy / 10);
+    setXpEarned(baseXP + timeBonusXP + accuracyXP);
+  };
+
+  // ================================================================
+  // RENDER HELPERS
+  // ================================================================
 
   const getTimeString = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -248,40 +356,50 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
   };
 
   const getCellClass = (row: number, col: number): string => {
-    const cellValue = grid[row]?.[col];
+    const gridCell = grid[row]?.[col];
+    const userCell = userGrid[row]?.[col];
     let classes = styles.cell;
     
-    if (cellValue === '') {
-      classes += ` ${styles.cellEmpty}`;
-      return classes;
+    // Black cell
+    if (gridCell === '■') {
+      return `${classes} ${styles.cellBlack}`;
     }
     
+    // Check if this cell is part of the selected clue
+    let isPartOfSelectedClue = false;
+    if (selectedClue) {
+      if (selectedClue.direction === 'across') {
+        isPartOfSelectedClue = selectedClue.row === row && 
+          selectedClue.col <= col && 
+          selectedClue.col + selectedClue.length > col;
+      } else {
+        isPartOfSelectedClue = selectedClue.col === col && 
+          selectedClue.row <= row && 
+          selectedClue.row + selectedClue.length > row;
+      }
+    }
+    
+    // Selected cell
     if (selectedCell?.row === row && selectedCell?.col === col) {
       classes += ` ${styles.cellSelected}`;
     }
     
-    if (clueSelected && selectedCell) {
-      const isPartOfClue = 
-        (clueSelected.direction === 'across' && 
-         clueSelected.row === row && 
-         clueSelected.col <= col && 
-         clueSelected.col + clueSelected.length > col) ||
-        (clueSelected.direction === 'down' && 
-         clueSelected.col === col && 
-         clueSelected.row <= row && 
-         clueSelected.row + clueSelected.length > row);
-      
-      if (isPartOfClue) {
-        classes += ` ${styles.cellHighlighted}`;
+    // Highlighted (part of selected clue)
+    if (isPartOfSelectedClue && !completedWords.has(selectedClue?.id || '')) {
+      classes += ` ${styles.cellHighlighted}`;
+    }
+    
+    // Completed word
+    if (userCell && userCell !== '■' && userCell !== '✗') {
+      const isCompleted = selectedClue && completedWords.has(selectedClue.id);
+      if (isCompleted || (selectedClue && userCell === selectedClue.answer[col - selectedClue.col])) {
+        classes += ` ${styles.cellCompleted}`;
       }
     }
     
-    if (cellValue !== '' && cellValue !== puzzle?.grid[row][col]) {
+    // Wrong marker
+    if (userCell === '✗') {
       classes += ` ${styles.cellWrong}`;
-    }
-    
-    if (cellValue !== '' && cellValue === puzzle?.grid[row][col]) {
-      classes += ` ${styles.cellCorrect}`;
     }
     
     return classes;
@@ -308,10 +426,10 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
             transition={{ duration: TIMING.NORMAL / 1000 }}
           >
             <div className={styles.startIcon}>
-              <Icons.Crossword />
+              <Puzzle size={48} strokeWidth={1.5} />
             </div>
             <h2 className={styles.startTitle}>Bible Crossword</h2>
-            <p className={styles.startSubtitle}>Solve the puzzle by filling in the correct letters</p>
+            <p className={styles.startSubtitle}>Type the full word to solve each clue</p>
             <p className={styles.startCount}>
               {getTotalPuzzles()} puzzles available
             </p>
@@ -349,8 +467,8 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
   // ============================================================
   // GAME OVER SCREEN
   // ============================================================
-  if (gameOver) {
-    const completed = totalCells > 0 ? (filledCells / totalCells) * 100 : 0;
+  if (gameOver && isComplete) {
+    const completed = totalCells > 0 ? (completedCount / puzzle!.clues.length) * 100 : 0;
     const isNewBest = score >= bestScore && score > 0;
     
     return (
@@ -405,6 +523,23 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
               </div>
             </div>
 
+            <div className={styles.resultsStats}>
+              <div className={styles.resultsStat}>
+                <span className={styles.resultsStatValue}>{totalCorrect}</span>
+                <span className={styles.resultsStatLabel}>Correct</span>
+              </div>
+              <div className={styles.resultsStat}>
+                <span className={styles.resultsStatValue}>{totalWrong}</span>
+                <span className={styles.resultsStatLabel}>Wrong</span>
+              </div>
+              <div className={styles.resultsStat}>
+                <span className={styles.resultsStatValue}>
+                  {totalCorrect + totalWrong > 0 ? Math.round((totalCorrect / (totalCorrect + totalWrong)) * 100) : 0}%
+                </span>
+                <span className={styles.resultsStatLabel}>Accuracy</span>
+              </div>
+            </div>
+
             <motion.div 
               className={styles.xpEarned}
               initial={{ opacity: 0 }}
@@ -422,6 +557,7 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                 className={styles.primary}
                 onClick={startGame}
               >
+                <RefreshCw size={16} />
                 New Puzzle
               </motion.button>
               <motion.button
@@ -452,11 +588,7 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
           <span>Back</span>
         </button>
 
-        <div 
-          className={styles.gameCard} 
-          onKeyDown={handleKeyPress} 
-          tabIndex={0}
-        >
+        <div className={styles.gameCard}>
           {/* Header */}
           <div className={styles.gameHeader}>
             <div>
@@ -464,7 +596,7 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                 <Puzzle size={16} />
                 Crossword
               </span>
-              <span className={styles.gameProgress}>
+              <span className={styles.gameTitle}>
                 {puzzle?.title}
               </span>
             </div>
@@ -474,7 +606,11 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                 {getTimeString(time)}
               </span>
               <span className={styles.gameProgress}>
-                {filledCells}/{totalCells}
+                {completedCount}/{puzzle?.clues.length} clues
+              </span>
+              <span className={styles.gameScore}>
+                <Star size={14} />
+                {score}
               </span>
             </div>
           </div>
@@ -484,7 +620,7 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
             <motion.div 
               className={styles.progressFill}
               initial={{ width: 0 }}
-              animate={{ width: `${totalCells > 0 ? (filledCells / totalCells) * 100 : 0}%` }}
+              animate={{ width: `${puzzle ? (completedCount / puzzle.clues.length) * 100 : 0}%` }}
               transition={{ duration: TIMING.NORMAL / 1000 }}
             />
           </div>
@@ -501,20 +637,28 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                 {puzzle?.grid.map((row, rowIndex) => (
                   row.map((cell, colIndex) => {
                     const clueNumber = getClueNumber(rowIndex, colIndex);
-                    const cellValue = grid[rowIndex]?.[colIndex] || '';
+                    const userCell = userGrid[rowIndex]?.[colIndex] || '';
                     const isSelected = selectedCell?.row === rowIndex && selectedCell?.col === colIndex;
+                    const isBlack = cell === '■';
                     
                     return (
                       <div
                         key={`${rowIndex}-${colIndex}`}
                         onClick={() => handleCellClick(rowIndex, colIndex)}
                         className={`${getCellClass(rowIndex, colIndex)} ${isSelected ? styles.selected : ''}`}
+                        style={{
+                          cursor: isBlack ? 'default' : 'pointer'
+                        }}
                       >
-                        {cellValue}
-                        {clueNumber && cellValue === '' && cell !== '' && (
-                          <span className={styles.clueNumber}>
-                            {clueNumber}
-                          </span>
+                        {!isBlack && (
+                          <>
+                            {userCell}
+                            {clueNumber && userCell === '' && (
+                              <span className={styles.clueNumber}>
+                                {clueNumber}
+                              </span>
+                            )}
+                          </>
                         )}
                       </div>
                     );
@@ -525,71 +669,128 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
 
             {/* Clues Panel */}
             <div className={styles.cluesPanel}>
-              {/* Selected clue */}
-              {showClue && (
-                <div className={styles.selectedClue}>
-                  <p className={styles.selectedClueLabel}>Selected Clue</p>
-                  <p className={styles.selectedClueText}>
-                    <span className={styles.selectedClueNumber}>
-                      {showClue.id.replace(/[ad]/g, '')}.
+              {/* Selected Clue Input */}
+              {selectedClue && !completedWords.has(selectedClue.id) && (
+                <div className={styles.inputSection}>
+                  <div className={styles.inputLabel}>
+                    <span className={styles.inputDirection}>
+                      {selectedDirection === 'across' ? '→' : '↓'}
                     </span>
-                    <span className={styles.selectedClueContent}>{showClue.clue}</span>
-                  </p>
-                  {showClue.reference && (
-                    <p className={styles.selectedClueReference}>
-                      <BookOpen size={12} />
-                      {showClue.reference}
-                    </p>
+                    <span className={styles.inputClue}>
+                      {selectedClue.id.replace(/[ad]/g, '')}. {selectedClue.clue}
+                    </span>
+                  </div>
+                  <div className={styles.inputWrapper}>
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      className={`${styles.wordInput} ${isWrong ? styles.wrong : ''} ${isCorrect ? styles.correct : ''}`}
+                      value={wordInput}
+                      onChange={(e) => {
+                        setWordInput(e.target.value.toUpperCase());
+                        if (isWrong) setIsWrong(false);
+                      }}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Type the word..."
+                      autoFocus
+                      maxLength={selectedClue.answer.length}
+                      disabled={gameOver}
+                    />
+                    <button 
+                      className={styles.submitBtn}
+                      onClick={handleWordSubmit}
+                      disabled={gameOver}
+                    >
+                      <CheckCircle size={18} />
+                    </button>
+                  </div>
+                  {isWrong && (
+                    <div className={styles.wrongFeedback}>
+                      <XCircle size={14} />
+                      Wrong! Try again.
+                    </div>
                   )}
+                  {isCorrect && (
+                    <div className={styles.correctFeedback}>
+                      <CheckCircle size={14} />
+                      Correct! ✓
+                    </div>
+                  )}
+                  <div className={styles.inputHint}>
+                    <span>{wordInput.length}/{selectedClue.answer.length} letters</span>
+                    <span>Press Enter to submit</span>
+                  </div>
                 </div>
               )}
+
+              {/* Completed words count */}
+              <div className={styles.clueStats}>
+                <span className={styles.clueStatsText}>
+                  {completedCount} of {puzzle?.clues.length} clues solved
+                </span>
+                {isComplete && (
+                  <span className={styles.clueStatsComplete}>🎉 Complete!</span>
+                )}
+              </div>
 
               {/* Across Clues */}
               <div className={styles.clueGroup}>
                 <h4 className={styles.clueGroupTitle}>Across</h4>
-                {puzzle?.clues.filter(c => c.direction === 'across').map((clue) => (
-                  <div 
-                    key={clue.id} 
-                    className={`${styles.clueItem} ${showClue?.id === clue.id ? styles.active : ''}`}
-                    onClick={() => {
-                      setShowClue(clue);
-                      setSelectedCell({ row: clue.row, col: clue.col });
-                      setSelectedDirection('across');
-                      setClueSelected(clue);
-                    }}
-                  >
-                    <span className={styles.clueNumber}>{clue.id.replace('a', '')}.</span>
-                    <span className={styles.clueText}>{clue.clue}</span>
-                  </div>
-                ))}
+                {puzzle?.clues.filter(c => c.direction === 'across').map((clue) => {
+                  const isCompleted = completedWords.has(clue.id);
+                  return (
+                    <div 
+                      key={clue.id} 
+                      className={`${styles.clueItem} ${selectedClue?.id === clue.id ? styles.active : ''} ${isCompleted ? styles.completed : ''}`}
+                      onClick={() => {
+                        if (!isCompleted) {
+                          selectClue(clue);
+                        }
+                      }}
+                      style={{ cursor: isCompleted ? 'default' : 'pointer' }}
+                    >
+                      <span className={styles.clueNumber}>{clue.id.replace('a', '')}.</span>
+                      <span className={styles.clueText}>{clue.clue}</span>
+                      {isCompleted && (
+                        <span className={styles.clueCheck}>✓</span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
               
               {/* Down Clues */}
               <div className={styles.clueGroup}>
                 <h4 className={styles.clueGroupTitle}>Down</h4>
-                {puzzle?.clues.filter(c => c.direction === 'down').map((clue) => (
-                  <div 
-                    key={clue.id} 
-                    className={`${styles.clueItem} ${showClue?.id === clue.id ? styles.active : ''}`}
-                    onClick={() => {
-                      setShowClue(clue);
-                      setSelectedCell({ row: clue.row, col: clue.col });
-                      setSelectedDirection('down');
-                      setClueSelected(clue);
-                    }}
-                  >
-                    <span className={styles.clueNumber}>{clue.id.replace('d', '')}.</span>
-                    <span className={styles.clueText}>{clue.clue}</span>
-                  </div>
-                ))}
+                {puzzle?.clues.filter(c => c.direction === 'down').map((clue) => {
+                  const isCompleted = completedWords.has(clue.id);
+                  return (
+                    <div 
+                      key={clue.id} 
+                      className={`${styles.clueItem} ${selectedClue?.id === clue.id ? styles.active : ''} ${isCompleted ? styles.completed : ''}`}
+                      onClick={() => {
+                        if (!isCompleted) {
+                          selectClue(clue);
+                        }
+                      }}
+                      style={{ cursor: isCompleted ? 'default' : 'pointer' }}
+                    >
+                      <span className={styles.clueNumber}>{clue.id.replace('d', '')}.</span>
+                      <span className={styles.clueText}>{clue.clue}</span>
+                      {isCompleted && (
+                        <span className={styles.clueCheck}>✓</span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Instructions */}
               <div className={styles.instructions}>
-                <p>Type letters to fill</p>
-                <p>Use arrow keys to navigate</p>
-                <p>Backspace to delete</p>
-                <p>Click a clue to jump to it</p>
+                <p>✏️ Type the full word</p>
+                <p>↵ Press Enter to submit</p>
+                <p>⌨️ Tab to switch between across/down</p>
+                <p>👆 Click a clue to select it</p>
               </div>
             </div>
           </div>
