@@ -103,6 +103,31 @@ export const useAuth = () => {
     return !!(window as any).Capacitor?.isNativePlatform?.()
   }
 
+  // ==========================================
+  // AUTH METHODS
+  // ==========================================
+
+  const signInWithEmail = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) throw error
+  }
+
+  const signUp = async (email: string, password: string, displayName: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { display_name: displayName },
+      }
+    })
+    if (error) throw error
+  }
+
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email)
+    if (error) throw error
+  }
+
   const signInWithGoogle = async () => {
     const options: any = {}
     if (isCapacitor()) options.redirectTo = 'com.hyescriptures.app://login-callback'
@@ -124,5 +149,15 @@ export const useAuth = () => {
     saveAuthCache(updated)
   }
 
-  return { user, loading, signInWithGoogle, signOut, updateProfile, isAuthenticated: !!user }
-}
+  return {
+    user,
+    loading,
+    signInWithEmail,
+    signUp,
+    resetPassword,
+    signInWithGoogle,
+    signOut,
+    updateProfile,
+    isAuthenticated: !!user,
+  }
+        }
