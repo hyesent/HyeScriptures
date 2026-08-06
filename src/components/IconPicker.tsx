@@ -1,6 +1,7 @@
 // src/components/IconPicker.tsx
 import React from 'react'
 import { useSubscription } from '../hooks/useSubscription'
+import AppIcon from '../plugins/AppIcon'
 
 const ICONS = [
   { id: 'default', name: 'Default' },
@@ -24,23 +25,39 @@ const ICONS = [
 export const IconPicker: React.FC = () => {
   const { tier } = useSubscription()
   const [selected, setSelected] = React.useState(localStorage.getItem('app_icon') || 'default')
+  const [switching, setSwitching] = React.useState(false)
 
   if (tier !== 'elder') return null
 
-  const handleSelect = (id: string) => {
+  const handleSelect = async (id: string) => {
     setSelected(id)
     localStorage.setItem('app_icon', id)
+    
+    // Switch the actual APK icon natively
+    setSwitching(true)
+    try {
+      const result = await AppIcon.change({ icon: id })
+      console.log('Icon changed to:', result.icon)
+    } catch (error) {
+      console.log('Native icon switch not available (web only)')
+    } finally {
+      setSwitching(false)
+    }
   }
 
   return (
     <div style={{ padding: 20 }}>
       <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px', color: 'var(--text)' }}>App Icon</h3>
-      <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '0 0 20px' }}>Choose your app icon theme</p>
+      <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '0 0 20px' }}>
+        Choose your app icon theme
+        {switching && <span style={{ marginLeft: 8, color: '#c9a84c' }}>Applying...</span>}
+      </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
         {ICONS.map(icon => (
           <button
             key={icon.id}
             onClick={() => handleSelect(icon.id)}
+            disabled={switching}
             style={{
               display: 'flex',
               flexDirection: 'column',
@@ -48,8 +65,9 @@ export const IconPicker: React.FC = () => {
               gap: 8,
               background: 'none',
               border: 'none',
-              cursor: 'pointer',
+              cursor: switching ? 'wait' : 'pointer',
               padding: 0,
+              opacity: switching ? 0.7 : 1,
             }}
           >
             <div style={{
