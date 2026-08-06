@@ -47,10 +47,11 @@ export const AudioBible: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(0)
   const [showBookPicker, setShowBookPicker] = useState(false)
   const [showChapterPicker, setShowChapterPicker] = useState(false)
+  const [autoPlayNext, setAutoPlayNext] = useState(true)
   const sleepRef = useRef<NodeJS.Timeout | null>(null)
   const toastTimeout = useRef<NodeJS.Timeout | null>(null)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
   const progressInterval = useRef<NodeJS.Timeout | null>(null)
+  const isAutoPlayingRef = useRef(false)
 
   const showToast = (message: string, duration = 3000) => {
     setToast(message)
@@ -58,7 +59,6 @@ export const AudioBible: React.FC = () => {
     toastTimeout.current = setTimeout(() => setToast(''), duration)
   }
 
-  // Estimate audio duration based on text length and speed
   const estimatedDuration = () => {
     const fullText = verses.join(' ')
     const wordCount = fullText.split(/\s+/).length
@@ -75,10 +75,6 @@ export const AudioBible: React.FC = () => {
       progressInterval.current = setInterval(() => {
         elapsed++
         setCurrentTime(elapsed)
-        if (elapsed >= duration) {
-          setCurrentTime(0)
-          if (progressInterval.current) clearInterval(progressInterval.current)
-        }
       }, 1000)
     } else {
       if (progressInterval.current) clearInterval(progressInterval.current)
@@ -87,23 +83,13 @@ export const AudioBible: React.FC = () => {
     return () => {
       if (progressInterval.current) clearInterval(progressInterval.current)
     }
-  }, [isPlaying, isPaused, verses])
+  }, [isPlaying, isPaused, verses, settings.speed])
 
-  // Check cache on chapter change
+  // Reset on chapter change
   useEffect(() => {
-    checkChapterCache()
     setCurrentTime(0)
     setAudioDuration(estimatedDuration())
   }, [currentBook, currentChapter])
-
-  const checkChapterCache = async () => {
-    const cacheKey = `audio_chapter_en_kjv_${currentBook}_${currentChapter}`
-    const cached = await cacheGet<string>(cacheKey)
-    
-    if (!cached && isFirstLoad) {
-      showToast('Preparing your chapter... this may take a moment', 4000)
-    }
-  }
 
   const handlePlay = async () => {
     updateVoice(selectedVoice)
@@ -121,19 +107,38 @@ export const AudioBible: React.FC = () => {
     }
 
     setCurrentTime(0)
+    isAutoPlayingRef.current = false
+    
     await playFullChapter(verses, currentBook, currentChapter, 'en_kjv', () => {
       // Auto-advance to next chapter
-      if (sleepRemaining <= 0) {
-        nextChapter()
+      if (autoPlayNext && sleepRemaining <= 0 && !isAutoPlayingRef.current) {
+        isAutoPlayingRef.current = true
+        showToast(`Continuing to ${currentBook} ${currentChapter + 1}...`, 2000)
+        setTimeout(() => {
+          nextChapter()
+          isAutoPlayingRef.current = false
+        }, 1500)
       }
     })
   }
 
+  // Auto-play next chapter after navigation
+  useEffect(() => {
+    if (isAutoPlayingRef.current && !isPlaying) {
+      const timer = setTimeout(() => {
+        handlePlay()
+        isAutoPlayingRef.current = false
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [currentChapter, isPlaying])
+
+  // Sleep timer
   useEffect(() => {
     if (sleepRemaining > 0) {
       sleepRef.current = setInterval(() => {
         setSleepRemaining(prev => {
-          if (prev <= 1) { stop(); return 0 }
+          if (prev <= 1) { stop(); showToast('Sleep timer ended. Rest well 🌙', 3000); return 0 }
           return prev - 1
         })
       }, 60000)
@@ -149,7 +154,7 @@ export const AudioBible: React.FC = () => {
 
   const getProgressPercent = () => {
     if (audioDuration === 0) return 0
-    return (currentTime / audioDuration) * 100
+    return Math.min((currentTime / audioDuration) * 100, 100)
   }
 
   const getStatusText = () => {
@@ -251,6 +256,18 @@ export const AudioBible: React.FC = () => {
           {isPlaying && !isPaused ? <Icons.Pause /> : <Icons.Play />}
         </button>
         <button className={styles.navBtn} onClick={nextChapter} disabled={isPlaying}><Icons.Next /></button>
+      </div>
+
+      {/* Auto-play toggle */}
+      <div className={styles.autoplayRow}>
+        <label className={styles.autoplayLabel}>
+          <input
+            type="checkbox"
+            checked={autoPlayNext}
+            onChange={e => setAutoPlayNext(e.target.checked)}
+          />
+          <span>Auto-play next chapter</span>
+        </label>
       </div>
 
       {/* Speed */}
