@@ -76,43 +76,75 @@ export const useVoiceAudio = () => {
     const voiceId = voiceConfig.voiceId || settings.voiceId
     if (voiceId) {
       try {
-        console.log(`🎙️ Calling backend with voice: ${voiceId}`)
         const result = await voice.synthesize(text, voiceId, settings.speed)
-        console.log('📦 Backend response:', result)
-
         if (result && result.audio_url) {
           setUsingFallback(false)
           const audioUrl = result.audio_url.startsWith('http') ? result.audio_url : `${API_BASE}${result.audio_url}`
-          console.log('🔊 Playing audio from:', audioUrl)
-
-          // Create a new Audio element each time to avoid stale state
           const audio = new Audio(audioUrl)
           audioRef.current = audio
           
           return new Promise((resolve) => {
             audio.onended = () => { if (onEnd) onEnd(); resolve(true) }
-            audio.onerror = (e) => {
-              console.error('❌ Audio playback error:', e, audioUrl)
+            audio.onerror = () => {
               setUsingFallback(true)
-              const fallbackWorked = useWebSpeechFallback(text, gender, onStart, onEnd, onError)
-              resolve(fallbackWorked)
+              resolve(useWebSpeechFallback(text, gender, onStart, onEnd, onError))
             }
             audio.onplay = () => { if (onStart) onStart() }
-            audio.play().catch(err => {
-              console.error('❌ Play failed:', err)
+            audio.play().catch(() => {
               setUsingFallback(true)
-              const fallbackWorked = useWebSpeechFallback(text, gender, onStart, onEnd, onError)
-              resolve(fallbackWorked)
+              resolve(useWebSpeechFallback(text, gender, onStart, onEnd, onError))
             })
           })
         }
       } catch (err) {
-        console.error('❌ Backend call failed:', err)
+        console.error('Backend call failed:', err)
       }
     }
     return useWebSpeechFallback(text, gender, onStart, onEnd, onError)
   }, [settings])
 
+  // ========== PLAY FULL CHAPTER (all verses as one audio block) ==========
+  const playFullChapter = useCallback(async (
+    verses: string[],
+    book: string,
+    chapter: number,
+    translationId: string = 'en_kjv',
+    onComplete?: () => void
+  ) => {
+    setIsLoading(true)
+    setIsPlaying(true)
+    setIsPaused(false)
+    setCurrentReference(`${book} ${chapter}`)
+    setCurrentVerseIndex(0)
+    setTotalVerses(1)
+
+    const fullText = verses.map((v, i) => `Verse ${i + 1}. ${v}`).join(' ')
+    const reference = `${book} ${chapter}`
+    const formattedText = formatFullVerseForSpeech(reference, fullText)
+
+    const success = await playWithFallback(
+      formattedText, reference, translationId, 'male',
+      () => {},
+      () => {
+        setIsPlaying(false)
+        setCurrentReference(null)
+        setUsingFallback(false)
+        if (onComplete) onComplete()
+      },
+      () => {
+        setIsPlaying(false)
+        setUsingFallback(false)
+      }
+    )
+
+    if (!success) {
+      setIsPlaying(false)
+      setUsingFallback(false)
+    }
+    setIsLoading(false)
+  }, [playWithFallback])
+
+  // ========== PLAY VERSE BY VERSE (original, kept for Bible reader) ==========
   const playVerse = useCallback(async (verseText: string, reference: string, translationId: string = 'en_kjv') => {
     setIsLoading(true); setIsPlaying(true); setIsPaused(false)
     setCurrentReference(reference); setCurrentVerseIndex(0); setTotalVerses(1)
@@ -134,51 +166,6 @@ export const useVoiceAudio = () => {
     setIsLoading(true); setIsPlaying(true); setIsPaused(false)
     setCurrentReference(`${book} ${chapter}`); setCurrentVerseIndex(0); setTotalVerses(verses.length)
     currentQueueRef.current = verses; queueIndexRef.current = 0
-
-    // Add this new function to useVoiceAudio
-const playFullChapter = useCallback(async (
-  verses: string[],
-  book: string,
-  chapter: number,
-  translationId: string = 'en_kjv',
-  onComplete?: () => void
-) => {
-  setIsLoading(true)
-  setIsPlaying(true)
-  setIsPaused(false)
-  setCurrentReference(`${book} ${chapter}`)
-  setCurrentVerseIndex(0)
-  setTotalVerses(1) // Treat whole chapter as one unit
-
-  // Join all verses into one text block
-  const fullText = verses.map((v, i) => `Verse ${i + 1}. ${v}`).join(' ')
-  const reference = `${book} ${chapter}`
-  const formattedText = formatFullVerseForSpeech(reference, fullText)
-
-  const success = await playWithFallback(
-    formattedText,
-    reference,
-    translationId,
-    'male',
-    () => {},
-    () => {
-      setIsPlaying(false)
-      setCurrentReference(null)
-      setUsingFallback(false)
-      if (onComplete) onComplete()
-    },
-    () => {
-      setIsPlaying(false)
-      setUsingFallback(false)
-    }
-  )
-
-  if (!success) {
-    setIsPlaying(false)
-    setUsingFallback(false)
-  }
-  setIsLoading(false)
-}, [playWithFallback])
 
     const playNext = async () => {
       if (queueIndexRef.current >= currentQueueRef.current.length) {
@@ -230,8 +217,11 @@ const playFullChapter = useCallback(async (
 
   useEffect(() => { return () => { stop() } }, [])
 
-  return { settings, voices, loadingVoices, isPlaying, isPaused, isLoading,
+  return {
+    settings, voices, loadingVoices, isPlaying, isPaused, isLoading,
     currentReference, currentVerseIndex, totalVerses, audioRef, usingFallback,
     speedOptions, loadVoices, updateSpeed, updateVoice, updateAutoScroll, updateAutoPlay,
-    playVerse, playChapter, stop, pause, resume, playFullChapter, togglePlayPause, getVoices: voice.getVoices }
+    playVerse, playChapter, playFullChapter, stop, pause, resume, togglePlayPause,
+    getVoices: voice.getVoices,
+  }
 }
