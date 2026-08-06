@@ -1,3 +1,4 @@
+// src/components/AudioBible/AudioBible.tsx
 import React, { useState, useEffect, useRef } from 'react'
 import { useBible } from '../../hooks/useBible'
 import { useVoiceAudio } from '../../hooks/useVoiceAudio'
@@ -21,7 +22,7 @@ const AUDIO_VOICES = [
 
 const SPEED_OPTIONS = [0.75, 1.0, 1.25, 1.5]
 const SLEEP_TIMER_OPTIONS = [0, 5, 10, 15, 30, 45, 60]
-const CACHE_TTL = 7 * 24 * 60 * 60 // 7 days in seconds
+const CACHE_TTL = 7 * 24 * 60 * 60
 
 const Icons = {
   Play: () => (<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20"/></svg>),
@@ -30,10 +31,11 @@ const Icons = {
   Next: () => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>),
   Sleep: () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>),
   Book: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>),
+  ChevronDown: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>),
 }
 
 export const AudioBible: React.FC = () => {
-  const { books, currentBook, currentChapter, verses, goToChapter, nextChapter, prevChapter } = useBible()
+  const { books, currentBook, currentChapter, verses, totalChapters, goToChapter, nextChapter, prevChapter } = useBible()
   const { settings, isPlaying, isPaused, isLoading, updateSpeed, updateVoice, playFullChapter, stop, togglePlayPause } = useVoiceAudio()
   
   const [selectedVoice, setSelectedVoice] = useState('en-US-GuyNeural')
@@ -41,9 +43,14 @@ export const AudioBible: React.FC = () => {
   const [sleepRemaining, setSleepRemaining] = useState(0)
   const [toast, setToast] = useState('')
   const [isFirstLoad, setIsFirstLoad] = useState(true)
-  const [chapterCacheStatus, setChapterCacheStatus] = useState<'checking' | 'cached' | 'fetching' | 'ready'>('checking')
+  const [audioDuration, setAudioDuration] = useState(0)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [showBookPicker, setShowBookPicker] = useState(false)
+  const [showChapterPicker, setShowChapterPicker] = useState(false)
   const sleepRef = useRef<NodeJS.Timeout | null>(null)
   const toastTimeout = useRef<NodeJS.Timeout | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const progressInterval = useRef<NodeJS.Timeout | null>(null)
 
   const showToast = (message: string, duration = 3000) => {
     setToast(message)
@@ -51,24 +58,50 @@ export const AudioBible: React.FC = () => {
     toastTimeout.current = setTimeout(() => setToast(''), duration)
   }
 
+  // Estimate audio duration based on text length and speed
+  const estimatedDuration = () => {
+    const fullText = verses.join(' ')
+    const wordCount = fullText.split(/\s+/).length
+    const avgWordsPerMinute = 150 * settings.speed
+    return Math.ceil((wordCount / avgWordsPerMinute) * 60)
+  }
+
+  // Track progress with interval
+  useEffect(() => {
+    if (isPlaying && !isPaused) {
+      const duration = estimatedDuration()
+      setAudioDuration(duration)
+      let elapsed = 0
+      progressInterval.current = setInterval(() => {
+        elapsed++
+        setCurrentTime(elapsed)
+        if (elapsed >= duration) {
+          setCurrentTime(0)
+          if (progressInterval.current) clearInterval(progressInterval.current)
+        }
+      }, 1000)
+    } else {
+      if (progressInterval.current) clearInterval(progressInterval.current)
+    }
+
+    return () => {
+      if (progressInterval.current) clearInterval(progressInterval.current)
+    }
+  }, [isPlaying, isPaused, verses])
+
   // Check cache on chapter change
   useEffect(() => {
     checkChapterCache()
+    setCurrentTime(0)
+    setAudioDuration(estimatedDuration())
   }, [currentBook, currentChapter])
 
   const checkChapterCache = async () => {
-    setChapterCacheStatus('checking')
     const cacheKey = `audio_chapter_en_kjv_${currentBook}_${currentChapter}`
     const cached = await cacheGet<string>(cacheKey)
     
-    if (cached) {
-      setChapterCacheStatus('cached')
-      if (isFirstLoad) {
-        setIsFirstLoad(false)
-      }
-    } else {
-      setChapterCacheStatus('fetching')
-      showToast('🎙️ First load may take a moment while we generate the audio...', 5000)
+    if (!cached && isFirstLoad) {
+      showToast('Preparing your chapter... this may take a moment', 4000)
     }
   }
 
@@ -79,21 +112,23 @@ export const AudioBible: React.FC = () => {
     const cached = await cacheGet<string>(cacheKey)
     
     if (!cached) {
-      // Cache the chapter verses for 7 days
-      await cacheSet(cacheKey, 'generated', CACHE_TTL)
-      setChapterCacheStatus('cached')
+      await cacheSet(cacheKey, 'ready', CACHE_TTL)
     }
     
     if (isFirstLoad) {
-      showToast('🎙️ First load takes a few seconds. Subsequent plays are instant!', 5000)
+      showToast('Preparing your narration... it will be ready shortly', 4000)
       setIsFirstLoad(false)
     }
-    
-    setChapterCacheStatus('ready')
-    await playFullChapter(verses, currentBook, currentChapter, 'en_kjv')
+
+    setCurrentTime(0)
+    await playFullChapter(verses, currentBook, currentChapter, 'en_kjv', () => {
+      // Auto-advance to next chapter
+      if (sleepRemaining <= 0) {
+        nextChapter()
+      }
+    })
   }
 
-  // Sleep timer countdown
   useEffect(() => {
     if (sleepRemaining > 0) {
       sleepRef.current = setInterval(() => {
@@ -106,9 +141,19 @@ export const AudioBible: React.FC = () => {
     return () => { if (sleepRef.current) clearInterval(sleepRef.current) }
   }, [sleepRemaining])
 
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  const getProgressPercent = () => {
+    if (audioDuration === 0) return 0
+    return (currentTime / audioDuration) * 100
+  }
+
   const getStatusText = () => {
-    if (isLoading) return 'Loading...'
-    if (chapterCacheStatus === 'fetching') return 'Preparing audio...'
+    if (isLoading) return 'Preparing your chapter...'
     if (isPaused) return 'Paused'
     if (isPlaying) return 'Now Playing'
     return 'Ready'
@@ -116,16 +161,20 @@ export const AudioBible: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      {/* Toast */}
-      {toast && (
-        <div className={styles.toast}>{toast}</div>
-      )}
+      {toast && <div className={styles.toast}>{toast}</div>}
 
-      {/* Header */}
+      {/* Header with Book/Chapter Picker */}
       <div className={styles.header}>
         <div className={styles.headerInfo}>
           <span className={styles.headerLabel}>Audio Bible</span>
-          <h2 className={styles.headerBook}>{currentBook} {currentChapter}</h2>
+          <div className={styles.bookChapterSelector}>
+            <button className={styles.selectorBtn} onClick={() => setShowBookPicker(!showBookPicker)}>
+              {currentBook} <Icons.ChevronDown />
+            </button>
+            <button className={styles.selectorBtn} onClick={() => setShowChapterPicker(!showChapterPicker)}>
+              Chapter {currentChapter} <Icons.ChevronDown />
+            </button>
+          </div>
         </div>
         <div className={styles.sleepTimer}>
           <Icons.Sleep />
@@ -136,6 +185,46 @@ export const AudioBible: React.FC = () => {
         </div>
       </div>
 
+      {/* Book Picker Modal */}
+      {showBookPicker && (
+        <div className={styles.pickerOverlay} onClick={() => setShowBookPicker(false)}>
+          <div className={styles.pickerModal} onClick={e => e.stopPropagation()}>
+            <h3>Select Book</h3>
+            <div className={styles.pickerGrid}>
+              {books.map(book => (
+                <button
+                  key={book}
+                  className={`${styles.pickerItem} ${book === currentBook ? styles.pickerActive : ''}`}
+                  onClick={() => { goToChapter(book, 1); setShowBookPicker(false) }}
+                >
+                  {book}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Chapter Picker Modal */}
+      {showChapterPicker && (
+        <div className={styles.pickerOverlay} onClick={() => setShowChapterPicker(false)}>
+          <div className={styles.pickerModal} onClick={e => e.stopPropagation()}>
+            <h3>Select Chapter - {currentBook}</h3>
+            <div className={styles.pickerGrid}>
+              {Array.from({ length: totalChapters }, (_, i) => i + 1).map(ch => (
+                <button
+                  key={ch}
+                  className={`${styles.pickerItem} ${ch === currentChapter ? styles.pickerActive : ''}`}
+                  onClick={() => { goToChapter(currentBook, ch); setShowChapterPicker(false) }}
+                >
+                  {ch}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Album Art */}
       <div className={styles.artworkContainer}>
         <div className={`${styles.artwork} ${isPlaying ? styles.artworkPlaying : ''}`}>
@@ -144,14 +233,14 @@ export const AudioBible: React.FC = () => {
         {isPlaying && <div className={styles.artworkGlow} />}
       </div>
 
-      {/* Progress */}
+      {/* Progress with time */}
       <div className={styles.progressSection}>
         <div className={styles.progressBar}>
-          <div className={`${styles.progressFill} ${isPlaying ? styles.progressActive : ''}`} />
+          <div className={`${styles.progressFill} ${isPlaying ? styles.progressActive : ''}`} style={{ width: `${getProgressPercent()}%` }} />
         </div>
         <div className={styles.progressInfo}>
           <span>{getStatusText()}</span>
-          <span>{chapterCacheStatus === 'cached' ? ' Cached' : chapterCacheStatus === 'fetching' ? ' Please Be Patient' : ''}</span>
+          <span>{formatTime(currentTime)} / {formatTime(audioDuration)}</span>
         </div>
       </div>
 
@@ -173,7 +262,7 @@ export const AudioBible: React.FC = () => {
 
       {/* Voice */}
       <div className={styles.voiceSection}>
-        <span className={styles.voiceLabel}>Voice</span>
+        <span className={styles.voiceLabel}>Narrator Voice</span>
         <div className={styles.voiceGrid}>
           {AUDIO_VOICES.map(v => (
             <button key={v.id} className={`${styles.voiceOption} ${selectedVoice === v.id ? styles.voiceActive : ''}`}
@@ -188,7 +277,7 @@ export const AudioBible: React.FC = () => {
       {/* Chapter Text Preview */}
       <div className={styles.verseDisplay}>
         {verses.slice(0, 5).map((verse, index) => (
-          <p key={index} className={styles.verseLine}>
+          <p key={index} className={`${styles.verseLine} ${isPlaying ? styles.verseActive : ''}`}>
             <span className={styles.verseNum}>{index + 1}</span>
             <span className={styles.verseText}>{verse}</span>
           </p>
