@@ -1,5 +1,6 @@
 package com.hyescriptures.app;
 
+import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
 import com.hyescriptures.plugins.appicon.AppIconPlugin;
 
