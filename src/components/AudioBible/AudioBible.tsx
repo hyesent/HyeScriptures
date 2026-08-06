@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useBible } from '../../hooks/useBible'
 import { useVoiceAudio } from '../../hooks/useVoiceAudio'
-import { cacheGet, cacheSet } from '../../lib/offline-cache'
+import { cacheGet, cacheSet } from '../../lib/cache'
 import styles from './AudioBible.module.css'
 
 const AUDIO_VOICES = [
