@@ -406,3 +406,111 @@
   color: var(--text-muted);
   padding: 8px;
 }
+
+/* Book/Chapter Selector */
+.bookChapterSelector {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.selectorBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: rgba(201, 168, 76, 0.1);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: 10px;
+  color: #c9a84c;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Picker Modal */
+.pickerOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+
+.pickerModal {
+  background: var(--bg-card);
+  border-radius: 20px;
+  padding: 24px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.pickerModal h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: var(--text);
+}
+
+.pickerGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.pickerItem {
+  padding: 10px 8px;
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  text-align: center;
+}
+
+.pickerItem:hover { border-color: #c9a84c; }
+.pickerActive { background: #c9a84c; color: white; border-color: #c9a84c; }
+
+/* Verse active state */
+.verseActive {
+  opacity: 1;
+  background: rgba(201, 168, 76, 0.04);
+}
+
+.progressActive {
+  background: linear-gradient(90deg, #c9a84c, #e8c96a);
+  transition: width 1s linear;
+}
+
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a2e;
+  color: #c9a84c;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+  white-space: nowrap;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
