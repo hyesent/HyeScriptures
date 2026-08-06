@@ -135,6 +135,51 @@ export const useVoiceAudio = () => {
     setCurrentReference(`${book} ${chapter}`); setCurrentVerseIndex(0); setTotalVerses(verses.length)
     currentQueueRef.current = verses; queueIndexRef.current = 0
 
+    // Add this new function to useVoiceAudio
+const playFullChapter = useCallback(async (
+  verses: string[],
+  book: string,
+  chapter: number,
+  translationId: string = 'en_kjv',
+  onComplete?: () => void
+) => {
+  setIsLoading(true)
+  setIsPlaying(true)
+  setIsPaused(false)
+  setCurrentReference(`${book} ${chapter}`)
+  setCurrentVerseIndex(0)
+  setTotalVerses(1) // Treat whole chapter as one unit
+
+  // Join all verses into one text block
+  const fullText = verses.map((v, i) => `Verse ${i + 1}. ${v}`).join(' ')
+  const reference = `${book} ${chapter}`
+  const formattedText = formatFullVerseForSpeech(reference, fullText)
+
+  const success = await playWithFallback(
+    formattedText,
+    reference,
+    translationId,
+    'male',
+    () => {},
+    () => {
+      setIsPlaying(false)
+      setCurrentReference(null)
+      setUsingFallback(false)
+      if (onComplete) onComplete()
+    },
+    () => {
+      setIsPlaying(false)
+      setUsingFallback(false)
+    }
+  )
+
+  if (!success) {
+    setIsPlaying(false)
+    setUsingFallback(false)
+  }
+  setIsLoading(false)
+}, [playWithFallback])
+
     const playNext = async () => {
       if (queueIndexRef.current >= currentQueueRef.current.length) {
         setIsPlaying(false); setCurrentReference(null); setCurrentVerseIndex(-1); setUsingFallback(false)
@@ -188,5 +233,5 @@ export const useVoiceAudio = () => {
   return { settings, voices, loadingVoices, isPlaying, isPaused, isLoading,
     currentReference, currentVerseIndex, totalVerses, audioRef, usingFallback,
     speedOptions, loadVoices, updateSpeed, updateVoice, updateAutoScroll, updateAutoPlay,
-    playVerse, playChapter, stop, pause, resume, togglePlayPause, getVoices: voice.getVoices }
+    playVerse, playChapter, stop, pause, resume, playFullChapter, togglePlayPause, getVoices: voice.getVoices }
 }
