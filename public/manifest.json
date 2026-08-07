@@ -1,59 +1,22 @@
 {
-  "id": "/",
-  "name": "HyeScriptures",
-  "short_name": "HyeScriptures",
+  "name": "Hyelearner Foundation",
+  "short_name": "Hyelearner",
   "description": "Your daily bread for the soul — Bible reading, devotionals, and study tools",
-  "start_url": "/?source=pwa",
-  "scope": "/",
+  "start_url": "/",
   "display": "standalone",
-  "orientation": "any",
-  "background_color": "#08111F",
-  "theme_color": "#08111F",
-  "dir": "ltr",
-  "lang": "en-US",
+  "background_color": "#F8FAFC",
+  "theme_color": "#4F46E5",
   "icons": [
     {
-      "src": "icons/default.png",
+      "src": "/default 1.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "icons/default.png",
+      "src": "/default 2.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "categories": ["books", "education", "lifestyle"],
-  "shortcuts": [
-    {
-      "name": "Read Bible",
-      "short_name": "Bible",
-      "description": "Open the Bible reader",
-      "url": "/bible",
-      "icons": [
-        {
-          "src": "icons/default.png",
-          "sizes": "96x96",
-          "type": "image/png",
-          "purpose": "any maskable"
-        }
-      ]
-    },
-    {
-      "name": "Daily Devotional",
-      "short_name": "Devotional",
-      "description": "Read today's devotional",
-      "url": "/devotional",
-      "icons": [
-        {
-          "src": "icons/default.png",
-          "sizes": "96x96",
-          "type": "image/png",
-          "purpose": "any maskable"
-        }
-      ]
     }
   ]
 }
