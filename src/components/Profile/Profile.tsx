@@ -1,4 +1,3 @@
-// src/components/Profile/Profile.tsx
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useStreak } from '../../hooks/useStreak'
@@ -6,7 +5,7 @@ import { useSubscription } from '../../hooks/useSubscription'
 import { 
   User, Mail, Bookmark, PenLine, BookOpen, Calendar, Brain,
   Award, Heart, LogOut, ChevronRight, Edit2, X, Check,
-  Palette, Crown, Smartphone
+  Palette, Crown, Smartphone, Link, Unlink
 } from 'lucide-react'
 import styles from './Profile.module.css'
 
@@ -17,7 +16,6 @@ const avatars = [
 
 interface ProfileProps {
   onNavigateToTheme?: () => void
-  onNavigateToUpgrade?: () => void
   onNavigateToAppIcon?: () => void
   onNavigateToBookmarks?: () => void
   onNavigateToNotes?: () => void
@@ -29,13 +27,13 @@ interface ProfileProps {
 }
 
 export const Profile: React.FC<ProfileProps> = ({ 
-  onNavigateToTheme, onNavigateToUpgrade, onNavigateToAppIcon,
+  onNavigateToTheme, onNavigateToAppIcon,
   onNavigateToBookmarks, onNavigateToNotes, onNavigateToJournal,
   onNavigateToPlans, onNavigateToPrayer, onNavigateToMemory, onNavigateToBadges,
 }) => {
   const { user, signOut, updateProfile } = useAuth()
   const { getStreak } = useStreak()
-  const { tier } = useSubscription()
+  const { tier, storeId, linkStoreId, unlinkStoreId } = useSubscription()
   const [editing, setEditing] = useState(false)
   const [displayName, setDisplayName] = useState(user?.display_name || '')
   const [selectedAvatar, setSelectedAvatar] = useState('📖')
@@ -64,6 +62,25 @@ export const Profile: React.FC<ProfileProps> = ({
     setEditing(false)
   }
 
+  const handleLinkHyeSpace = () => {
+    const id = prompt('Enter your HyeSpace Store ID:')
+    if (id && id.trim()) {
+      linkStoreId(id)
+      alert('HyeSpace account linked! Refreshing your subscription...')
+    }
+  }
+
+  const handleUnlinkHyeSpace = () => {
+    if (window.confirm('Are you sure you want to unlink your HyeSpace account? You will lose access to Elder features.')) {
+      unlinkStoreId()
+      alert('HyeSpace account unlinked.')
+    }
+  }
+
+  const handleUpgradeHyeSpace = () => {
+    window.open('https://hyespace.vercel.app', '_blank')
+  }
+
   const tierLabel = tier === 'elder' ? 'Elder' : 'Free'
 
   const menuItems = [
@@ -74,11 +91,16 @@ export const Profile: React.FC<ProfileProps> = ({
     { icon: Heart, label: 'Prayer Journal', onClick: onNavigateToPrayer },
     { icon: Brain, label: 'Memory Verses', onClick: onNavigateToMemory },
     { icon: Award, label: 'Achievements', onClick: onNavigateToBadges },
+    ...(storeId ? [
+      { icon: Unlink, label: 'Unlink HyeSpace Account', onClick: handleUnlinkHyeSpace }
+    ] : [
+      { icon: Link, label: 'Link HyeSpace Account', onClick: handleLinkHyeSpace }
+    ]),
     ...(tier === 'elder' ? [
       { icon: Smartphone, label: 'App Icon', onClick: onNavigateToAppIcon },
-      { icon: Crown, label: 'Elder Subscription', onClick: onNavigateToUpgrade },
+      { icon: Crown, label: 'Elder Subscription', onClick: handleUpgradeHyeSpace },
     ] : [
-      { icon: Crown, label: 'Upgrade to Elder', onClick: onNavigateToUpgrade },
+      { icon: Crown, label: 'Upgrade to Elder', onClick: handleUpgradeHyeSpace },
     ]),
   ]
 
@@ -119,6 +141,7 @@ export const Profile: React.FC<ProfileProps> = ({
               {tier === 'elder' && <span style={{ marginLeft: 8, display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 13, fontWeight: 600, color: '#c9a84c' }}><Crown size={14} /></span>}
             </h2>
             <p className={styles.email}><Mail size={14} />{user.email}</p>
+            {storeId && <p style={{ fontSize: 12, color: '#666', marginTop: 4 }}>✓ HyeSpace linked</p>}
             {user.bio && <p className={styles.bio}>{user.bio}</p>}
             <button className={styles.editBtn} onClick={() => setEditing(true)}><Edit2 size={14} />Edit Profile</button>
           </div>
