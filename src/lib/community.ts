@@ -61,21 +61,57 @@ const getCurrentUserDisplayName = async (): Promise<string> => {
          'Believer'
 }
 
-// Check if user is Elder (checks BOTH hardcoded list AND subscriptions table)
+// Check if user is Elder (verifies via HyeSpace)
 const isUserElder = async (userId: string, email: string): Promise<boolean> => {
-  // Hardcoded Elder emails
+  // Hardcoded Elder emails bypass
   const ELDER_EMAILS = ['hyacinthmichael36@gmail.com', 'inemhilda52@gmail.com']
   if (ELDER_EMAILS.includes(email)) return true
 
-  // Check subscriptions table
-  const { data: sub } = await supabase
-    .from('subscriptions')
-    .select('tier')
-    .eq('user_id', userId)
-    .eq('status', 'active')
-    .maybeSingle()
+  // Check HyeSpace via edge function
+  const storeId = localStorage.getItem('hyespace-store-id')
+  if (!storeId) return false
 
-  return sub?.tier === 'elder'
+  try {
+    const HYESPACE_VERIFY_URL =
+      'https://bqyrkdxqwysrhvjfajix.supabase.co/functions/v1/verify-subscription'
+
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 8000)
+
+    const res = await fetch(HYESPACE_VERIFY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        storeId: storeId.trim().toLowerCase(),
+        appId: 'hyescriptures',
+        email: email,
+      }),
+      signal: controller.signal,
+    })
+
+    clearTimeout(timeoutId)
+
+    if (!res.ok) {
+      console.error('HyeSpace verification failed:', res.status)
+      return false
+    }
+
+    const data = await res.json()
+
+    if (data.error) {
+      console.error('HyeSpace error:', data.error)
+      return false
+    }
+
+    return data.subscribed && data.status === 'active' && data.tierId === 'hyescriptures-elder'
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('HyeSpace verification timeout')
+    } else {
+      console.error('HyeSpace verification error:', error)
+    }
+    return false
+  }
 }
 
 // ============================================================
@@ -241,7 +277,7 @@ export const createGroup = async (name: string, description: string, isPrivate: 
     const email = userData?.user?.email || ''
     const creatorName = await getCurrentUserDisplayName()
 
-    // Check Elder status using BOTH hardcoded list AND subscriptions
+    // Check Elder status via HyeSpace
     const elder = await isUserElder(userId, email)
     if (!elder) {
       throw new Error('Only Elder members can create groups')
