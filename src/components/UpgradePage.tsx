@@ -1,41 +1,19 @@
-import React, { useState } from 'react'
-import { useAuth } from '../hooks/useAuth'
+import React from 'react'
 import { useSubscription } from '../hooks/useSubscription'
-import { Check, Crown } from 'lucide-react'
-
-const API_URL = 'https://hyelearner-api.onrender.com'
+import { Check, Crown, ExternalLink } from 'lucide-react'
 
 export const UpgradePage: React.FC = () => {
-  const { user } = useAuth()
   const { tier } = useSubscription()
-  const [loading, setLoading] = useState(false)
 
-  const handleUpgrade = async () => {
-    setLoading(true)
-    try {
-      const res = await fetch(`${API_URL}/subscriptions/hyescriptures/init`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          plan: 'elder',
-          email: user?.email,
-          callback_url: window.location.origin + '/upgrade-success',
-        }),
-      })
-      const data = await res.json()
-      if (data.authorizationUrl) window.location.href = data.authorizationUrl
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setLoading(false)
-    }
+  const handleUpgradeClick = () => {
+    window.open('https://hyespace.vercel.app', '_blank')
   }
 
   return (
     <div style={{ padding: 24, maxWidth: 420, margin: '0 auto' }}>
       <h2 style={{ textAlign: 'center', marginBottom: 4, fontSize: 22, fontWeight: 700 }}>Upgrade to Elder</h2>
       <p style={{ textAlign: 'center', color: '#888', marginBottom: 24, fontSize: 14 }}>
-        {tier === 'elder' ? 'You are already an Elder.' : 'Unlock the full Hyescriptures experience'}
+        {tier === 'elder' ? 'You are already an Elder. Manage your subscription on HyeSpace.' : 'Unlock the full HyeScriptures experience'}
       </p>
 
       <div style={{
@@ -58,18 +36,29 @@ export const UpgradePage: React.FC = () => {
         </ul>
 
         <button
-          onClick={handleUpgrade}
-          disabled={loading || tier === 'elder'}
+          onClick={handleUpgradeClick}
+          disabled={tier === 'elder'}
           style={{
             width: '100%', padding: 14, borderRadius: 14, border: 'none',
             background: tier === 'elder' ? '#e8e4dd' : '#1a1a2e',
             color: tier === 'elder' ? '#888' : 'white',
             fontWeight: 600, fontSize: 15,
             cursor: tier === 'elder' ? 'default' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
           }}
         >
-          {tier === 'elder' ? 'Current Plan' : loading ? 'Loading...' : 'Upgrade to Elder'}
+          {tier === 'elder' ? 'Current Plan' : <>
+            Upgrade to Elder
+            <ExternalLink size={16} />
+          </>}
         </button>
+
+        <p style={{ fontSize: 12, color: '#999', marginTop: 16, marginBottom: 0 }}>
+          Managed through HyeSpace
+        </p>
       </div>
     </div>
   )
