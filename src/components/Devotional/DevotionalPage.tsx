@@ -66,6 +66,7 @@ export const DevotionalPage: React.FC = () => {
   const [posting, setPosting] = useState(false)
   const [liked, setLiked] = useState(false)
   const [liking, setLiking] = useState(false)
+  const [likeCount, setLikeCount] = useState(0)
   const [copiedVerse, setCopiedVerse] = useState(false)
   const [sharedVerse, setSharedVerse] = useState(false)
   const [background] = useState<string>(getRandomBackground)
@@ -89,7 +90,12 @@ export const DevotionalPage: React.FC = () => {
     fetchDailyContent()
   }, [])
 
-  // Check if user already liked
+  useEffect(() => {
+    if (content) {
+      fetchLikeCount()
+    }
+  }, [content])
+
   useEffect(() => {
     if (user && content) {
       supabase.from('devotional_likes')
@@ -122,6 +128,15 @@ export const DevotionalPage: React.FC = () => {
     }
   }
 
+  const fetchLikeCount = async () => {
+    if (!content) return
+    const { count } = await supabase
+      .from('devotional_likes')
+      .select('*', { count: 'exact', head: true })
+      .eq('devotional_date', content.date)
+    setLikeCount(count || 0)
+  }
+
   const handleRefresh = async () => {
     setRefreshing(true)
     await fetchDailyContent()
@@ -142,6 +157,7 @@ export const DevotionalPage: React.FC = () => {
       if (existingLike) {
         await supabase.from('devotional_likes').delete().eq('id', existingLike.id)
         setLiked(false)
+        setLikeCount(prev => Math.max(0, prev - 1))
       } else {
         await supabase.from('devotional_likes').insert({
           user_id: user.id,
@@ -149,6 +165,7 @@ export const DevotionalPage: React.FC = () => {
           devotional_type: isMorning ? 'morning' : 'night',
         })
         setLiked(true)
+        setLikeCount(prev => prev + 1)
       }
     } catch (error) {
       console.error('Error liking:', error)
@@ -157,14 +174,12 @@ export const DevotionalPage: React.FC = () => {
     }
   }
 
-  // Copy FULL devotional
   const handleCopyFull = () => {
     const fullText = `${currentDevotional.scripture}\n\n${currentDevotional.reflection}\n\n${currentDevotional.prayer}`
     navigator.clipboard.writeText(fullText).then(() => {
       setCopiedFull(true)
       setTimeout(() => setCopiedFull(false), 2000)
     }).catch(() => {
-      // Fallback
       const textArea = document.createElement('textarea')
       textArea.value = fullText
       document.body.appendChild(textArea)
@@ -176,7 +191,6 @@ export const DevotionalPage: React.FC = () => {
     })
   }
 
-  // Copy verse
   const handleCopyVerse = () => {
     const text = `${scriptureData.reference} - ${scriptureData.verse}`
     navigator.clipboard.writeText(text).then(() => {
@@ -194,12 +208,10 @@ export const DevotionalPage: React.FC = () => {
     })
   }
 
-  // Share verse - FIXED with multiple fallbacks
   const handleShareVerse = async () => {
     const text = `${scriptureData.reference} - "${scriptureData.verse}"`
     
     try {
-      // Try Web Share API first
       if (navigator.share) {
         await navigator.share({
           title: 'Daily Devotional Verse',
@@ -210,12 +222,10 @@ export const DevotionalPage: React.FC = () => {
         return
       }
 
-      // Try clipboard + toast
       await navigator.clipboard.writeText(text)
       setSharedVerse(true)
       setTimeout(() => setSharedVerse(false), 2000)
     } catch (error) {
-      // Final fallback: manual copy
       const textArea = document.createElement('textarea')
       textArea.value = text
       textArea.style.position = 'fixed'
@@ -350,9 +360,16 @@ export const DevotionalPage: React.FC = () => {
 
         {/* Actions: Like, Copy, Share, Post */}
         <div className={styles.cardActions}>
-          <button className={`${styles.cardActionBtn} ${liked ? styles.likedBtn : ''}`} onClick={handleLike} disabled={liking}>
-            <Heart size={14} className={liked ? styles.likedIcon : ''} />
+          <button 
+            className={`${styles.cardActionBtn} ${liked ? styles.likedBtn : ''}`} 
+            onClick={handleLike} 
+            disabled={liking}
+          >
+            <Heart size={14} className={liked ? styles.likedIcon : ''} fill={liked ? 'currentColor' : 'none'} />
             {liked ? 'Liked' : 'Like'}
+            {likeCount > 0 && (
+              <span className={styles.likeCount}>{likeCount}</span>
+            )}
           </button>
           <button className={styles.cardActionBtn} onClick={handleCopyVerse}>
             {copiedVerse ? <Check size={14} /> : <Copy size={14} />}
