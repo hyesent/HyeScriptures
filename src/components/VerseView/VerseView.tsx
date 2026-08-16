@@ -72,6 +72,7 @@ export const VerseView: React.FC<VerseViewProps> = ({
 
   const verseRefs = useRef<(HTMLDivElement | null)[]>([])
   const touchStartX = useRef(0)
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null)
   const { checkAndIncrement } = useAILimits()
   const { tier } = useSubscription()
 
@@ -81,6 +82,9 @@ export const VerseView: React.FC<VerseViewProps> = ({
   useEffect(() => {
     document.documentElement.style.setProperty('--verse-font-size', `${fontSize}px`)
     saveFontSize(fontSize)
+    return () => {
+      if (longPressTimer.current) clearTimeout(longPressTimer.current)
+    }
   }, [fontSize])
 
   useEffect(() => {
@@ -169,7 +173,17 @@ export const VerseView: React.FC<VerseViewProps> = ({
         className={`${styles.verseLine} ${highlightColor ? styles.highlighted : ''} ${isHighlighted ? styles.audioHighlight : ''} ${isSelected ? styles.selected : ''}`}
         style={{ backgroundColor: highlightColor || (isHighlighted ? '#fef3c7' : 'transparent') }}
         onContextMenu={(e) => { e.preventDefault(); handleLongPress(index) }}
-        onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; const timer = setTimeout(() => handleLongPress(index), 450); return () => clearTimeout(timer) }}
+        onTouchStart={(e) => {
+          touchStartX.current = e.touches[0].clientX
+          // Long press for 3 seconds
+          longPressTimer.current = setTimeout(() => handleLongPress(index), 3000)
+        }}
+        onTouchEnd={() => {
+          if (longPressTimer.current) clearTimeout(longPressTimer.current)
+        }}
+        onTouchMove={() => {
+          if (longPressTimer.current) clearTimeout(longPressTimer.current)
+        }}
         onClick={() => {}}>
         {showVerseNumbers && <span className={styles.verseNumber}>{index + 1}</span>}
         <span className={styles.verseText} style={{ fontSize: `${fontSize}px` }}>{verse}</span>
