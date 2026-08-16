@@ -4,11 +4,12 @@ import { useBible } from '../../hooks/useBible'
 import { supabase } from '../../lib/supabase'
 import { useStreak } from '../../hooks/useStreak'
 import { useChapterProgress } from '../../hooks/useChapterProgress'
+import { getActivePlans } from '../../lib/reading-plans'
 import { Search } from '../Search/Search'
 import { NoteEditor } from '../Notes/NoteEditor'
 import { PrayerEditor } from '../Prayer/PrayerEditor'
 import { 
-  Search as SearchIcon, Headphones, PenLine, Heart, ChevronRight, X, Sparkles, CheckCircle
+  Search as SearchIcon, Headphones, PenLine, Heart, ChevronRight, X, Sparkles, CheckCircle, ChevronDown, BookOpen
 } from 'lucide-react'
 import './HomeScreen.css'
 
@@ -16,6 +17,7 @@ interface HomeScreenProps {
   onNavigateToDevotional?: () => void
   onNavigateToAudio?: () => void
   onNavigateToBible?: (book: string, chapter: number) => void
+  onNavigateToPlans?: () => void
 }
 
 const getDailySeed = (): number => {
@@ -32,7 +34,7 @@ const seededRandom = (seed: number) => {
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
-  onNavigateToDevotional, onNavigateToAudio, onNavigateToBible,
+  onNavigateToDevotional, onNavigateToAudio, onNavigateToBible, onNavigateToPlans,
 }) => {
   const { bible, currentBook, currentChapter } = useBible()
   const { getStreak } = useStreak()
@@ -45,9 +47,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [showNoteEditor, setShowNoteEditor] = useState(false)
   const [showPrayerEditor, setShowPrayerEditor] = useState(false)
   const [lastPosition, setLastPosition] = useState<{book: string, chapter: number} | null>(null)
-  const [planProgress, setPlanProgress] = useState<{day: number, name: string, percent: number} | null>(null)
   const [streak, setStreak] = useState(0)
   const [chapterStats, setChapterStats] = useState({ totalChaptersRead: 0, booksCompleted: 0 })
+  const [activePlans, setActivePlans] = useState<any[]>([])
+  const [showPlans, setShowPlans] = useState(false)
 
   const verseOfTheDay = useMemo(() => {
     if (!bible || bible.verses.length === 0) return null
@@ -75,18 +78,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     fetchDevotional()
 
     try { const saved = localStorage.getItem('hyescriptures_last_position'); if (saved) setLastPosition(JSON.parse(saved)) } catch {}
-    try {
-      const plans = JSON.parse(localStorage.getItem('hyescriptures_reading_plans') || '{}')
-      const activePlanId = Object.keys(plans)[0]
-      if (activePlanId && plans[activePlanId]) {
-        const plan = plans[activePlanId]
-        const completed = plan.completedDays?.length || 0
-        const total = plan.totalDays || 365
-        setPlanProgress({ day: completed + 1, name: plan.name || 'Bible in 1 Year', percent: Math.round((completed / total) * 100) })
-      }
-    } catch {}
+    
     const streakData = getStreak(); setStreak(streakData.currentStreak)
     setChapterStats(getStats())
+    
+    // Load active plans
+    const plans = getActivePlans()
+    setActivePlans(plans)
+    if (plans.length === 1) setShowPlans(true)
   }, [])
 
   const getCurrentContent = () => {
@@ -126,14 +125,29 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const displayBook = lastPosition?.book || currentBook
   const displayChapter = lastPosition?.chapter || currentChapter
 
-  // Calculate real progress for the current book
-  const totalChaptersInBook = bible ? getChapterCount(displayBook) : 0
+  const chapterMap: Record<string, number> = {
+    'Genesis': 50, 'Exodus': 40, 'Leviticus': 27, 'Numbers': 36,
+    'Deuteronomy': 34, 'Joshua': 24, 'Judges': 21, 'Ruth': 4,
+    '1 Samuel': 31, '2 Samuel': 24, '1 Kings': 22, '2 Kings': 25,
+    '1 Chronicles': 29, '2 Chronicles': 36, 'Ezra': 10, 'Nehemiah': 13,
+    'Esther': 10, 'Job': 42, 'Psalms': 150, 'Proverbs': 31,
+    'Ecclesiastes': 12, 'Song of Solomon': 8, 'Isaiah': 66, 'Jeremiah': 52,
+    'Lamentations': 5, 'Ezekiel': 48, 'Daniel': 12, 'Hosea': 14,
+    'Joel': 3, 'Amos': 9, 'Obadiah': 1, 'Jonah': 4, 'Micah': 7,
+    'Nahum': 3, 'Habakkuk': 3, 'Zephaniah': 3, 'Haggai': 2,
+    'Zechariah': 14, 'Malachi': 4, 'Matthew': 28, 'Mark': 16,
+    'Luke': 24, 'John': 21, 'Acts': 28, 'Romans': 16,
+    '1 Corinthians': 16, '2 Corinthians': 13, 'Galatians': 6, 'Ephesians': 6,
+    'Philippians': 4, 'Colossians': 4, '1 Thessalonians': 5, '2 Thessalonians': 3,
+    '1 Timothy': 6, '2 Timothy': 4, 'Titus': 3, 'Philemon': 1,
+    'Hebrews': 13, 'James': 5, '1 Peter': 5, '2 Peter': 3,
+    '1 John': 5, '2 John': 1, '3 John': 1, 'Jude': 1, 'Revelation': 22
+  }
+  const totalChaptersInBook = chapterMap[displayBook] || 50
   const bookProgress = bible ? getBookProgress(displayBook, totalChaptersInBook) : 0
 
   const handleContinueReading = () => {
-    if (onNavigateToBible) {
-      onNavigateToBible(displayBook, displayChapter)
-    }
+    if (onNavigateToBible) onNavigateToBible(displayBook, displayChapter)
   }
 
   return (
@@ -154,7 +168,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
             <div>
               <span style={{ fontSize: 22, fontWeight: 700, color: 'var(--primary)' }}>{chapterStats.booksCompleted}</span>
-              <span style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block' }}>Books Started</span>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block' }}>Books Completed</span>
             </div>
           </div>
         </div>
@@ -186,7 +200,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {currentContent?.prayer && <div className="home-prayer-preview"><Heart size={14} /><span>{currentContent.prayer.slice(0, 80)}...</span></div>}
       </div>
 
-      {/* Continue Reading - Now Clickable with Real Progress */}
+      {/* Continue Reading */}
       <div className="home-card" onClick={handleContinueReading} style={{ cursor: 'pointer' }}>
         <div className="card-label">Continue Reading</div>
         <div className="card-title">{displayBook}</div>
@@ -200,16 +214,67 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <div className="card-action">Continue Reading <ChevronRight size={16} /></div>
       </div>
 
-      {planProgress && (
+      {/* Reading Plans - Collapsible */}
+      {activePlans.length > 0 && (
         <div className="home-card">
-          <div className="card-label">Reading Plan</div>
-          <div className="card-title">Day {planProgress.day}</div>
-          <div className="card-subtitle">{planProgress.name}</div>
-          <div className="home-progress"><div className="home-progress-bar"><div className="home-progress-fill" style={{ width: `${planProgress.percent}%` }} /></div><span className="home-progress-text">{planProgress.percent}%</span></div>
-          <div className="card-action">View Plan <ChevronRight size={16} /></div>
+          <div 
+            className="card-label" 
+            onClick={() => setShowPlans(!showPlans)} 
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+          >
+            <span>📖 Reading Plans ({activePlans.length} active)</span>
+            <ChevronDown size={16} style={{ transform: showPlans ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
+          </div>
+
+          {showPlans && (
+            <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {activePlans.map(({ plan, progress, percentage, currentDay }) => (
+                <div 
+                  key={plan.id} 
+                  onClick={onNavigateToPlans}
+                  style={{ 
+                    cursor: 'pointer',
+                    padding: 12,
+                    borderRadius: 12,
+                    background: 'var(--bg-hover)',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                    <span style={{ fontSize: 18 }}>{plan.icon}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{plan.name}</span>
+                    <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-muted)' }}>
+                      Day {Math.min(currentDay, plan.totalDays)}/{plan.totalDays}
+                    </span>
+                  </div>
+                  <div className="home-progress" style={{ margin: 0 }}>
+                    <div className="home-progress-bar">
+                      <div className="home-progress-fill" style={{ width: `${percentage}%`, background: plan.color }} />
+                    </div>
+                    <span className="home-progress-text" style={{ fontSize: 11 }}>{percentage}%</span>
+                  </div>
+                </div>
+              ))}
+              <button 
+                onClick={onNavigateToPlans}
+                style={{
+                  padding: '8px 12px',
+                  background: 'transparent',
+                  border: '1px solid var(--border-light)',
+                  borderRadius: 8,
+                  fontSize: 12,
+                  color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                }}
+              >
+                View All Plans →
+              </button>
+            </div>
+          )}
         </div>
       )}
 
+      {/* Quick Actions */}
       <div className="home-quick-actions">
         <button className="quick-action" onClick={() => setShowSearch(true)}><SearchIcon size={20} /><span className="qa-label">Search</span></button>
         <button className="quick-action" onClick={onNavigateToAudio}><Headphones size={20} /><span className="qa-label">Listen</span></button>
@@ -221,29 +286,4 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       {showPrayerEditor && <PrayerEditor onClose={() => setShowPrayerEditor(false)} />}
     </div>
   )
-}
-
-// Helper to get total chapters in a book
-const getChapterCount = (book: string): number => {
-  // You'll need to import this from bible-loader or use a book/chapter map
-  // For now, return a reasonable default
-  const chapterMap: Record<string, number> = {
-    'Genesis': 50, 'Exodus': 40, 'Leviticus': 27, 'Numbers': 36,
-    'Deuteronomy': 34, 'Joshua': 24, 'Judges': 21, 'Ruth': 4,
-    '1 Samuel': 31, '2 Samuel': 24, '1 Kings': 22, '2 Kings': 25,
-    '1 Chronicles': 29, '2 Chronicles': 36, 'Ezra': 10, 'Nehemiah': 13,
-    'Esther': 10, 'Job': 42, 'Psalms': 150, 'Proverbs': 31,
-    'Ecclesiastes': 12, 'Song of Solomon': 8, 'Isaiah': 66, 'Jeremiah': 52,
-    'Lamentations': 5, 'Ezekiel': 48, 'Daniel': 12, 'Hosea': 14,
-    'Joel': 3, 'Amos': 9, 'Obadiah': 1, 'Jonah': 4, 'Micah': 7,
-    'Nahum': 3, 'Habakkuk': 3, 'Zephaniah': 3, 'Haggai': 2,
-    'Zechariah': 14, 'Malachi': 4, 'Matthew': 28, 'Mark': 16,
-    'Luke': 24, 'John': 21, 'Acts': 28, 'Romans': 16,
-    '1 Corinthians': 16, '2 Corinthians': 13, 'Galatians': 6, 'Ephesians': 6,
-    'Philippians': 4, 'Colossians': 4, '1 Thessalonians': 5, '2 Thessalonians': 3,
-    '1 Timothy': 6, '2 Timothy': 4, 'Titus': 3, 'Philemon': 1,
-    'Hebrews': 13, 'James': 5, '1 Peter': 5, '2 Peter': 3,
-    '1 John': 5, '2 John': 1, '3 John': 1, 'Jude': 1, 'Revelation': 22
-  }
-  return chapterMap[book] || 50
 }
