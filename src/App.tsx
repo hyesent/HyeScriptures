@@ -70,7 +70,6 @@ const LoadingScreen = () => (
   </div>
 )
 
-// Check cache BEFORE anything else
 const hasCachedAuth = (): boolean => {
   try {
     const data = localStorage.getItem(AUTH_CACHE_KEY)
@@ -83,15 +82,11 @@ const hasCachedAuth = (): boolean => {
 function App() {
   const [showLoading, setShowLoading] = useState(true)
   const [bypassAuth, setBypassAuth] = useState(false)
+  const [bibleTarget, setBibleTarget] = useState<{book: string, chapter: number} | null>(null)
 
-  // Check cache BEFORE useAuth even initializes
   useEffect(() => {
     const cached = hasCachedAuth()
-    if (cached) {
-      // Has cache — skip auth, go straight to app
-      setBypassAuth(true)
-    }
-    // Always show loading for at least 1.5s for smooth transition
+    if (cached) setBypassAuth(true)
     const timer = setTimeout(() => setShowLoading(false), cached ? 800 : 1500)
     return () => clearTimeout(timer)
   }, [])
@@ -103,39 +98,64 @@ function App() {
 
   useEffect(() => { if (user) updateStreak() }, [user])
 
-  // Show loading screen while timer is running
   if (showLoading) return <LoadingScreen />
 
-  // If cache existed, go straight to app (auth will resolve in background)
   if (bypassAuth) {
     return (
       <ThemeProvider>
-        <AppContent tier={tier} currentTab={currentTab} setCurrentTab={setCurrentTab} />
+        <AppContent 
+          tier={tier} 
+          currentTab={currentTab} 
+          setCurrentTab={setCurrentTab}
+          bibleTarget={bibleTarget}
+          setBibleTarget={setBibleTarget}
+        />
       </ThemeProvider>
     )
   }
 
-  // No cache — normal flow
   if (authLoading) return <LoadingScreen />
   if (!user) return <ThemeProvider><Login /></ThemeProvider>
 
   return (
     <ThemeProvider>
-      <AppContent tier={tier} currentTab={currentTab} setCurrentTab={setCurrentTab} />
+      <AppContent 
+        tier={tier} 
+        currentTab={currentTab} 
+        setCurrentTab={setCurrentTab}
+        bibleTarget={bibleTarget}
+        setBibleTarget={setBibleTarget}
+      />
     </ThemeProvider>
   )
 }
 
-// Extracted to avoid duplication
 const AppContent: React.FC<{
   tier: string
   currentTab: Tab
   setCurrentTab: (tab: Tab) => void
-}> = ({ tier, currentTab, setCurrentTab }) => {
+  bibleTarget: {book: string, chapter: number} | null
+  setBibleTarget: (target: {book: string, chapter: number} | null) => void
+}> = ({ tier, currentTab, setCurrentTab, bibleTarget, setBibleTarget }) => {
   const renderContent = () => {
     switch (currentTab) {
-      case 'home': return <HomeScreen onNavigateToDevotional={() => setCurrentTab('study')} onNavigateToAudio={() => setCurrentTab('audio')} />
-      case 'bible': return <BibleTab />
+      case 'home': return (
+        <HomeScreen 
+          onNavigateToDevotional={() => setCurrentTab('study')} 
+          onNavigateToAudio={() => setCurrentTab('audio')}
+          onNavigateToBible={(book, chapter) => {
+            setBibleTarget({ book, chapter })
+            setCurrentTab('bible')
+          }}
+        />
+      )
+      case 'bible': return (
+        <BibleTab 
+          initialBook={bibleTarget?.book}
+          initialChapter={bibleTarget?.chapter}
+          onClearInitial={() => setBibleTarget(null)}
+        />
+      )
       case 'study': return <StudyHub />
       case 'community': return <CommunityTab />
       case 'me': return <MeTab />
