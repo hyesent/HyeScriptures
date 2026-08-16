@@ -15,6 +15,7 @@ import './HomeScreen.css'
 interface HomeScreenProps {
   onNavigateToDevotional?: () => void
   onNavigateToAudio?: () => void
+  onNavigateToBible?: (book: string, chapter: number) => void
 }
 
 const getDailySeed = (): number => {
@@ -31,11 +32,11 @@ const seededRandom = (seed: number) => {
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
-  onNavigateToDevotional, onNavigateToAudio,
+  onNavigateToDevotional, onNavigateToAudio, onNavigateToBible,
 }) => {
   const { bible, currentBook, currentChapter } = useBible()
   const { getStreak } = useStreak()
-  const { getStats } = useChapterProgress()
+  const { getStats, getBookProgress } = useChapterProgress()
   const [devotional, setDevotional] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [greeting, setGreeting] = useState('Good Morning')
@@ -125,6 +126,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const displayBook = lastPosition?.book || currentBook
   const displayChapter = lastPosition?.chapter || currentChapter
 
+  // Calculate real progress for the current book
+  const totalChaptersInBook = bible ? getChapterCount(displayBook) : 0
+  const bookProgress = bible ? getBookProgress(displayBook, totalChaptersInBook) : 0
+
+  const handleContinueReading = () => {
+    if (onNavigateToBible) {
+      onNavigateToBible(displayBook, displayChapter)
+    }
+  }
+
   return (
     <div className="home-container">
       <div className="home-greeting">
@@ -175,11 +186,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {currentContent?.prayer && <div className="home-prayer-preview"><Heart size={14} /><span>{currentContent.prayer.slice(0, 80)}...</span></div>}
       </div>
 
-      <div className="home-card">
+      {/* Continue Reading - Now Clickable with Real Progress */}
+      <div className="home-card" onClick={handleContinueReading} style={{ cursor: 'pointer' }}>
         <div className="card-label">Continue Reading</div>
         <div className="card-title">{displayBook}</div>
         <div className="card-subtitle">Chapter {displayChapter}</div>
-        <div className="home-progress"><div className="home-progress-bar"><div className="home-progress-fill" style={{ width: `${Math.min(((displayChapter || 1) / 50) * 100, 100)}%` }} /></div><span className="home-progress-text">Chapter {displayChapter}</span></div>
+        <div className="home-progress">
+          <div className="home-progress-bar">
+            <div className="home-progress-fill" style={{ width: `${bookProgress}%` }} />
+          </div>
+          <span className="home-progress-text">{bookProgress}% of {displayBook}</span>
+        </div>
         <div className="card-action">Continue Reading <ChevronRight size={16} /></div>
       </div>
 
@@ -204,4 +221,29 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       {showPrayerEditor && <PrayerEditor onClose={() => setShowPrayerEditor(false)} />}
     </div>
   )
+}
+
+// Helper to get total chapters in a book
+const getChapterCount = (book: string): number => {
+  // You'll need to import this from bible-loader or use a book/chapter map
+  // For now, return a reasonable default
+  const chapterMap: Record<string, number> = {
+    'Genesis': 50, 'Exodus': 40, 'Leviticus': 27, 'Numbers': 36,
+    'Deuteronomy': 34, 'Joshua': 24, 'Judges': 21, 'Ruth': 4,
+    '1 Samuel': 31, '2 Samuel': 24, '1 Kings': 22, '2 Kings': 25,
+    '1 Chronicles': 29, '2 Chronicles': 36, 'Ezra': 10, 'Nehemiah': 13,
+    'Esther': 10, 'Job': 42, 'Psalms': 150, 'Proverbs': 31,
+    'Ecclesiastes': 12, 'Song of Solomon': 8, 'Isaiah': 66, 'Jeremiah': 52,
+    'Lamentations': 5, 'Ezekiel': 48, 'Daniel': 12, 'Hosea': 14,
+    'Joel': 3, 'Amos': 9, 'Obadiah': 1, 'Jonah': 4, 'Micah': 7,
+    'Nahum': 3, 'Habakkuk': 3, 'Zephaniah': 3, 'Haggai': 2,
+    'Zechariah': 14, 'Malachi': 4, 'Matthew': 28, 'Mark': 16,
+    'Luke': 24, 'John': 21, 'Acts': 28, 'Romans': 16,
+    '1 Corinthians': 16, '2 Corinthians': 13, 'Galatians': 6, 'Ephesians': 6,
+    'Philippians': 4, 'Colossians': 4, '1 Thessalonians': 5, '2 Thessalonians': 3,
+    '1 Timothy': 6, '2 Timothy': 4, 'Titus': 3, 'Philemon': 1,
+    'Hebrews': 13, 'James': 5, '1 Peter': 5, '2 Peter': 3,
+    '1 John': 5, '2 John': 1, '3 John': 1, 'Jude': 1, 'Revelation': 22
+  }
+  return chapterMap[book] || 50
 }
