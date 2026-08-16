@@ -172,40 +172,48 @@ export const CommunityTab: React.FC<CommunityTabProps> = ({ prefillVerse, onClea
 
   // Friends view
   if (activeTab === 'friends') {
-    return (
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <div className={styles.headerLeft}>
-            <h2>Friends</h2>
-          </div>
-          <div style={{ display: 'flex', gap: 6 }}>
-            <button 
-              className={`${styles.viewToggle} ${friendsView === 'list' ? styles.active : ''}`}
-              onClick={() => setFriendsView('list')}
-            >
-              <Users size={14} /> My Friends
-            </button>
-            <button 
-              className={`${styles.viewToggle} ${friendsView === 'requests' ? styles.active : ''}`}
-              onClick={() => setFriendsView('requests')}
-            >
-              <UserPlus size={14} /> Requests
-            </button>
-            <button 
-              className={`${styles.viewToggle} ${friendsView === 'search' ? styles.active : ''}`}
-              onClick={() => setFriendsView('search')}
-            >
-              <Plus size={14} /> Add
-            </button>
-          </div>
+  return (
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <div className={styles.headerLeft}>
+          <button 
+            className={styles.backBtn}
+            onClick={() => setActiveTab('feed')}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <h2>Friends</h2>
         </div>
-
-        {friendsView === 'list' && <FriendsList />}
-        {friendsView === 'requests' && <FriendRequests />}
-        {friendsView === 'search' && <SearchUsers />}
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button 
+            className={`${styles.viewToggle} ${friendsView === 'list' ? styles.active : ''}`}
+            onClick={() => setFriendsView('list')}
+          >
+            <Users size={14} /> My Friends
+          </button>
+          <button 
+            className={`${styles.viewToggle} ${friendsView === 'requests' ? styles.active : ''}`}
+            onClick={() => setFriendsView('requests')}
+          >
+            <UserPlus size={14} /> Requests
+          </button>
+          <button 
+            className={`${styles.viewToggle} ${friendsView === 'search' ? styles.active : ''}`}
+            onClick={() => setFriendsView('search')}
+          >
+            <Plus size={14} /> Add
+          </button>
+        </div>
       </div>
-    )
-  }
+
+      {friendsView === 'list' && <FriendsList />}
+      {friendsView === 'requests' && <FriendRequests />}
+      {friendsView === 'search' && <SearchUsers />}
+    </div>
+  )
+}
 
   // Main community feed
   return (
