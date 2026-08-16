@@ -8,18 +8,12 @@ import {
   deleteComment,
   editComment
 } from '../../lib/community'
+import { sendFriendRequest, getFriendshipStatus } from '../../lib/friends'
 import { useAuth } from '../../hooks/useAuth'
+import { useSubscription } from '../../hooks/useSubscription'
 import { 
-  Heart, 
-  MessageCircle, 
-  Trash2, 
-  Edit2, 
-  X, 
-  Send, 
-  Clock, 
-  Reply,
-  Check,
-  MoreVertical
+  Heart, MessageCircle, Trash2, Edit2, X, Send, Clock, Reply,
+  Check, UserPlus, UserCheck, Crown
 } from 'lucide-react'
 import styles from './PostCard.module.css'
 
@@ -46,8 +40,11 @@ const postTypeLabels: Record<string, string> = {
   encouragement: 'Encouragement'
 }
 
+type FriendStatus = 'none' | 'pending_sent' | 'pending_received' | 'accepted'
+
 export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUpdate }) => {
   const { user } = useAuth()
+  const { tier } = useSubscription()
   const [showComments, setShowComments] = useState(false)
   const [comments, setComments] = useState<Comment[]>([])
   const [commentInput, setCommentInput] = useState('')
@@ -59,15 +56,40 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
   const [editContent, setEditContent] = useState(post.content)
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null)
   const [editingCommentContent, setEditingCommentContent] = useState('')
-  const [showMenu, setShowMenu] = useState(false)
+  const [friendStatus, setFriendStatus] = useState<FriendStatus>('none')
+  const [commentFriendStatuses, setCommentFriendStatuses] = useState<Record<string, FriendStatus>>({})
 
   const isAuthor = user?.id === post.user_id
+
+  useEffect(() => {
+    if (!isAuthor && post.user_id) {
+      checkFriendStatus(post.user_id)
+    }
+  }, [post.user_id, isAuthor])
+
+  const checkFriendStatus = async (userId: string) => {
+    const status = await getFriendshipStatus(userId)
+    setFriendStatus(status)
+  }
+
+  const handleAddFriend = async (userId: string) => {
+    const success = await sendFriendRequest(userId)
+    if (success) setFriendStatus('pending_sent')
+  }
 
   const loadComments = async () => {
     setLoadingComments(true)
     try {
       const data = await getComments(post.id)
       setComments(data)
+      // Check friendship status for comment authors
+      const statuses: Record<string, FriendStatus> = {}
+      for (const comment of data) {
+        if (comment.user_id !== user?.id) {
+          statuses[comment.user_id] = await getFriendshipStatus(comment.user_id)
+        }
+      }
+      setCommentFriendStatuses(statuses)
     } catch (error) {
       console.error('Error loading comments:', error)
     } finally {
@@ -76,16 +98,13 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
   }
 
   const handleToggleComments = () => {
-    if (!showComments) {
-      loadComments()
-    }
+    if (!showComments) loadComments()
     setShowComments(!showComments)
     setReplyTo(null)
   }
 
   const handleCommentSubmit = async () => {
     if (!commentInput.trim() || submitting) return
-
     setSubmitting(true)
     try {
       const result = await createComment(post.id, commentInput)
@@ -104,7 +123,6 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
   const handleReplySubmit = async (parentId: string) => {
     const content = replyInput[parentId] || ''
     if (!content.trim() || submitting) return
-
     setSubmitting(true)
     try {
       const result = await createComment(post.id, content, parentId)
@@ -133,7 +151,6 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
 
   const handleEditComment = async (commentId: string) => {
     if (!editingCommentContent.trim()) return
-
     const result = await editComment(commentId, editingCommentContent)
     if (result) {
       setEditingCommentId(null)
@@ -146,9 +163,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
   const handleDeletePost = async () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       const result = await deletePost(post.id)
-      if (result) {
-        onDelete(post.id)
-      }
+      if (result) onDelete(post.id)
     }
   }
 
@@ -164,10 +179,28 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
     return new Date(date).toLocaleDateString()
   }
 
+  const getFriendButton = (userId: string, status: FriendStatus) => {
+    if (status === 'accepted') {
+      return <span className={styles.friendAccepted}><UserCheck size={12} /> Friends</span>
+    }
+    if (status === 'pending_sent') {
+      return <span className={styles.friendPending}><Clock size={12} /> Request Sent</span>
+    }
+    if (status === 'pending_received') {
+      return <span className={styles.friendPending}><Clock size={12} /> Accept Request</span>
+    }
+    return (
+      <button className={styles.addFriendBtn} onClick={() => handleAddFriend(userId)}>
+        <UserPlus size={12} /> Add
+      </button>
+    )
+  }
+
   const renderComment = (comment: Comment, isReply: boolean = false) => {
     const isCommentAuthor = user?.id === comment.user_id
     const isEditing = editingCommentId === comment.id
     const replyKey = comment.id
+    const commentFriendStatus = commentFriendStatuses[comment.user_id] || 'none'
 
     return (
       <div key={comment.id} className={`${styles.comment} ${isReply ? styles.reply : ''}`}>
@@ -175,24 +208,24 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
         <div className={styles.commentContent}>
           <div className={styles.commentHeader}>
             <span className={styles.commentUser}>{comment.user?.display_name || 'Unknown'}</span>
+            {tier === 'elder' && comment.user_id === 'hyacinthmichael36@gmail.com' && (
+              <Crown size={12} className={styles.elderCrown} />
+            )}
             <span className={styles.commentTime}>{timeAgo(comment.created_at)}</span>
+            {!isCommentAuthor && (
+              <span className={styles.commentFriendBtn}>
+                {getFriendButton(comment.user_id, commentFriendStatus)}
+              </span>
+            )}
             {isCommentAuthor && !isEditing && (
               <div className={styles.commentActions}>
-                <button 
-                  className={styles.editCommentBtn}
-                  onClick={() => {
-                    setEditingCommentId(comment.id)
-                    setEditingCommentContent(comment.content)
-                  }}
-                  title="Edit comment"
-                >
+                <button className={styles.editCommentBtn} onClick={() => {
+                  setEditingCommentId(comment.id)
+                  setEditingCommentContent(comment.content)
+                }} title="Edit comment">
                   <Edit2 size={12} />
                 </button>
-                <button 
-                  className={styles.deleteCommentBtn}
-                  onClick={() => handleDeleteComment(comment.id)}
-                  title="Delete comment"
-                >
+                <button className={styles.deleteCommentBtn} onClick={() => handleDeleteComment(comment.id)} title="Delete comment">
                   <Trash2 size={12} />
                 </button>
               </div>
@@ -201,36 +234,15 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
 
           {isEditing ? (
             <div className={styles.commentEditArea}>
-              <input
-                type="text"
-                value={editingCommentContent}
-                onChange={(e) => setEditingCommentContent(e.target.value)}
+              <input type="text" value={editingCommentContent} onChange={(e) => setEditingCommentContent(e.target.value)}
                 className={styles.commentEditInput}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleEditComment(comment.id)
-                  if (e.key === 'Escape') {
-                    setEditingCommentId(null)
-                    setEditingCommentContent('')
-                  }
-                }}
-                autoFocus
-              />
+                  if (e.key === 'Escape') { setEditingCommentId(null); setEditingCommentContent('') }
+                }} autoFocus />
               <div className={styles.commentEditActions}>
-                <button 
-                  className={styles.commentEditSaveBtn}
-                  onClick={() => handleEditComment(comment.id)}
-                >
-                  <Check size={14} />
-                </button>
-                <button 
-                  className={styles.commentEditCancelBtn}
-                  onClick={() => {
-                    setEditingCommentId(null)
-                    setEditingCommentContent('')
-                  }}
-                >
-                  <X size={14} />
-                </button>
+                <button className={styles.commentEditSaveBtn} onClick={() => handleEditComment(comment.id)}><Check size={14} /></button>
+                <button className={styles.commentEditCancelBtn} onClick={() => { setEditingCommentId(null); setEditingCommentContent('') }}><X size={14} /></button>
               </div>
             </div>
           ) : (
@@ -238,34 +250,22 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
           )}
 
           {!isReply && !isEditing && (
-            <button 
-              className={styles.replyBtn}
-              onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}
-            >
-              <Reply size={12} />
-              Reply
+            <button className={styles.replyBtn} onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}>
+              <Reply size={12} /> Reply
             </button>
           )}
 
           {replyTo === comment.id && !isEditing && (
             <div className={styles.replyInputArea}>
-              <input
-                type="text"
-                value={replyInput[replyKey] || ''}
+              <input type="text" value={replyInput[replyKey] || ''}
                 onChange={(e) => setReplyInput(prev => ({ ...prev, [replyKey]: e.target.value }))}
-                placeholder="Write a reply..."
-                className={styles.replyInput}
+                placeholder="Write a reply..." className={styles.replyInput}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleReplySubmit(comment.id)
                   if (e.key === 'Escape') setReplyTo(null)
-                }}
-                autoFocus
-              />
-              <button 
-                className={styles.replySubmitBtn}
-                onClick={() => handleReplySubmit(comment.id)}
-                disabled={!replyInput[replyKey]?.trim() || submitting}
-              >
+                }} autoFocus />
+              <button className={styles.replySubmitBtn} onClick={() => handleReplySubmit(comment.id)}
+                disabled={!replyInput[replyKey]?.trim() || submitting}>
                 <Send size={14} />
               </button>
             </div>
@@ -282,33 +282,28 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
         <div className={styles.userInfo}>
           <span className={styles.avatar}>{post.user?.avatar_url || '👤'}</span>
           <div>
-            <span className={styles.userName}>{post.user?.display_name || 'Unknown'}</span>
+            <span className={styles.userName}>
+              {post.user?.display_name || 'Unknown'}
+              {tier === 'elder' && post.user_id === user?.id && (
+                <Crown size={12} className={styles.elderCrown} />
+              )}
+            </span>
             <span className={styles.postType}>
               {postTypeEmojis[post.post_type]} {postTypeLabels[post.post_type]}
             </span>
           </div>
         </div>
         <div className={styles.postMeta}>
-          <span className={styles.time}>
-            <Clock size={12} />
-            {timeAgo(post.created_at)}
-          </span>
+          <span className={styles.time}><Clock size={12} />{timeAgo(post.created_at)}</span>
+          {!isAuthor && (
+            <span className={styles.postFriendBtn}>
+              {getFriendButton(post.user_id, friendStatus)}
+            </span>
+          )}
           {isAuthor && (
             <div className={styles.actions}>
-              <button 
-                className={styles.editBtn} 
-                onClick={() => setIsEditing(true)}
-                title="Edit"
-              >
-                <Edit2 size={14} />
-              </button>
-              <button 
-                className={styles.deleteBtn} 
-                onClick={handleDeletePost}
-                title="Delete"
-              >
-                <Trash2 size={14} />
-              </button>
+              <button className={styles.editBtn} onClick={() => setIsEditing(true)} title="Edit"><Edit2 size={14} /></button>
+              <button className={styles.deleteBtn} onClick={handleDeletePost} title="Delete"><Trash2 size={14} /></button>
             </div>
           )}
         </div>
@@ -317,37 +312,22 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
       {/* Post Content */}
       {isEditing ? (
         <div className={styles.editArea}>
-          <textarea
-            value={editContent}
-            onChange={(e) => setEditContent(e.target.value)}
-            className={styles.editInput}
-            rows={3}
-          />
+          <textarea value={editContent} onChange={(e) => setEditContent(e.target.value)} className={styles.editInput} rows={3} />
           <div className={styles.editActions}>
-            <button className={styles.cancelEditBtn} onClick={() => setIsEditing(false)}>
-              <X size={14} />
-              Cancel
-            </button>
-            <button className={styles.saveEditBtn} onClick={() => { setIsEditing(false); onUpdate() }}>
-              Save
-            </button>
+            <button className={styles.cancelEditBtn} onClick={() => setIsEditing(false)}><X size={14} />Cancel</button>
+            <button className={styles.saveEditBtn} onClick={() => { setIsEditing(false); onUpdate() }}>Save</button>
           </div>
         </div>
       ) : (
         <>
           <div className={styles.content}>{post.content}</div>
-          {post.verse_reference && (
-            <div className={styles.verseRef}>📖 {post.verse_reference}</div>
-          )}
+          {post.verse_reference && <div className={styles.verseRef}>📖 {post.verse_reference}</div>}
         </>
       )}
 
       {/* Stats */}
       <div className={styles.stats}>
-        <button 
-          className={`${styles.likeBtn} ${post.is_liked ? styles.liked : ''}`}
-          onClick={() => onLike(post.id)}
-        >
+        <button className={`${styles.likeBtn} ${post.is_liked ? styles.liked : ''}`} onClick={() => onLike(post.id)}>
           <Heart size={16} className={post.is_liked ? styles.filled : ''} />
           {post.likes_count || 0}
         </button>
@@ -364,28 +344,14 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
             <p className={styles.loadingComments}>Loading comments...</p>
           ) : (
             <>
-              {comments.length === 0 && (
-                <p className={styles.noComments}>No comments yet. Be the first! 💬</p>
-              )}
-              
-              {/* Top-level comments */}
+              {comments.length === 0 && <p className={styles.noComments}>No comments yet. Be the first! 💬</p>}
               {comments.map((comment) => renderComment(comment, false))}
-
-              {/* Comment Input */}
               <div className={styles.commentInputArea}>
-                <input
-                  type="text"
-                  value={commentInput}
-                  onChange={(e) => setCommentInput(e.target.value)}
-                  placeholder="Write a comment..."
-                  className={styles.commentInput}
-                  onKeyDown={(e) => e.key === 'Enter' && handleCommentSubmit()}
-                />
-                <button 
-                  className={styles.commentSubmitBtn}
-                  onClick={handleCommentSubmit}
-                  disabled={!commentInput.trim() || submitting}
-                >
+                <input type="text" value={commentInput} onChange={(e) => setCommentInput(e.target.value)}
+                  placeholder="Write a comment..." className={styles.commentInput}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCommentSubmit()} />
+                <button className={styles.commentSubmitBtn} onClick={handleCommentSubmit}
+                  disabled={!commentInput.trim() || submitting}>
                   <Send size={16} />
                 </button>
               </div>
