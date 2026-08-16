@@ -3,11 +3,10 @@ import { supabase } from '../../lib/supabase'
 import { createPost } from '../../lib/community'
 import { useAuth } from '../../hooks/useAuth'
 import { 
-  Copy, Share, BookOpen, RefreshCw, Heart, Clock, Check, Users, Image as ImageIcon
+  Copy, Share, BookOpen, RefreshCw, Heart, Clock, Check, Users
 } from 'lucide-react'
 import styles from './DevotionalPage.module.css'
 
-// Import 28 backgrounds (same as ShareButton)
 import bg1 from '../../assets/images/share-backgrounds/image 1.jpg'
 import bg2 from '../../assets/images/share-backgrounds/image 2.jpg'
 import bg3 from '../../assets/images/share-backgrounds/image 3.jpg'
@@ -43,9 +42,7 @@ const backgrounds = [
   bg21, bg22, bg23, bg24, bg25, bg26, bg27, bg28,
 ]
 
-const getRandomBackground = () => {
-  return backgrounds[Math.floor(Math.random() * backgrounds.length)]
-}
+const getRandomBackground = () => backgrounds[Math.floor(Math.random() * backgrounds.length)]
 
 interface DailyContent {
   id: string
@@ -67,8 +64,11 @@ export const DevotionalPage: React.FC = () => {
   const [copiedFull, setCopiedFull] = useState(false)
   const [posted, setPosted] = useState(false)
   const [posting, setPosting] = useState(false)
+  const [liked, setLiked] = useState(false)
+  const [liking, setLiking] = useState(false)
+  const [copiedVerse, setCopiedVerse] = useState(false)
+  const [sharedVerse, setSharedVerse] = useState(false)
   const [background] = useState<string>(getRandomBackground)
-  const scriptureCardRef = useRef<HTMLDivElement>(null)
 
   const hour = new Date().getHours()
   const isMorning = hour >= 5 && hour < 17
@@ -89,6 +89,18 @@ export const DevotionalPage: React.FC = () => {
     fetchDailyContent()
   }, [])
 
+  // Check if user already liked
+  useEffect(() => {
+    if (user && content) {
+      supabase.from('devotional_likes')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('devotional_date', content.date)
+        .maybeSingle()
+        .then(({ data }) => setLiked(!!data))
+    }
+  }, [user, content])
+
   const fetchDailyContent = async () => {
     try {
       setLoading(true)
@@ -98,7 +110,6 @@ export const DevotionalPage: React.FC = () => {
         .select('*')
         .eq('date', today)
         .maybeSingle()
-
       if (error) console.error('Error fetching devotional:', error)
       if (data) {
         setContent(data)
@@ -117,29 +128,117 @@ export const DevotionalPage: React.FC = () => {
     setRefreshing(false)
   }
 
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text)
-  }
+  const handleLike = async () => {
+    if (!user || liking) return
+    setLiking(true)
+    try {
+      const { data: existingLike } = await supabase
+        .from('devotional_likes')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('devotional_date', content?.date)
+        .maybeSingle()
 
-  // Copy FULL devotional (verse + reflection + prayer)
-  const handleCopyFull = () => {
-    const fullText = `${currentDevotional.scripture}\n\n${currentDevotional.reflection}\n\n${currentDevotional.prayer}`
-    navigator.clipboard.writeText(fullText)
-    setCopiedFull(true)
-    setTimeout(() => setCopiedFull(false), 2000)
-  }
-
-  const handleShare = async (text: string) => {
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: 'Daily Devotional', text })
-      } catch {}
-    } else {
-      navigator.clipboard.writeText(text)
+      if (existingLike) {
+        await supabase.from('devotional_likes').delete().eq('id', existingLike.id)
+        setLiked(false)
+      } else {
+        await supabase.from('devotional_likes').insert({
+          user_id: user.id,
+          devotional_date: content?.date,
+          devotional_type: isMorning ? 'morning' : 'night',
+        })
+        setLiked(true)
+      }
+    } catch (error) {
+      console.error('Error liking:', error)
+    } finally {
+      setLiking(false)
     }
   }
 
-  // Post to community
+  // Copy FULL devotional
+  const handleCopyFull = () => {
+    const fullText = `${currentDevotional.scripture}\n\n${currentDevotional.reflection}\n\n${currentDevotional.prayer}`
+    navigator.clipboard.writeText(fullText).then(() => {
+      setCopiedFull(true)
+      setTimeout(() => setCopiedFull(false), 2000)
+    }).catch(() => {
+      // Fallback
+      const textArea = document.createElement('textarea')
+      textArea.value = fullText
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      setCopiedFull(true)
+      setTimeout(() => setCopiedFull(false), 2000)
+    })
+  }
+
+  // Copy verse
+  const handleCopyVerse = () => {
+    const text = `${scriptureData.reference} - ${scriptureData.verse}`
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedVerse(true)
+      setTimeout(() => setCopiedVerse(false), 2000)
+    }).catch(() => {
+      const textArea = document.createElement('textarea')
+      textArea.value = text
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      setCopiedVerse(true)
+      setTimeout(() => setCopiedVerse(false), 2000)
+    })
+  }
+
+  // Share verse - FIXED with multiple fallbacks
+  const handleShareVerse = async () => {
+    const text = `${scriptureData.reference} - "${scriptureData.verse}"`
+    
+    try {
+      // Try Web Share API first
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Daily Devotional Verse',
+          text: text,
+        })
+        setSharedVerse(true)
+        setTimeout(() => setSharedVerse(false), 2000)
+        return
+      }
+
+      // Try clipboard + toast
+      await navigator.clipboard.writeText(text)
+      setSharedVerse(true)
+      setTimeout(() => setSharedVerse(false), 2000)
+    } catch (error) {
+      // Final fallback: manual copy
+      const textArea = document.createElement('textarea')
+      textArea.value = text
+      textArea.style.position = 'fixed'
+      textArea.style.opacity = '0'
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      setSharedVerse(true)
+      setTimeout(() => setSharedVerse(false), 2000)
+    }
+  }
+
+  const handleShare = async (text: string) => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Daily Devotional', text })
+      } else {
+        await navigator.clipboard.writeText(text)
+      }
+    } catch {}
+  }
+
   const handlePostToCommunity = async () => {
     if (!user || posting) return
     setPosting(true)
@@ -236,12 +335,8 @@ export const DevotionalPage: React.FC = () => {
       </div>
 
       <div className={styles.content}>
-        {/* Scripture Card with Custom Background */}
-        <div 
-          ref={scriptureCardRef}
-          className={styles.scriptureImageCard}
-          style={{ backgroundImage: `url(${background})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-        >
+        {/* Scripture Card with Background */}
+        <div className={styles.scriptureImageCard} style={{ backgroundImage: `url(${background})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
           <div className={styles.scriptureOverlay}>
             <div className={styles.scriptureContent}>
               <span className={styles.scriptureQuote}>"</span>
@@ -253,13 +348,19 @@ export const DevotionalPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Scripture Actions */}
+        {/* Actions: Like, Copy, Share, Post */}
         <div className={styles.cardActions}>
-          <button className={styles.cardActionBtn} onClick={() => handleCopy(scriptureData.verse)}>
-            <Copy size={14} />Copy Verse
+          <button className={`${styles.cardActionBtn} ${liked ? styles.likedBtn : ''}`} onClick={handleLike} disabled={liking}>
+            <Heart size={14} className={liked ? styles.likedIcon : ''} />
+            {liked ? 'Liked' : 'Like'}
           </button>
-          <button className={styles.cardActionBtn} onClick={() => handleShare(scriptureData.verse)}>
-            <Share size={14} />Share Verse
+          <button className={styles.cardActionBtn} onClick={handleCopyVerse}>
+            {copiedVerse ? <Check size={14} /> : <Copy size={14} />}
+            {copiedVerse ? 'Copied!' : 'Copy Verse'}
+          </button>
+          <button className={styles.cardActionBtn} onClick={handleShareVerse}>
+            {sharedVerse ? <Check size={14} /> : <Share size={14} />}
+            {sharedVerse ? 'Shared!' : 'Share Verse'}
           </button>
           <button className={styles.cardActionBtn} onClick={handlePostToCommunity} disabled={posting}>
             {posted ? <Check size={14} /> : <Users size={14} />}
@@ -275,7 +376,7 @@ export const DevotionalPage: React.FC = () => {
           </div>
           <p className={styles.reflectionText}>{currentDevotional.reflection || 'Not available'}</p>
           <div className={styles.cardActions}>
-            <button className={styles.cardActionBtn} onClick={() => handleCopy(currentDevotional.reflection || '')}>
+            <button className={styles.cardActionBtn} onClick={() => navigator.clipboard.writeText(currentDevotional.reflection || '')}>
               <Copy size={14} />Copy
             </button>
           </div>
@@ -289,7 +390,7 @@ export const DevotionalPage: React.FC = () => {
           </div>
           <p className={styles.prayerText}>{currentDevotional.prayer || 'Not available'}</p>
           <div className={styles.cardActions}>
-            <button className={styles.cardActionBtn} onClick={() => handleCopy(currentDevotional.prayer || '')}>
+            <button className={styles.cardActionBtn} onClick={() => navigator.clipboard.writeText(currentDevotional.prayer || '')}>
               <Copy size={14} />Copy
             </button>
             <button className={styles.cardActionBtn} onClick={() => handleShare(`${currentDevotional.scripture}\n\n${currentDevotional.reflection}\n\n${currentDevotional.prayer}`)}>
@@ -298,7 +399,7 @@ export const DevotionalPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Copy Full Devotional */}
+        {/* Copy Full */}
         <button className={styles.copyFullBtn} onClick={handleCopyFull}>
           {copiedFull ? <Check size={16} /> : <Copy size={16} />}
           {copiedFull ? 'Copied Full Devotional!' : 'Copy Full Devotional'}
