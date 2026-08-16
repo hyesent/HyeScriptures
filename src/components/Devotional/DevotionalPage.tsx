@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { createPost } from '../../lib/community'
 import { useAuth } from '../../hooks/useAuth'
 import { 
-  Copy, Share, BookOpen, RefreshCw, Heart, Clock, Check, Users
+  Copy, Share, BookOpen, RefreshCw, Heart, Clock, Check, Users, Image as ImageIcon
 } from 'lucide-react'
 import styles from './DevotionalPage.module.css'
 
@@ -69,7 +69,9 @@ export const DevotionalPage: React.FC = () => {
   const [likeCount, setLikeCount] = useState(0)
   const [copiedVerse, setCopiedVerse] = useState(false)
   const [sharedVerse, setSharedVerse] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(false)
   const [background] = useState<string>(getRandomBackground)
+  const scriptureCardRef = useRef<HTMLDivElement>(null)
 
   const hour = new Date().getHours()
   const isMorning = hour >= 5 && hour < 17
@@ -232,6 +234,97 @@ export const DevotionalPage: React.FC = () => {
     }
   }
 
+  const handleGenerateImage = async () => {
+    setIsGenerating(true)
+    try {
+      const canvas = document.createElement('canvas')
+      const size = 1080
+      canvas.width = size
+      canvas.height = size
+      const ctx = canvas.getContext('2d')!
+
+      const bgImg = new Image()
+      bgImg.src = background
+      bgImg.crossOrigin = 'anonymous'
+      await new Promise((resolve, reject) => {
+        bgImg.onload = resolve
+        bgImg.onerror = reject
+      })
+
+      ctx.drawImage(bgImg, 0, 0, size, size)
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.55)'
+      ctx.fillRect(0, 0, size, size)
+
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
+      ctx.font = 'bold 80px Georgia, serif'
+      ctx.textAlign = 'center'
+      ctx.fillText('"', size / 2, 100)
+
+      ctx.fillStyle = '#ffffff'
+      ctx.font = '44px Georgia, serif'
+      const words = scriptureData.verse.split(' ')
+      const maxWidth = size * 0.8
+      const lineHeight = 60
+      let lines: string[] = []
+      let currentLine = ''
+      for (const word of words) {
+        const testLine = currentLine ? `${currentLine} ${word}` : word
+        if (ctx.measureText(testLine).width > maxWidth) {
+          lines.push(currentLine)
+          currentLine = word
+        } else {
+          currentLine = testLine
+        }
+      }
+      lines.push(currentLine)
+
+      const startY = size * 0.25
+      lines.forEach((line, i) => {
+        ctx.fillText(line, size / 2, startY + i * lineHeight)
+      })
+
+      ctx.fillStyle = '#c9a84c'
+      ctx.fillRect(size / 2 - 60, startY + lines.length * lineHeight + 30, 120, 3)
+
+      ctx.fillStyle = '#ffffff'
+      ctx.font = 'bold 36px Georgia, serif'
+      ctx.fillText(scriptureData.reference, size / 2, startY + lines.length * lineHeight + 70)
+
+      ctx.font = '24px Georgia, serif'
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
+      ctx.fillText('KJV', size / 2, startY + lines.length * lineHeight + 110)
+
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.25)'
+      ctx.font = '20px Inter, sans-serif'
+      ctx.textAlign = 'right'
+      ctx.fillText('Hyescriptures', size - 30, size - 20)
+
+      const imageDataUrl = canvas.toDataURL('image/png')
+
+      if (navigator.share) {
+        const response = await fetch(imageDataUrl)
+        const blob = await response.blob()
+        const file = new File([blob], 'devotional.png', { type: 'image/png' })
+        await navigator.share({
+          title: 'Daily Devotional',
+          text: `${scriptureData.reference} - ${scriptureData.verse}`,
+          files: [file],
+        })
+      } else {
+        const link = document.createElement('a')
+        link.download = `${scriptureData.reference.replace(/\s/g, '_')}.png`
+        link.href = imageDataUrl
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
+    } catch (error) {
+      console.error('Error generating image:', error)
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
   const handleShare = async (text: string) => {
     try {
       if (navigator.share) {
@@ -339,8 +432,11 @@ export const DevotionalPage: React.FC = () => {
 
       <div className={styles.content}>
         {/* Scripture Card with Background + Watermark */}
-        <div className={styles.scriptureImageCard} style={{ backgroundImage: `url(${background})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
-          {/* Watermark */}
+        <div 
+          ref={scriptureCardRef}
+          className={styles.scriptureImageCard} 
+          style={{ backgroundImage: `url(${background})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}
+        >
           <div className={styles.watermark}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="0.5" strokeLinecap="round">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
@@ -361,7 +457,7 @@ export const DevotionalPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Actions: Like, Copy, Share, Post */}
+        {/* Actions: Like, Copy, Share, Image, Post */}
         <div className={styles.cardActions}>
           <button className={`${styles.cardActionBtn} ${liked ? styles.likedBtn : ''}`} onClick={handleLike} disabled={liking}>
             <Heart size={14} className={liked ? styles.likedIcon : ''} fill={liked ? 'currentColor' : 'none'} />
@@ -370,11 +466,15 @@ export const DevotionalPage: React.FC = () => {
           </button>
           <button className={styles.cardActionBtn} onClick={handleCopyVerse}>
             {copiedVerse ? <Check size={14} /> : <Copy size={14} />}
-            {copiedVerse ? 'Copied!' : 'Copy Verse'}
+            {copiedVerse ? 'Copied!' : 'Copy'}
           </button>
           <button className={styles.cardActionBtn} onClick={handleShareVerse}>
             {sharedVerse ? <Check size={14} /> : <Share size={14} />}
-            {sharedVerse ? 'Shared!' : 'Share Verse'}
+            {sharedVerse ? 'Shared!' : 'Share'}
+          </button>
+          <button className={styles.cardActionBtn} onClick={handleGenerateImage} disabled={isGenerating}>
+            {isGenerating ? <RefreshCw size={14} className={styles.spinning} /> : <ImageIcon size={14} />}
+            {isGenerating ? 'Generating...' : 'Share Image'}
           </button>
           <button className={styles.cardActionBtn} onClick={handlePostToCommunity} disabled={posting}>
             {posted ? <Check size={14} /> : <Users size={14} />}
