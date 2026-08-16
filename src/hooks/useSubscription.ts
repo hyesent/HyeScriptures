@@ -6,8 +6,8 @@ import { TIER_FEATURES, AI_LIMITS } from '../types/subscription'
 const ELDER_EMAILS: string[] = [
   'hyacinthmichael36@gmail.com',
   'inemhilda52@gmail.com',
-  'esylvia303@gmail.com'
-  'alexzenemma@gmail.com'
+  'esylvia303@gmail.com',
+  'alexzenemma@gmail.com',
 ]
 
 const HYESPACE_VERIFY_URL =
