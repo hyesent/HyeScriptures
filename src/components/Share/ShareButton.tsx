@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react'
 import html2canvas from 'html2canvas'
 import { copyVerse } from '../../lib/share'
+import { createPost } from '../../lib/community'
 import type { ShareableVerse } from '../../lib/share'
 import styles from './ShareButton.module.css'
 
@@ -44,7 +45,6 @@ const getRandomBackground = () => {
   return backgrounds[Math.floor(Math.random() * backgrounds.length)]
 }
 
-// SVG Icons
 const Icons = {
   Copy: () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -108,7 +108,6 @@ interface ShareButtonProps {
 
 export const ShareButton: React.FC<ShareButtonProps> = ({ verse, onPostToCommunity }) => {
   const [copied, setCopied] = useState(false)
-  const [isSharing, setIsSharing] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [imageData, setImageData] = useState<string | null>(null)
@@ -122,38 +121,113 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ verse, onPostToCommuni
     setTimeout(() => setCopied(false), 2000)
   }
 
+  // Actually posts to community
   const handlePostToCommunity = async () => {
-    if (!onPostToCommunity) return
     setIsPosting(true)
     try {
-      await onPostToCommunity(verse)
-      setShowPreview(false)
+      // Call createPost directly
+      const post = await createPost('verse_reflection', verse.text, verse.reference)
+      if (post) {
+        if (onPostToCommunity) onPostToCommunity(verse)
+        setShowPreview(false)
+        alert('Posted to community!')
+      } else {
+        alert('Failed to post. Please try again.')
+      }
     } catch (error) {
       console.error('Error posting to community:', error)
+      alert('Failed to post. Please try again.')
     } finally {
       setIsPosting(false)
     }
   }
 
+  // Fixed: Use the image element directly instead of html2canvas on background-image
   const handleGenerateImage = async () => {
     if (!previewRef.current) return
-    
     setIsGenerating(true)
     try {
-      const canvas = await html2canvas(previewRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: null,
-        logging: false,
-        allowTaint: true,
+      // Create an Image element from the background
+      const bgImg = new Image()
+      bgImg.src = background
+      bgImg.crossOrigin = 'anonymous'
+      
+      await new Promise((resolve, reject) => {
+        bgImg.onload = resolve
+        bgImg.onerror = reject
       })
+
+      // Create canvas
+      const canvas = document.createElement('canvas')
+      const size = 1080
+      canvas.width = size
+      canvas.height = size
+      const ctx = canvas.getContext('2d')!
+
+      // Draw background image
+      ctx.drawImage(bgImg, 0, 0, size, size)
+
+      // Dark overlay for readability
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.55)'
+      ctx.fillRect(0, 0, size, size)
+
+      // Draw verse text
+      ctx.fillStyle = '#ffffff'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+
+      // Quote mark
+      ctx.font = 'bold 80px Georgia, serif'
+      ctx.fillText('"', size / 2, size * 0.15)
+
+      // Verse text (wrapped)
+      ctx.font = '44px Georgia, serif'
+      const words = verse.text.split(' ')
+      const maxWidth = size * 0.8
+      const lineHeight = 60
+      let lines: string[] = []
+      let currentLine = ''
+      for (const word of words) {
+        const testLine = currentLine ? `${currentLine} ${word}` : word
+        if (ctx.measureText(testLine).width > maxWidth) {
+          lines.push(currentLine)
+          currentLine = word
+        } else {
+          currentLine = testLine
+        }
+      }
+      lines.push(currentLine)
+
+      const startY = size * 0.3
+      lines.forEach((line, i) => {
+        ctx.fillText(line, size / 2, startY + i * lineHeight)
+      })
+
+      // Divider
+      ctx.fillStyle = '#c9a84c'
+      ctx.fillRect(size / 2 - 60, startY + lines.length * lineHeight + 30, 120, 3)
+
+      // Reference
+      ctx.fillStyle = '#ffffff'
+      ctx.font = 'bold 36px Georgia, serif'
+      ctx.fillText(verse.reference, size / 2, startY + lines.length * lineHeight + 70)
+
+      // KJV label
+      ctx.font = '24px Georgia, serif'
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
+      ctx.fillText('KJV', size / 2, startY + lines.length * lineHeight + 110)
+
       const imageDataUrl = canvas.toDataURL('image/png')
       setImageData(imageDataUrl)
-      
+
+      // Download
       const link = document.createElement('a')
       link.download = `${verse.reference.replace(/\s/g, '_')}.png`
       link.href = imageDataUrl
+      document.body.appendChild(link)
       link.click()
+      document.body.removeChild(link)
+
     } catch (error) {
       console.error('Error generating image:', error)
       alert('Failed to generate image. Please try again.')
@@ -163,7 +237,10 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ verse, onPostToCommuni
   }
 
   const handleShareImage = async () => {
-    if (!imageData) return
+    if (!imageData) {
+      alert('Please download the image first, then share.')
+      return
+    }
     
     try {
       const response = await fetch(imageData)
@@ -172,48 +249,43 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ verse, onPostToCommuni
       
       if (navigator.share) {
         await navigator.share({
-          title: `📖 ${verse.reference}`,
+          title: verse.reference,
+          text: verse.text,
           files: [file],
         })
       } else {
         const link = document.createElement('a')
         link.download = `${verse.reference.replace(/\s/g, '_')}.png`
         link.href = imageData
+        document.body.appendChild(link)
         link.click()
+        document.body.removeChild(link)
       }
     } catch (error) {
       console.error('Error sharing image:', error)
+      // Fallback: copy text to clipboard
+      copyVerse(verse)
+      alert('Image sharing not supported. Verse copied to clipboard!')
     }
   }
 
   return (
     <div className={styles.container}>
-      <button
-        className={styles.copyBtn}
-        onClick={handleCopy}
-        title="Copy verse"
-      >
+      <button className={styles.copyBtn} onClick={handleCopy} title="Copy verse">
         {copied ? <Icons.Check /> : <Icons.Copy />}
       </button>
-      <button
-        className={styles.shareBtn}
-        onClick={() => setShowPreview(!showPreview)}
-        title="Share verse"
-      >
+      <button className={styles.shareBtn} onClick={() => setShowPreview(!showPreview)} title="Share verse">
         <Icons.Share />
       </button>
 
       {showPreview && (
         <div className={styles.previewModal}>
           <div className={styles.previewContent}>
-            <button 
-              className={styles.closeBtn}
-              onClick={() => setShowPreview(false)}
-            >
+            <button className={styles.closeBtn} onClick={() => setShowPreview(false)}>
               <Icons.Close />
             </button>
 
-            {/* Image Preview */}
+            {/* Preview - using canvas-drawn image */}
             <div 
               ref={previewRef}
               className={styles.imagePreview}
@@ -235,53 +307,20 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ verse, onPostToCommuni
             </div>
 
             <div className={styles.actionRow}>
-              <button
-                className={styles.generateBtn}
-                onClick={handleGenerateImage}
-                disabled={isGenerating}
-              >
-                {isGenerating ? (
-                  <><Icons.Loader /> Generating...</>
-                ) : (
-                  <><Icons.Download /> Download Image</>
-                )}
+              <button className={styles.generateBtn} onClick={handleGenerateImage} disabled={isGenerating}>
+                {isGenerating ? <><Icons.Loader /> Generating...</> : <><Icons.Download /> Download Image</>}
               </button>
-              <button
-                className={styles.shareImageBtn}
-                onClick={handleShareImage}
-                disabled={!imageData || isSharing}
-              >
-                {isSharing ? (
-                  <><Icons.Loader /> Sharing...</>
-                ) : (
-                  <><Icons.Share /> Share Image</>
-                )}
+              <button className={styles.shareImageBtn} onClick={handleShareImage} disabled={isGenerating}>
+                <><Icons.Share /> Share</>
               </button>
             </div>
 
             <div className={styles.actionRow}>
-              {onPostToCommunity && (
-                <button
-                  className={styles.postBtn}
-                  onClick={handlePostToCommunity}
-                  disabled={isPosting}
-                >
-                  {isPosting ? (
-                    <><Icons.Loader /> Posting...</>
-                  ) : (
-                    <><Icons.Users /> Post to Community</>
-                  )}
-                </button>
-              )}
-              <button
-                className={styles.copyBtnFull}
-                onClick={handleCopy}
-              >
-                {copied ? (
-                  <><Icons.Check /> Copied!</>
-                ) : (
-                  <><Icons.Copy /> Copy Text</>
-                )}
+              <button className={styles.postBtn} onClick={handlePostToCommunity} disabled={isPosting}>
+                {isPosting ? <><Icons.Loader /> Posting...</> : <><Icons.Users /> Post to Community</>}
+              </button>
+              <button className={styles.copyBtnFull} onClick={handleCopy}>
+                {copied ? <><Icons.Check /> Copied!</> : <><Icons.Copy /> Copy Text</>}
               </button>
             </div>
           </div>
