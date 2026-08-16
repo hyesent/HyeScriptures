@@ -458,3 +458,12 @@
   .celebrationContent { padding: 24px; }
   .statsFooter { flex-wrap: wrap; gap: 8px; }
 }
+
+.chapterRead {
+  background: rgba(34, 197, 94, 0.05) !important;
+}
+
+.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
