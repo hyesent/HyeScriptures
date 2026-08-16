@@ -433,3 +433,28 @@
   color: #ef4444;
   margin-left: 4px;
 }
+
+.watermark {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.watermark span {
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.watermark svg {
+  width: 18px;
+  height: 18px;
+}
