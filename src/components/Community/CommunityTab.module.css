@@ -385,3 +385,16 @@
   color: white;
   border-color: var(--primary);
 }
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: var(--bg-hover);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
