@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+// src/components/Bible/BibleTab.tsx
+import React, { useState, useEffect } from 'react'
 import { useBible } from '../../hooks/useBible'
 import { BookList } from '../Booklist/BookList'
 import { ChapterList } from '../ChapterList/ChapterList'
@@ -10,7 +11,13 @@ import styles from './BibleTab.module.css'
 
 type BibleView = 'books' | 'chapters' | 'verses' | 'search' | 'crossReferences'
 
-export const BibleTab: React.FC = () => {
+interface BibleTabProps {
+  initialBook?: string
+  initialChapter?: number
+  onClearInitial?: () => void
+}
+
+export const BibleTab: React.FC<BibleTabProps> = ({ initialBook, initialChapter, onClearInitial }) => {
   const [view, setView] = useState<BibleView>('books')
   const [selectedVerseForCrossRef, setSelectedVerseForCrossRef] = useState<string>('')
   const [viewHistory, setViewHistory] = useState<BibleView[]>([])
@@ -29,6 +36,16 @@ export const BibleTab: React.FC = () => {
     translationId,
     switchTranslation,
   } = useBible()
+
+  // Navigate to initial book/chapter when provided
+  useEffect(() => {
+    if (initialBook && initialChapter) {
+      goToChapter(initialBook, initialChapter)
+      setView('verses')
+      setViewHistory([])
+      if (onClearInitial) onClearInitial()
+    }
+  }, [initialBook, initialChapter])
 
   const navigateTo = (newView: BibleView) => {
     setViewHistory(prev => [...prev, view])
