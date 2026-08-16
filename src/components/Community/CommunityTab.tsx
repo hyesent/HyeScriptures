@@ -1,5 +1,5 @@
 // src/components/Community/CommunityTab.tsx
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import type { Post, CommunityGroup } from '../../lib/community'
 import { getPosts, toggleLike } from '../../lib/community'
 import { PostCard } from './PostCard'
@@ -35,6 +35,9 @@ export const CommunityTab: React.FC<CommunityTabProps> = ({ prefillVerse, onClea
   const [mainView, setMainView] = useState<MainView>('community')
   const [selectedGroup, setSelectedGroup] = useState<CommunityGroup | null>(null)
   const [friendsView, setFriendsView] = useState<FriendsView>('list')
+  const [tooltip, setTooltip] = useState<string | null>(null)
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 })
+  const longPressTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const tabs: { id: TabType; label: string; icon: React.ElementType }[] = [
     { id: 'feed', label: 'Feed', icon: MessageSquare },
@@ -58,6 +61,11 @@ export const CommunityTab: React.FC<CommunityTabProps> = ({ prefillVerse, onClea
   }, [prefillVerse, mainView, activeTab])
 
   useEffect(() => { filterPosts() }, [posts, activeTab, activeSort])
+
+  // Cleanup long press timeout
+  useEffect(() => {
+    return () => { if (longPressTimeout.current) clearTimeout(longPressTimeout.current) }
+  }, [])
 
   const loadPosts = async () => {
     setLoading(true)
@@ -93,6 +101,31 @@ export const CommunityTab: React.FC<CommunityTabProps> = ({ prefillVerse, onClea
 
   const handleDelete = async (postId: string) => { setPosts(posts.filter(p => p.id !== postId)) }
   const handlePostSuccess = () => { loadPosts(); setShowEditor(false) }
+
+  // ========== LONG PRESS TOOLTIP ==========
+  const handleLongPressStart = (label: string, e: React.TouchEvent | React.MouseEvent) => {
+    longPressTimeout.current = setTimeout(() => {
+      // Get position from event
+      let x = 0, y = 0
+      if ('touches' in e && e.touches.length > 0) {
+        x = e.touches[0].clientX
+        y = e.touches[0].clientY
+      } else if ('clientX' in e) {
+        x = e.clientX
+        y = e.clientY
+      }
+      setTooltipPosition({ x, y })
+      setTooltip(label)
+    }, 800) // 800ms hold
+  }
+
+  const handleLongPressEnd = () => {
+    if (longPressTimeout.current) {
+      clearTimeout(longPressTimeout.current)
+      longPressTimeout.current = null
+    }
+    setTooltip(null)
+  }
 
   // Group detail view
   if (mainView === 'groupDetail' && selectedGroup) {
@@ -212,7 +245,17 @@ export const CommunityTab: React.FC<CommunityTabProps> = ({ prefillVerse, onClea
                          tab.id === 'prayer' ? posts.filter(p => p.post_type === 'prayer_request').length :
                          tab.id === 'questions' ? posts.filter(p => p.post_type === 'bible_question').length : 0
             return (
-              <button key={tab.id} className={`${styles.tab} ${activeTab === tab.id ? styles.active : ''}`} onClick={() => setActiveTab(tab.id)}>
+              <button 
+                key={tab.id} 
+                className={`${styles.tab} ${activeTab === tab.id ? styles.active : ''}`} 
+                onClick={() => setActiveTab(tab.id)}
+                onTouchStart={(e) => handleLongPressStart(tab.label, e)}
+                onTouchEnd={handleLongPressEnd}
+                onTouchMove={handleLongPressEnd}
+                onMouseDown={(e) => handleLongPressStart(tab.label, e)}
+                onMouseUp={handleLongPressEnd}
+                onMouseLeave={handleLongPressEnd}
+              >
                 <Icon size={16} /><span>{tab.label}</span>
                 {count > 0 && tab.id !== 'friends' && <span className={styles.tabCount}>{count}</span>}
               </button>
@@ -249,6 +292,19 @@ export const CommunityTab: React.FC<CommunityTabProps> = ({ prefillVerse, onClea
               <PostCard key={post.id} post={post} onLike={handleLike} onDelete={handleDelete} onUpdate={loadPosts} />
             ))
           )}
+        </div>
+      )}
+
+      {/* Tooltip */}
+      {tooltip && (
+        <div 
+          className={styles.tooltip}
+          style={{
+            left: tooltipPosition.x,
+            top: tooltipPosition.y - 50,
+          }}
+        >
+          {tooltip}
         </div>
       )}
 
