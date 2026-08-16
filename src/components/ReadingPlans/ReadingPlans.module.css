@@ -1,15 +1,13 @@
 /* ReadingPlans.module.css - The Pilgrimage */
 
 .container {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100vw;
   min-height: 100vh;
-  background: #07111F;
+  margin: 0;
+  padding: 0;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
 }
-
 /* ============================================
    HEADER
    ============================================ */
