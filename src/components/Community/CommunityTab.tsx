@@ -6,8 +6,11 @@ import { PostCard } from './PostCard'
 import { PostEditor } from './PostEditor'
 import { GroupsList } from './GroupsList'
 import { GroupDetail } from './GroupDetail'
+import { FriendsList } from '../Friends/FriendsList'
+import { FriendRequests } from '../Friends/FriendRequests'
+import { SearchUsers } from '../Friends/SearchUsers'
 import { 
-  Plus, MessageSquare, Heart, Users, Filter, TrendingUp, Clock, RefreshCw 
+  Plus, MessageSquare, Heart, Users, Filter, TrendingUp, Clock, RefreshCw, UserPlus
 } from 'lucide-react'
 import styles from './CommunityTab.module.css'
 
@@ -19,6 +22,7 @@ interface CommunityTabProps {
 type TabType = 'feed' | 'prayer' | 'questions' | 'friends'
 type SortType = 'latest' | 'popular' | 'trending'
 type MainView = 'community' | 'groups' | 'groupDetail'
+type FriendsView = 'list' | 'requests' | 'search'
 
 export const CommunityTab: React.FC<CommunityTabProps> = ({ prefillVerse, onClearPrefill }) => {
   const [posts, setPosts] = useState<Post[]>([])
@@ -30,6 +34,7 @@ export const CommunityTab: React.FC<CommunityTabProps> = ({ prefillVerse, onClea
   const [refreshing, setRefreshing] = useState(false)
   const [mainView, setMainView] = useState<MainView>('community')
   const [selectedGroup, setSelectedGroup] = useState<CommunityGroup | null>(null)
+  const [friendsView, setFriendsView] = useState<FriendsView>('list')
 
   const tabs: { id: TabType; label: string; icon: React.ElementType }[] = [
     { id: 'feed', label: 'Feed', icon: MessageSquare },
@@ -45,12 +50,12 @@ export const CommunityTab: React.FC<CommunityTabProps> = ({ prefillVerse, onClea
   ]
 
   useEffect(() => {
-    if (mainView === 'community') loadPosts()
+    if (mainView === 'community' && activeTab !== 'friends') loadPosts()
     if (prefillVerse) {
       setShowEditor(true)
       if (onClearPrefill) setTimeout(() => onClearPrefill(), 500)
     }
-  }, [prefillVerse, mainView])
+  }, [prefillVerse, mainView, activeTab])
 
   useEffect(() => { filterPosts() }, [posts, activeTab, activeSort])
 
@@ -132,6 +137,43 @@ export const CommunityTab: React.FC<CommunityTabProps> = ({ prefillVerse, onClea
     )
   }
 
+  // Friends view
+  if (activeTab === 'friends') {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <div className={styles.headerLeft}>
+            <h2>Friends</h2>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button 
+              className={`${styles.viewToggle} ${friendsView === 'list' ? styles.active : ''}`}
+              onClick={() => setFriendsView('list')}
+            >
+              <Users size={14} /> My Friends
+            </button>
+            <button 
+              className={`${styles.viewToggle} ${friendsView === 'requests' ? styles.active : ''}`}
+              onClick={() => setFriendsView('requests')}
+            >
+              <UserPlus size={14} /> Requests
+            </button>
+            <button 
+              className={`${styles.viewToggle} ${friendsView === 'search' ? styles.active : ''}`}
+              onClick={() => setFriendsView('search')}
+            >
+              <Plus size={14} /> Add
+            </button>
+          </div>
+        </div>
+
+        {friendsView === 'list' && <FriendsList />}
+        {friendsView === 'requests' && <FriendRequests />}
+        {friendsView === 'search' && <SearchUsers />}
+      </div>
+    )
+  }
+
   // Main community feed
   return (
     <div className={styles.container}>
@@ -172,21 +214,23 @@ export const CommunityTab: React.FC<CommunityTabProps> = ({ prefillVerse, onClea
             return (
               <button key={tab.id} className={`${styles.tab} ${activeTab === tab.id ? styles.active : ''}`} onClick={() => setActiveTab(tab.id)}>
                 <Icon size={16} /><span>{tab.label}</span>
-                {count > 0 && <span className={styles.tabCount}>{count}</span>}
+                {count > 0 && tab.id !== 'friends' && <span className={styles.tabCount}>{count}</span>}
               </button>
             )
           })}
         </div>
-        <div className={styles.sortOptions}>
-          {sorts.map((sort) => {
-            const Icon = sort.icon
-            return (
-              <button key={sort.id} className={`${styles.sortBtn} ${activeSort === sort.id ? styles.active : ''}`} onClick={() => setActiveSort(sort.id)}>
-                <Icon size={14} /><span>{sort.label}</span>
-              </button>
-            )
-          })}
-        </div>
+        {activeTab !== 'friends' && (
+          <div className={styles.sortOptions}>
+            {sorts.map((sort) => {
+              const Icon = sort.icon
+              return (
+                <button key={sort.id} className={`${styles.sortBtn} ${activeSort === sort.id ? styles.active : ''}`} onClick={() => setActiveSort(sort.id)}>
+                  <Icon size={14} /><span>{sort.label}</span>
+                </button>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {loading ? (
