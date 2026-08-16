@@ -11,6 +11,7 @@ import {
   getProgressPercentage,
   getStreak
 } from '../../lib/reading-plans'
+import { useChapterProgress } from '../../hooks/useChapterProgress'
 import { 
   ChevronLeft, 
   CheckCircle, 
@@ -32,10 +33,6 @@ interface PlanDetailProps {
   onSelectVerse: (reference: string) => void
 }
 
-// ============================================================
-// SVG ICONS
-// ============================================================
-
 const Icons = {
   Destination: () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -46,12 +43,14 @@ const Icons = {
 }
 
 export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelectVerse }) => {
+  const { isChapterComplete, getCompletedChapters } = useChapterProgress()
   const [plan, setPlan] = useState<ReadingPlan | null>(null)
   const [completedDays, setCompletedDays] = useState<number[]>([])
   const [currentDay, setCurrentDay] = useState<number>(1)
   const [streak, setStreak] = useState(0)
   const [showCelebration, setShowCelebration] = useState(false)
   const [celebratingDay, setCelebratingDay] = useState<number | null>(null)
+  const [allChaptersRead, setAllChaptersRead] = useState(false)
 
   useEffect(() => {
     const found = readingPlans.find(p => p.id === planId)
@@ -60,7 +59,6 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
       const progress = getPlanProgress(planId)
       if (progress) {
         setCompletedDays(progress.completedDays)
-        // Find first incomplete day
         let foundIncomplete = false
         for (let i = 1; i <= found.totalDays; i++) {
           if (!progress.completedDays.includes(i)) {
@@ -79,17 +77,42 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
     }
   }, [planId])
 
+  // Check if all chapters for current day are read
+  useEffect(() => {
+    if (!plan) return
+    const chapters = getPlanChapters(planId, currentDay)
+    if (chapters.length === 0) {
+      setAllChaptersRead(false)
+      return
+    }
+
+    const allRead = chapters.every(ch => {
+      if (ch.includes('-')) {
+        const [book, range] = ch.split(' ')
+        const [start, end] = range.split('-').map(Number)
+        for (let c = start; c <= end; c++) {
+          if (!isChapterComplete(book, c)) return false
+        }
+        return true
+      }
+      const [book, chapterNum] = ch.split(' ')
+      return isChapterComplete(book, parseInt(chapterNum))
+    })
+
+    setAllChaptersRead(allRead)
+  }, [plan, currentDay, completedDays, isChapterComplete])
+
   const handleToggleDay = (day: number) => {
+    if (!allChaptersRead) return
+
     const progress = toggleDayComplete(planId, day)
     setCompletedDays(progress.completedDays)
     setStreak(getStreak(planId))
     
-    // Celebration animation
     setCelebratingDay(day)
     setShowCelebration(true)
     setTimeout(() => setShowCelebration(false), 3000)
     
-    // Move to next incomplete day
     if (progress.completedDays.includes(day)) {
       const planData = readingPlans.find(p => p.id === planId)
       if (planData) {
@@ -99,7 +122,6 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
             break
           }
         }
-        // If all days completed, stay on last day
         if (progress.completedDays.length === planData.totalDays) {
           setCurrentDay(planData.totalDays)
         }
@@ -107,12 +129,33 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
     }
   }
 
-  const handleSelectChapter = (book: string) => {
-    // Extract book name and chapter from "Book Chapter" format
-    const parts = book.split(' ')
+  const handleSelectChapter = (chapterRef: string) => {
+    // Handle "Matthew 1-2" range format
+    if (chapterRef.includes('-')) {
+      const [book, range] = chapterRef.split(' ')
+      const [start] = range.split('-').map(Number)
+      onSelectVerse(`${book} ${start}:1`)
+      return
+    }
+    // Handle "Matthew 1" format
+    const parts = chapterRef.split(' ')
     const bookName = parts.slice(0, -1).join(' ')
     const chapter = parts[parts.length - 1]
     onSelectVerse(`${bookName} ${chapter}:1`)
+  }
+
+  // Check individual chapter completion for UI
+  const isChapterRead = (chapterRef: string): boolean => {
+    if (chapterRef.includes('-')) {
+      const [book, range] = chapterRef.split(' ')
+      const [start, end] = range.split('-').map(Number)
+      for (let c = start; c <= end; c++) {
+        if (!isChapterComplete(book, c)) return false
+      }
+      return true
+    }
+    const [book, chapterNum] = chapterRef.split(' ')
+    return isChapterComplete(book, parseInt(chapterNum))
   }
 
   if (!plan) {
@@ -125,7 +168,6 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
   const totalDays = plan.totalDays
   const isComplete = percentage === 100
 
-  // Daily verse (rotating)
   const dailyVerses = [
     { text: 'Your word is a lamp to my feet and a light to my path.', ref: 'Psalm 119:105' },
     { text: 'Blessed is the man who walks not in the counsel of the wicked...', ref: 'Psalm 1:1' },
@@ -137,7 +179,6 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
   ]
   const dailyVerse = dailyVerses[(currentDay - 1) % dailyVerses.length]
 
-  // Get atmosphere class
   const getAtmosphereClass = () => {
     const atmosphereMap: Record<string, string> = {
       'sunrise': styles.atmosphereSunrise,
@@ -158,7 +199,6 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
 
   return (
     <div className={styles.container}>
-      {/* Ambient Background with plan atmosphere */}
       <div className={`${styles.ambientGlow} ${getAtmosphereClass()}`} />
       
       <div className={styles.content}>
@@ -178,10 +218,7 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
         <div className={styles.journeyPath}>
           <div className={styles.pathContainer}>
             <div className={styles.pathLine}>
-              <div 
-                className={styles.pathLineFill}
-                style={{ width: `${percentage}%` }}
-              />
+              <div className={styles.pathLineFill} style={{ width: `${percentage}%` }} />
             </div>
             <div className={styles.pathNodes}>
               {Array.from({ length: Math.min(totalDays, 12) }, (_, i) => {
@@ -235,20 +272,24 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
             <h4 className={styles.destinationReadingTitle}>Today's Reading</h4>
             <div className={styles.destinationChapterList}>
               {dayChapters.length > 0 ? (
-                dayChapters.map((book) => (
-                  <button
-                    key={book}
-                    className={styles.destinationChapter}
-                    onClick={() => handleSelectChapter(book)}
-                    style={{
-                      borderColor: `${plan.color}20`,
-                      hover: { borderColor: plan.color }
-                    }}
-                  >
-                    <span>{book}</span>
-                    <BookOpen size={14} style={{ color: plan.color }} />
-                  </button>
-                ))
+                dayChapters.map((chapterRef) => {
+                  const isRead = isChapterRead(chapterRef)
+                  return (
+                    <button
+                      key={chapterRef}
+                      className={`${styles.destinationChapter} ${isRead ? styles.chapterRead : ''}`}
+                      onClick={() => handleSelectChapter(chapterRef)}
+                      style={{ borderColor: isRead ? '#22c55e' : `${plan.color}20` }}
+                    >
+                      <span>{chapterRef}</span>
+                      {isRead ? (
+                        <CheckCircle size={14} style={{ color: '#22c55e' }} />
+                      ) : (
+                        <BookOpen size={14} style={{ color: plan.color }} />
+                      )}
+                    </button>
+                  )
+                })
               ) : (
                 <span className={styles.noChapters}>Complete!</span>
               )}
@@ -273,18 +314,26 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
           </div>
 
           <button 
-            className={`${styles.completeBtn} ${isDayComplete ? styles.completed : ''}`}
+            className={`${styles.completeBtn} ${isDayComplete ? styles.completed : ''} ${!allChaptersRead && !isDayComplete ? styles.disabled : ''}`}
             onClick={() => handleToggleDay(currentDay)}
+            disabled={!allChaptersRead && !isDayComplete}
             style={{
               background: isDayComplete ? 'rgba(255,255,255,0.02)' : plan.gradient,
               color: isDayComplete ? '#5FAF75' : '#07111F',
-              borderColor: isDayComplete ? 'rgba(95,175,117,0.15)' : 'transparent'
+              borderColor: isDayComplete ? 'rgba(95,175,117,0.15)' : 'transparent',
+              opacity: !allChaptersRead && !isDayComplete ? 0.4 : 1,
+              cursor: !allChaptersRead && !isDayComplete ? 'not-allowed' : 'pointer',
             }}
           >
             {isDayComplete ? (
               <>
                 <CheckCircle size={18} />
                 Completed
+              </>
+            ) : !allChaptersRead ? (
+              <>
+                <Circle size={18} />
+                Read All Chapters First
               </>
             ) : isComplete ? (
               <>
@@ -297,7 +346,7 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({ planId, onBack, onSelect
                 Complete Day {currentDay}
               </>
             )}
-            {!isDayComplete && !isComplete && <ArrowRight size={18} />}
+            {!isDayComplete && allChaptersRead && !isComplete && <ArrowRight size={18} />}
           </button>
 
           {/* Streak */}
