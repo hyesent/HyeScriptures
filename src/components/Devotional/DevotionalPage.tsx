@@ -91,9 +91,7 @@ export const DevotionalPage: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    if (content) {
-      fetchLikeCount()
-    }
+    if (content) fetchLikeCount()
   }, [content])
 
   useEffect(() => {
@@ -210,22 +208,17 @@ export const DevotionalPage: React.FC = () => {
 
   const handleShareVerse = async () => {
     const text = `${scriptureData.reference} - "${scriptureData.verse}"`
-    
     try {
       if (navigator.share) {
-        await navigator.share({
-          title: 'Daily Devotional Verse',
-          text: text,
-        })
+        await navigator.share({ title: 'Daily Devotional Verse', text })
         setSharedVerse(true)
         setTimeout(() => setSharedVerse(false), 2000)
         return
       }
-
       await navigator.clipboard.writeText(text)
       setSharedVerse(true)
       setTimeout(() => setSharedVerse(false), 2000)
-    } catch (error) {
+    } catch {
       const textArea = document.createElement('textarea')
       textArea.value = text
       textArea.style.position = 'fixed'
@@ -345,8 +338,18 @@ export const DevotionalPage: React.FC = () => {
       </div>
 
       <div className={styles.content}>
-        {/* Scripture Card with Background */}
-        <div className={styles.scriptureImageCard} style={{ backgroundImage: `url(${background})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        {/* Scripture Card with Background + Watermark */}
+        <div className={styles.scriptureImageCard} style={{ backgroundImage: `url(${background})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
+          {/* Watermark */}
+          <div className={styles.watermark}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="0.5" strokeLinecap="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              <line x1="12" y1="6" x2="12" y2="18" />
+            </svg>
+            <span>Hyescriptures</span>
+          </div>
+
           <div className={styles.scriptureOverlay}>
             <div className={styles.scriptureContent}>
               <span className={styles.scriptureQuote}>"</span>
@@ -360,16 +363,10 @@ export const DevotionalPage: React.FC = () => {
 
         {/* Actions: Like, Copy, Share, Post */}
         <div className={styles.cardActions}>
-          <button 
-            className={`${styles.cardActionBtn} ${liked ? styles.likedBtn : ''}`} 
-            onClick={handleLike} 
-            disabled={liking}
-          >
+          <button className={`${styles.cardActionBtn} ${liked ? styles.likedBtn : ''}`} onClick={handleLike} disabled={liking}>
             <Heart size={14} className={liked ? styles.likedIcon : ''} fill={liked ? 'currentColor' : 'none'} />
             {liked ? 'Liked' : 'Like'}
-            {likeCount > 0 && (
-              <span className={styles.likeCount}>{likeCount}</span>
-            )}
+            {likeCount > 0 && <span className={styles.likeCount}>{likeCount}</span>}
           </button>
           <button className={styles.cardActionBtn} onClick={handleCopyVerse}>
             {copiedVerse ? <Check size={14} /> : <Copy size={14} />}
