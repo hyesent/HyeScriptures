@@ -147,6 +147,7 @@ const AppContent: React.FC<{
             setBibleTarget({ book, chapter })
             setCurrentTab('bible')
           }}
+          onNavigateToPlans={() => setCurrentTab('me')}
         />
       )
       case 'bible': return (
