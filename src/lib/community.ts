@@ -61,55 +61,30 @@ const getCurrentUserDisplayName = async (): Promise<string> => {
          'Believer'
 }
 
-// Check if user is Elder (verifies via HyeSpace)
 const isUserElder = async (userId: string, email: string): Promise<boolean> => {
-  // Hardcoded Elder emails bypass
-  const ELDER_EMAILS = ['hyacinthmichael36@gmail.com', 'inemhilda52@gmail.com']
+  const ELDER_EMAILS = ['hyacinthmichael36@gmail.com', 'inemhilda52@gmail.com', 'esylvia303@gmail.com', 'alexzenemma@gmail.com']
   if (ELDER_EMAILS.includes(email)) return true
 
-  // Check HyeSpace via edge function
   const storeId = localStorage.getItem('hyespace-store-id')
   if (!storeId) return false
 
   try {
-    const HYESPACE_VERIFY_URL =
-      'https://bqyrkdxqwysrhvjfajix.supabase.co/functions/v1/verify-subscription'
-
+    const HYESPACE_VERIFY_URL = 'https://bqyrkdxqwysrhvjfajix.supabase.co/functions/v1/verify-subscription'
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 8000)
-
     const res = await fetch(HYESPACE_VERIFY_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        storeId: storeId.trim().toLowerCase(),
-        appId: 'hyescriptures',
-        email: email,
-      }),
+      body: JSON.stringify({ storeId: storeId.trim().toLowerCase(), appId: 'hyescriptures', email }),
       signal: controller.signal,
     })
-
     clearTimeout(timeoutId)
-
-    if (!res.ok) {
-      console.error('HyeSpace verification failed:', res.status)
-      return false
-    }
-
+    if (!res.ok) return false
     const data = await res.json()
-
-    if (data.error) {
-      console.error('HyeSpace error:', data.error)
-      return false
-    }
-
+    if (data.error) return false
     return data.subscribed && data.status === 'active' && data.tierId === 'hyescriptures-elder'
   } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.error('HyeSpace verification timeout')
-    } else {
-      console.error('HyeSpace verification error:', error)
-    }
+    console.error('HyeSpace verification error:', error)
     return false
   }
 }
@@ -277,11 +252,8 @@ export const createGroup = async (name: string, description: string, isPrivate: 
     const email = userData?.user?.email || ''
     const creatorName = await getCurrentUserDisplayName()
 
-    // Check Elder status via HyeSpace
     const elder = await isUserElder(userId, email)
-    if (!elder) {
-      throw new Error('Only Elder members can create groups')
-    }
+    if (!elder) throw new Error('Only Elder members can create groups')
 
     const { data: group, error } = await supabase.from('community_groups').insert({
       name, description, created_by: userId, is_private: isPrivate, creator_name: creatorName,
@@ -343,4 +315,43 @@ export const createGroupPost = async (groupId: string, content: string, verseRef
     if (error) throw error
     return data
   } catch (error) { console.error('Error creating group post:', error); return null }
+}
+
+// ============================================================
+// NEW: GROUP MEMBER MANAGEMENT
+// ============================================================
+
+export const deleteGroupPost = async (postId: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase.from('group_posts').delete().eq('id', postId)
+    if (error) throw error
+    return true
+  } catch (error) { console.error('Error deleting group post:', error); return false }
+}
+
+export const addMemberToGroup = async (groupId: string, userId: string, userName: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase.from('group_members').insert({
+      group_id: groupId,
+      user_id: userId,
+      role: 'member',
+      user_name: userName,
+    })
+    if (error) {
+      if (error.code === '23505') return false // Already a member
+      throw error
+    }
+    await supabase.rpc('increment_group_members', { p_group_id: groupId })
+    return true
+  } catch (error) { console.error('Error adding member to group:', error); return false }
+}
+
+export const getUserRoleInGroup = async (groupId: string): Promise<'admin' | 'moderator' | 'member' | null> => {
+  try {
+    const userId = await getCurrentUserId()
+    if (!userId) return null
+    const { data } = await supabase.from('group_members')
+      .select('role').eq('group_id', groupId).eq('user_id', userId).maybeSingle()
+    return data?.role || null
+  } catch (error) { console.error('Error getting user role:', error); return null }
 }
