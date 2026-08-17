@@ -58,6 +58,13 @@ const Icons = {
       <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
     </svg>
   ),
+  Download: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+  ),
   Close: () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <line x1="18" y1="6" x2="6" y2="18" />
@@ -103,6 +110,10 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ verse, onPostToCommuni
   const [isPosting, setIsPosting] = useState(false)
   const [background] = useState<string>(getRandomBackground)
 
+  const isCapacitorPlatform = (): boolean => {
+    return !!(window as any).Capacitor?.isNativePlatform?.()
+  }
+
   const handleCopy = async () => {
     copyVerse(verse)
     setCopied(true)
@@ -127,93 +138,145 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ verse, onPostToCommuni
     }
   }
 
-  const handleGenerateImage = async () => {
+  // Generate image data URL
+  const generateImageDataUrl = async (): Promise<string> => {
+    const canvas = document.createElement('canvas')
+    const size = 1080
+    canvas.width = size
+    canvas.height = size
+    const ctx = canvas.getContext('2d')!
+
+    const bgImg = new Image()
+    bgImg.src = background
+    bgImg.crossOrigin = 'anonymous'
+    await new Promise((resolve, reject) => {
+      bgImg.onload = resolve
+      bgImg.onerror = reject
+    })
+
+    ctx.drawImage(bgImg, 0, 0, size, size)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.55)'
+    ctx.fillRect(0, 0, size, size)
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
+    ctx.font = 'bold 80px Georgia, serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('"', size / 2, 100)
+
+    ctx.fillStyle = '#ffffff'
+    ctx.font = '44px Georgia, serif'
+    const words = verse.text.split(' ')
+    const maxWidth = size * 0.8
+    const lineHeight = 60
+    let lines: string[] = []
+    let currentLine = ''
+    for (const word of words) {
+      const testLine = currentLine ? `${currentLine} ${word}` : word
+      if (ctx.measureText(testLine).width > maxWidth) {
+        lines.push(currentLine)
+        currentLine = word
+      } else {
+        currentLine = testLine
+      }
+    }
+    lines.push(currentLine)
+
+    const startY = size * 0.25
+    lines.forEach((line, i) => {
+      ctx.fillText(line, size / 2, startY + i * lineHeight)
+    })
+
+    ctx.fillStyle = '#c9a84c'
+    ctx.fillRect(size / 2 - 60, startY + lines.length * lineHeight + 30, 120, 3)
+
+    ctx.fillStyle = '#ffffff'
+    ctx.font = 'bold 36px Georgia, serif'
+    ctx.fillText(verse.reference, size / 2, startY + lines.length * lineHeight + 70)
+
+    ctx.font = '24px Georgia, serif'
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
+    ctx.fillText('KJV', size / 2, startY + lines.length * lineHeight + 110)
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)'
+    ctx.font = '20px Inter, sans-serif'
+    ctx.textAlign = 'right'
+    ctx.fillText('Hyescriptures', size - 30, size - 20)
+
+    return canvas.toDataURL('image/png')
+  }
+
+  const downloadImage = (dataUrl: string, fileName: string) => {
+    const link = document.createElement('a')
+    link.download = fileName
+    link.href = dataUrl
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  // Silent share — auto-detects platform
+  const handleShareImage = async () => {
     setIsGenerating(true)
     try {
-      const canvas = document.createElement('canvas')
-      const size = 1080
-      canvas.width = size
-      canvas.height = size
-      const ctx = canvas.getContext('2d')!
+      const imageDataUrl = await generateImageDataUrl()
+      const fileName = `${verse.reference.replace(/\s/g, '_')}.png`
+      const shareText = `${verse.reference} - ${verse.text}`
 
-      const bgImg = new Image()
-      bgImg.src = background
-      bgImg.crossOrigin = 'anonymous'
-      await new Promise((resolve, reject) => {
-        bgImg.onload = resolve
-        bgImg.onerror = reject
-      })
+      // Web: Native Share API
+      if (!isCapacitorPlatform() && navigator.share && navigator.canShare) {
+        try {
+          const response = await fetch(imageDataUrl)
+          const blob = await response.blob()
+          const file = new File([blob], fileName, { type: 'image/png' })
 
-      ctx.drawImage(bgImg, 0, 0, size, size)
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.55)'
-      ctx.fillRect(0, 0, size, size)
-
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
-      ctx.font = 'bold 80px Georgia, serif'
-      ctx.textAlign = 'center'
-      ctx.fillText('"', size / 2, 100)
-
-      ctx.fillStyle = '#ffffff'
-      ctx.font = '44px Georgia, serif'
-      const words = verse.text.split(' ')
-      const maxWidth = size * 0.8
-      const lineHeight = 60
-      let lines: string[] = []
-      let currentLine = ''
-      for (const word of words) {
-        const testLine = currentLine ? `${currentLine} ${word}` : word
-        if (ctx.measureText(testLine).width > maxWidth) {
-          lines.push(currentLine)
-          currentLine = word
-        } else {
-          currentLine = testLine
+          const shareData: any = { title: verse.reference, text: shareText }
+          if (navigator.canShare({ files: [file] })) {
+            shareData.files = [file]
+          }
+          await navigator.share(shareData)
+          return
+        } catch {
+          return // User cancelled
         }
       }
-      lines.push(currentLine)
 
-      const startY = size * 0.25
-      lines.forEach((line, i) => {
-        ctx.fillText(line, size / 2, startY + i * lineHeight)
-      })
-
-      ctx.fillStyle = '#c9a84c'
-      ctx.fillRect(size / 2 - 60, startY + lines.length * lineHeight + 30, 120, 3)
-
-      ctx.fillStyle = '#ffffff'
-      ctx.font = 'bold 36px Georgia, serif'
-      ctx.fillText(verse.reference, size / 2, startY + lines.length * lineHeight + 70)
-
-      ctx.font = '24px Georgia, serif'
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
-      ctx.fillText('KJV', size / 2, startY + lines.length * lineHeight + 110)
-
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.25)'
-      ctx.font = '20px Inter, sans-serif'
-      ctx.textAlign = 'right'
-      ctx.fillText('Hyescriptures', size - 30, size - 20)
-
-      const imageDataUrl = canvas.toDataURL('image/png')
-
-      if (navigator.share) {
-        const response = await fetch(imageDataUrl)
-        const blob = await response.blob()
-        const file = new File([blob], 'verse.png', { type: 'image/png' })
-        await navigator.share({
-          title: verse.reference,
-          text: verse.text,
-          files: [file],
-        })
-      } else {
-        const link = document.createElement('a')
-        link.download = `${verse.reference.replace(/\s/g, '_')}.png`
-        link.href = imageDataUrl
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
+      // APK: Capacitor Share
+      if (isCapacitorPlatform()) {
+        try {
+          const { Share } = await import('@capacitor/share')
+          await Share.share({
+            title: verse.reference,
+            text: shareText,
+            url: imageDataUrl,
+            dialogTitle: 'Share verse',
+          })
+          return
+        } catch {
+          // Continue to fallback
+        }
       }
+
+      // Fallback: Download
+      downloadImage(imageDataUrl, fileName)
+
     } catch (error) {
-      console.error('Error generating image:', error)
-      alert('Failed to generate image.')
+      console.error('Error sharing image:', error)
+      copyVerse(verse)
+      alert('Image sharing not supported. Verse copied to clipboard!')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  // Silent download
+  const handleDownloadImage = async () => {
+    setIsGenerating(true)
+    try {
+      const imageDataUrl = await generateImageDataUrl()
+      const fileName = `${verse.reference.replace(/\s/g, '_')}.png`
+      downloadImage(imageDataUrl, fileName)
+    } catch (error) {
+      console.error('Error downloading image:', error)
     } finally {
       setIsGenerating(false)
     }
@@ -228,7 +291,6 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ verse, onPostToCommuni
         <Icons.Share />
       </button>
 
-      {/* Portal modal - renders at document.body level, no stacking context issues */}
       {showPreview && createPortal(
         <div className={styles.previewModal} onClick={() => setShowPreview(false)}>
           <div className={styles.previewContent} onClick={e => e.stopPropagation()}>
@@ -249,9 +311,15 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ verse, onPostToCommuni
             </div>
 
             <div className={styles.actionRow}>
-              <button className={styles.generateBtn} onClick={handleGenerateImage} disabled={isGenerating}>
-                {isGenerating ? <><Icons.Loader /> Generating...</> : <><Icons.Share /> Share Image</>}
+              <button className={styles.generateBtn} onClick={handleShareImage} disabled={isGenerating}>
+                {isGenerating ? <><Icons.Loader /> Working...</> : <><Icons.Share /> Share</>}
               </button>
+              <button className={styles.downloadBtn} onClick={handleDownloadImage} disabled={isGenerating}>
+                <Icons.Download /> Download
+              </button>
+            </div>
+
+            <div className={styles.actionRow}>
               <button className={styles.postBtn} onClick={handlePostToCommunity} disabled={isPosting}>
                 {isPosting ? <><Icons.Loader /> Posting...</> : <><Icons.Users /> Post to Community</>}
               </button>
