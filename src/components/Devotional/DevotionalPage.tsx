@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { createPost } from '../../lib/community'
 import { useAuth } from '../../hooks/useAuth'
 import { 
-  Copy, Share, BookOpen, RefreshCw, Heart, Clock, Check, Users, Image as ImageIcon
+  Copy, Share, BookOpen, RefreshCw, Heart, Clock, Check, Users, Image as ImageIcon, Download
 } from 'lucide-react'
 import styles from './DevotionalPage.module.css'
 
@@ -70,6 +70,7 @@ export const DevotionalPage: React.FC = () => {
   const [copiedVerse, setCopiedVerse] = useState(false)
   const [sharedVerse, setSharedVerse] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [showImageOptions, setShowImageOptions] = useState(false)
   const [background] = useState<string>(getRandomBackground)
   const scriptureCardRef = useRef<HTMLDivElement>(null)
 
@@ -234,92 +235,151 @@ export const DevotionalPage: React.FC = () => {
     }
   }
 
-  const handleGenerateImage = async () => {
+  // Platform detection
+  const isCapacitorPlatform = (): boolean => {
+    return !!(window as any).Capacitor?.isNativePlatform?.()
+  }
+
+  // Generate image data URL
+  const generateImageDataUrl = async (): Promise<string> => {
+    const canvas = document.createElement('canvas')
+    const size = 1080
+    canvas.width = size
+    canvas.height = size
+    const ctx = canvas.getContext('2d')!
+
+    const bgImg = new Image()
+    bgImg.src = background
+    bgImg.crossOrigin = 'anonymous'
+    await new Promise((resolve, reject) => {
+      bgImg.onload = resolve
+      bgImg.onerror = reject
+    })
+
+    ctx.drawImage(bgImg, 0, 0, size, size)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.55)'
+    ctx.fillRect(0, 0, size, size)
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
+    ctx.font = 'bold 80px Georgia, serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('"', size / 2, 100)
+
+    ctx.fillStyle = '#ffffff'
+    ctx.font = '44px Georgia, serif'
+    const words = scriptureData.verse.split(' ')
+    const maxWidth = size * 0.8
+    const lineHeight = 60
+    let lines: string[] = []
+    let currentLine = ''
+    for (const word of words) {
+      const testLine = currentLine ? `${currentLine} ${word}` : word
+      if (ctx.measureText(testLine).width > maxWidth) {
+        lines.push(currentLine)
+        currentLine = word
+      } else {
+        currentLine = testLine
+      }
+    }
+    lines.push(currentLine)
+
+    const startY = size * 0.25
+    lines.forEach((line, i) => {
+      ctx.fillText(line, size / 2, startY + i * lineHeight)
+    })
+
+    ctx.fillStyle = '#c9a84c'
+    ctx.fillRect(size / 2 - 60, startY + lines.length * lineHeight + 30, 120, 3)
+
+    ctx.fillStyle = '#ffffff'
+    ctx.font = 'bold 36px Georgia, serif'
+    ctx.fillText(scriptureData.reference, size / 2, startY + lines.length * lineHeight + 70)
+
+    ctx.font = '24px Georgia, serif'
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
+    ctx.fillText('KJV', size / 2, startY + lines.length * lineHeight + 110)
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)'
+    ctx.font = '20px Inter, sans-serif'
+    ctx.textAlign = 'right'
+    ctx.fillText('Hyescriptures', size - 30, size - 20)
+
+    return canvas.toDataURL('image/png')
+  }
+
+  // Silent download helper
+  const downloadImage = (dataUrl: string, fileName: string) => {
+    const link = document.createElement('a')
+    link.download = fileName
+    link.href = dataUrl
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  // Single share function — handles everything silently
+  const handleShareImage = async () => {
     setIsGenerating(true)
+    setShowImageOptions(false)
     try {
-      const canvas = document.createElement('canvas')
-      const size = 1080
-      canvas.width = size
-      canvas.height = size
-      const ctx = canvas.getContext('2d')!
+      const imageDataUrl = await generateImageDataUrl()
+      const fileName = `${scriptureData.reference.replace(/\s/g, '_')}.png`
+      const shareText = `${scriptureData.reference} - ${scriptureData.verse}`
 
-      const bgImg = new Image()
-      bgImg.src = background
-      bgImg.crossOrigin = 'anonymous'
-      await new Promise((resolve, reject) => {
-        bgImg.onload = resolve
-        bgImg.onerror = reject
-      })
+      // Web: Native Share API
+      if (!isCapacitorPlatform() && navigator.share && navigator.canShare) {
+        try {
+          const response = await fetch(imageDataUrl)
+          const blob = await response.blob()
+          const file = new File([blob], fileName, { type: 'image/png' })
 
-      ctx.drawImage(bgImg, 0, 0, size, size)
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.55)'
-      ctx.fillRect(0, 0, size, size)
-
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
-      ctx.font = 'bold 80px Georgia, serif'
-      ctx.textAlign = 'center'
-      ctx.fillText('"', size / 2, 100)
-
-      ctx.fillStyle = '#ffffff'
-      ctx.font = '44px Georgia, serif'
-      const words = scriptureData.verse.split(' ')
-      const maxWidth = size * 0.8
-      const lineHeight = 60
-      let lines: string[] = []
-      let currentLine = ''
-      for (const word of words) {
-        const testLine = currentLine ? `${currentLine} ${word}` : word
-        if (ctx.measureText(testLine).width > maxWidth) {
-          lines.push(currentLine)
-          currentLine = word
-        } else {
-          currentLine = testLine
+          const shareData: any = { title: 'Daily Devotional', text: shareText }
+          if (navigator.canShare({ files: [file] })) {
+            shareData.files = [file]
+          }
+          await navigator.share(shareData)
+          return
+        } catch {
+          return // User cancelled
         }
       }
-      lines.push(currentLine)
 
-      const startY = size * 0.25
-      lines.forEach((line, i) => {
-        ctx.fillText(line, size / 2, startY + i * lineHeight)
-      })
-
-      ctx.fillStyle = '#c9a84c'
-      ctx.fillRect(size / 2 - 60, startY + lines.length * lineHeight + 30, 120, 3)
-
-      ctx.fillStyle = '#ffffff'
-      ctx.font = 'bold 36px Georgia, serif'
-      ctx.fillText(scriptureData.reference, size / 2, startY + lines.length * lineHeight + 70)
-
-      ctx.font = '24px Georgia, serif'
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
-      ctx.fillText('KJV', size / 2, startY + lines.length * lineHeight + 110)
-
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.25)'
-      ctx.font = '20px Inter, sans-serif'
-      ctx.textAlign = 'right'
-      ctx.fillText('Hyescriptures', size - 30, size - 20)
-
-      const imageDataUrl = canvas.toDataURL('image/png')
-
-      if (navigator.share) {
-        const response = await fetch(imageDataUrl)
-        const blob = await response.blob()
-        const file = new File([blob], 'devotional.png', { type: 'image/png' })
-        await navigator.share({
-          title: 'Daily Devotional',
-          text: `${scriptureData.reference} - ${scriptureData.verse}`,
-          files: [file],
-        })
-      } else {
-        const link = document.createElement('a')
-        link.download = `${scriptureData.reference.replace(/\s/g, '_')}.png`
-        link.href = imageDataUrl
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
+      // APK: Capacitor Share
+      if (isCapacitorPlatform()) {
+        try {
+          const { Share } = await import('@capacitor/share')
+          await Share.share({
+            title: 'Daily Devotional',
+            text: shareText,
+            url: imageDataUrl,
+            dialogTitle: 'Share devotional verse',
+          })
+          return
+        } catch {
+          // Continue to fallback
+        }
       }
+
+      // Fallback: Download
+      downloadImage(imageDataUrl, fileName)
+
     } catch (error) {
-      console.error('Error generating image:', error)
+      console.error('Error sharing image:', error)
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  // Silent download
+  const handleDownloadImage = async () => {
+    setIsGenerating(true)
+    setShowImageOptions(false)
+    try {
+      const imageDataUrl = await generateImageDataUrl()
+      const fileName = `${scriptureData.reference.replace(/\s/g, '_')}.png`
+      downloadImage(imageDataUrl, fileName)
+    } catch (error) {
+      console.error('Error downloading image:', error)
     } finally {
       setIsGenerating(false)
     }
@@ -431,7 +491,7 @@ export const DevotionalPage: React.FC = () => {
       </div>
 
       <div className={styles.content}>
-        {/* Scripture Card with Background + Watermark */}
+        {/* Scripture Card */}
         <div 
           ref={scriptureCardRef}
           className={styles.scriptureImageCard} 
@@ -457,7 +517,7 @@ export const DevotionalPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Actions: Like, Copy, Share, Image, Post */}
+        {/* Actions */}
         <div className={styles.cardActions}>
           <button className={`${styles.cardActionBtn} ${liked ? styles.likedBtn : ''}`} onClick={handleLike} disabled={liking}>
             <Heart size={14} className={liked ? styles.likedIcon : ''} fill={liked ? 'currentColor' : 'none'} />
@@ -472,10 +532,25 @@ export const DevotionalPage: React.FC = () => {
             {sharedVerse ? <Check size={14} /> : <Share size={14} />}
             {sharedVerse ? 'Shared!' : 'Share'}
           </button>
-          <button className={styles.cardActionBtn} onClick={handleGenerateImage} disabled={isGenerating}>
-            {isGenerating ? <RefreshCw size={14} className={styles.spinning} /> : <ImageIcon size={14} />}
-            {isGenerating ? 'Generating...' : 'Share Image'}
-          </button>
+
+          {/* Image Dropdown */}
+          <div className={styles.shareDropdown}>
+            <button className={styles.cardActionBtn} onClick={() => setShowImageOptions(!showImageOptions)} disabled={isGenerating}>
+              {isGenerating ? <RefreshCw size={14} className={styles.spinning} /> : <ImageIcon size={14} />}
+              {isGenerating ? 'Working...' : 'Image'}
+            </button>
+            {showImageOptions && (
+              <div className={styles.shareMenu}>
+                <button className={styles.shareMenuItem} onClick={handleShareImage}>
+                  <Share size={14} />Share
+                </button>
+                <button className={styles.shareMenuItem} onClick={handleDownloadImage}>
+                  <Download size={14} />Download
+                </button>
+              </div>
+            )}
+          </div>
+
           <button className={styles.cardActionBtn} onClick={handlePostToCommunity} disabled={posting}>
             {posted ? <Check size={14} /> : <Users size={14} />}
             {posted ? 'Posted!' : posting ? 'Posting...' : 'Post'}
