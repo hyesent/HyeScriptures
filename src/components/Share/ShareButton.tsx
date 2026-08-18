@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { copyVerse } from '../../lib/share'
 import { createPost } from '../../lib/community'
+import { Filesystem, Directory } from '@capacitor/filesystem'
 import type { ShareableVerse } from '../../lib/share'
 import styles from './ShareButton.module.css'
 
@@ -138,7 +139,6 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ verse, onPostToCommuni
     }
   }
 
-  // Generate image data URL
   const generateImageDataUrl = async (): Promise<string> => {
     const canvas = document.createElement('canvas')
     const size = 1080
@@ -205,16 +205,6 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ verse, onPostToCommuni
     return canvas.toDataURL('image/png')
   }
 
-  const downloadImage = (dataUrl: string, fileName: string) => {
-    const link = document.createElement('a')
-    link.download = fileName
-    link.href = dataUrl
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
-
-  // Silent share — auto-detects platform
   const handleShareImage = async () => {
     setIsGenerating(true)
     try {
@@ -222,61 +212,87 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ verse, onPostToCommuni
       const fileName = `${verse.reference.replace(/\s/g, '_')}.png`
       const shareText = `${verse.reference} - ${verse.text}`
 
-      // Web: Native Share API
+      // WEB
       if (!isCapacitorPlatform() && navigator.share && navigator.canShare) {
         try {
           const response = await fetch(imageDataUrl)
           const blob = await response.blob()
           const file = new File([blob], fileName, { type: 'image/png' })
-
           const shareData: any = { title: verse.reference, text: shareText }
-          if (navigator.canShare({ files: [file] })) {
-            shareData.files = [file]
-          }
+          if (navigator.canShare({ files: [file] })) shareData.files = [file]
           await navigator.share(shareData)
           return
-        } catch {
-          return // User cancelled
-        }
+        } catch { return }
       }
 
-      // APK: Capacitor Share
+      // APK — save file first, then share URI
       if (isCapacitorPlatform()) {
         try {
+          const base64Data = imageDataUrl.split(',')[1]
+          await Filesystem.writeFile({
+            path: fileName,
+            data: base64Data,
+            directory: Directory.Cache,
+          })
+          const fileInfo = await Filesystem.getUri({
+            path: fileName,
+            directory: Directory.Cache,
+          })
           const { Share } = await import('@capacitor/share')
           await Share.share({
             title: verse.reference,
             text: shareText,
-            url: imageDataUrl,
+            url: fileInfo.uri,
             dialogTitle: 'Share verse',
           })
           return
-        } catch {
-          // Continue to fallback
+        } catch (error) {
+          console.error('APK share failed:', error)
         }
       }
 
-      // Fallback: Download
-      downloadImage(imageDataUrl, fileName)
+      // FALLBACK
+      const link = document.createElement('a')
+      link.download = fileName
+      link.href = imageDataUrl
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
 
     } catch (error) {
       console.error('Error sharing image:', error)
       copyVerse(verse)
-      alert('Image sharing not supported. Verse copied to clipboard!')
+      alert('Verse copied to clipboard!')
     } finally {
       setIsGenerating(false)
     }
   }
 
-  // Silent download
   const handleDownloadImage = async () => {
     setIsGenerating(true)
     try {
       const imageDataUrl = await generateImageDataUrl()
       const fileName = `${verse.reference.replace(/\s/g, '_')}.png`
-      downloadImage(imageDataUrl, fileName)
+
+      if (isCapacitorPlatform()) {
+        const base64Data = imageDataUrl.split(',')[1]
+        await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.Documents,
+        })
+        alert('Image saved to your device!')
+      } else {
+        const link = document.createElement('a')
+        link.download = fileName
+        link.href = imageDataUrl
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
     } catch (error) {
       console.error('Error downloading image:', error)
+      alert('Failed to download image.')
     } finally {
       setIsGenerating(false)
     }
