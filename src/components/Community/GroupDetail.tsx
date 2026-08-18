@@ -124,7 +124,14 @@ export const GroupDetail: React.FC<GroupDetailProps> = ({ group, onBack }) => {
       return <span className={styles.friendPending}><Clock size={12} /> Request Sent</span>
     }
     if (status === 'pending_received') {
-      return <span className={styles.friendPending}><Clock size={12} /> Accept Request</span>
+      return (
+        <button 
+          className={styles.acceptRequestBtn}
+          onClick={() => handleAddFriend(postUserId)}
+        >
+          <UserCheck size={12} /> Accept
+        </button>
+      )
     }
     return (
       <button className={styles.addFriendBtn} onClick={() => handleAddFriend(postUserId)}>
@@ -236,7 +243,9 @@ export const GroupDetail: React.FC<GroupDetailProps> = ({ group, onBack }) => {
               ) : (
                 friends.map(friend => (
                   <div key={friend.user_id} className={styles.friendRow}>
-                    <div className={styles.friendAvatar}>👤</div>
+                    <div className={styles.friendAvatar}>
+                      {friend.avatar_url || '👤'}
+                    </div>
                     <div className={styles.friendInfo}>
                       <span className={styles.friendName}>{friend.display_name}</span>
                       <span className={styles.friendEmail}>{friend.email}</span>
