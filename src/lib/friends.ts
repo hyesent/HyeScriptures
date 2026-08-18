@@ -22,38 +22,57 @@ export type Friend = {
   friendship_id: string
 }
 
-// Get current user ID
 const getCurrentUserId = async (): Promise<string | null> => {
   const { data } = await supabase.auth.getUser()
   return data?.user?.id || null
 }
 
-// Search users by email or name
+// ============================================================
+// SEARCH USERS — Uses profiles table (not auth admin)
+// ============================================================
 export const searchUsers = async (query: string): Promise<any[]> => {
   try {
     const currentUserId = await getCurrentUserId()
     if (!currentUserId) return []
 
-    const { data, error } = await supabase.auth.admin.listUsers()
-    if (error) return []
+    // Search profiles table
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, display_name, avatar_url, email')
+      .or(`display_name.ilike.%${query}%,email.ilike.%${query}%`)
+      .limit(20)
 
-    const users = data?.users || []
-    
-    return users
+    if (error) {
+      // Fallback to auth admin if profiles table doesn't work
+      const { data: authData, error: authError } = await supabase.auth.admin.listUsers()
+      if (authError) return []
+      
+      const users = authData?.users || []
+      return users
+        .filter(u => u.id !== currentUserId)
+        .filter(u => {
+          const email = u.email || ''
+          const name = u.user_metadata?.display_name || ''
+          const search = query.toLowerCase()
+          return email.toLowerCase().includes(search) || name.toLowerCase().includes(search)
+        })
+        .map(u => ({
+          id: u.id,
+          email: u.email || '',
+          display_name: u.user_metadata?.display_name || u.email?.split('@')[0] || '',
+          avatar_url: u.user_metadata?.avatar_url || null,
+        }))
+        .slice(0, 20)
+    }
+
+    return (data || [])
       .filter(u => u.id !== currentUserId)
-      .filter(u => {
-        const email = u.email || ''
-        const name = u.user_metadata?.display_name || ''
-        const search = query.toLowerCase()
-        return email.toLowerCase().includes(search) || name.toLowerCase().includes(search)
-      })
       .map(u => ({
         id: u.id,
         email: u.email || '',
-        display_name: u.user_metadata?.display_name || u.email?.split('@')[0] || '',
-        avatar_url: u.user_metadata?.avatar_url || null,
+        display_name: u.display_name || u.email?.split('@')[0] || '',
+        avatar_url: u.avatar_url || null,
       }))
-      .slice(0, 20)
   } catch (error) {
     console.error('Error searching users:', error)
     return []
@@ -73,8 +92,7 @@ export const sendFriendRequest = async (addresseeId: string): Promise<boolean> =
     })
 
     if (error) {
-      // Already exists
-      if (error.code === '23505') return false
+      if (error.code === '23505') return false // Already exists
       throw error
     }
     return true
@@ -91,7 +109,6 @@ export const acceptFriendRequest = async (friendshipId: string): Promise<boolean
       .from('friendships')
       .update({ status: 'accepted', updated_at: new Date().toISOString() })
       .eq('id', friendshipId)
-
     if (error) throw error
     return true
   } catch (error) {
@@ -130,6 +147,7 @@ export const getPendingRequests = async (): Promise<FriendRequest[]> => {
     const currentUserId = await getCurrentUserId()
     if (!currentUserId) return []
 
+    // Get all pending requests
     const { data, error } = await supabase
       .from('friendships')
       .select('*')
@@ -138,7 +156,22 @@ export const getPendingRequests = async (): Promise<FriendRequest[]> => {
       .order('created_at', { ascending: false })
 
     if (error || !data) return []
-    return data
+
+    // Get requester names from profiles table
+    const requesterIds = data.map(r => r.requester_id)
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, display_name, email')
+      .in('id', requesterIds)
+
+    return data.map(request => {
+      const profile = profiles?.find(p => p.id === request.requester_id)
+      return {
+        ...request,
+        requester_name: profile?.display_name || profile?.email?.split('@')[0] || 'Unknown',
+        requester_email: profile?.email || '',
+      }
+    })
   } catch (error) {
     console.error('Error getting pending requests:', error)
     return []
@@ -159,23 +192,26 @@ export const getFriends = async (): Promise<Friend[]> => {
 
     if (error || !data) return []
 
-    // Get all user profiles
+    // Get friend IDs
     const friendIds = data.map(f => 
       f.requester_id === currentUserId ? f.addressee_id : f.requester_id
     )
 
-    const { data: usersData } = await supabase.auth.admin.listUsers()
-    const users = usersData?.users || []
+    // Get profiles from profiles table
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, display_name, email, avatar_url')
+      .in('id', friendIds)
 
     return data.map(f => {
       const friendId = f.requester_id === currentUserId ? f.addressee_id : f.requester_id
-      const user = users.find(u => u.id === friendId)
+      const profile = profiles?.find(p => p.id === friendId)
       return {
         id: friendId,
         user_id: friendId,
-        display_name: user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'Unknown',
-        email: user?.email || '',
-        avatar_url: user?.user_metadata?.avatar_url || null,
+        display_name: profile?.display_name || profile?.email?.split('@')[0] || 'Unknown',
+        email: profile?.email || '',
+        avatar_url: profile?.avatar_url || null,
         friendship_id: f.id,
       }
     })
