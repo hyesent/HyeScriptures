@@ -28,6 +28,7 @@ export const SearchUsers: React.FC = () => {
 
     if (value.trim().length < 3) {
       setResults([])
+      setStatusMap({})
       return
     }
 
@@ -51,19 +52,52 @@ export const SearchUsers: React.FC = () => {
     const success = await sendFriendRequest(userId)
     if (success) {
       setStatusMap(prev => ({ ...prev, [userId]: 'pending_sent' }))
+      setError('')
     } else {
-      setError('Could not send request. They may already be your friend or a request is pending.')
+      // Check if they're already friends or request pending
+      const status = await getFriendshipStatus(userId)
+      setStatusMap(prev => ({ ...prev, [userId]: status }))
+      setError('Already friends or request already sent.')
     }
   }
 
-  const getStatusBadge = (status: FriendStatus) => {
+  const handleAcceptRequest = async (userId: string) => {
+    const { acceptFriendRequest } = await import('../../lib/friends')
+    // Find the friendship ID for this user
+    const { supabase } = await import('../../lib/supabase')
+    const { data: userData } = await supabase.auth.getUser()
+    const currentUserId = userData?.user?.id
+
+    if (!currentUserId) return
+
+    const { data: friendship } = await supabase
+      .from('friendships')
+      .select('id')
+      .eq('requester_id', userId)
+      .eq('addressee_id', currentUserId)
+      .eq('status', 'pending')
+      .maybeSingle()
+
+    if (friendship) {
+      const success = await acceptFriendRequest(friendship.id)
+      if (success) {
+        setStatusMap(prev => ({ ...prev, [userId]: 'accepted' }))
+      }
+    }
+  }
+
+  const getStatusBadge = (userId: string, status: FriendStatus) => {
     switch (status) {
       case 'accepted':
         return <span className={styles.statusAccepted}><Check size={12} /> Friends</span>
       case 'pending_sent':
         return <span className={styles.statusPending}><Clock size={12} /> Request Sent</span>
       case 'pending_received':
-        return <span className={styles.statusPending}><Clock size={12} /> Request Received</span>
+        return (
+          <button className={styles.acceptBtn} onClick={() => handleAcceptRequest(userId)}>
+            <Check size={12} /> Accept
+          </button>
+        )
       default:
         return null
     }
@@ -84,7 +118,7 @@ export const SearchUsers: React.FC = () => {
           className={styles.searchInput}
         />
         {query && (
-          <button className={styles.clearBtn} onClick={() => { setQuery(''); setResults([]) }}>
+          <button className={styles.clearBtn} onClick={() => { setQuery(''); setResults([]); setStatusMap({}) }}>
             <X size={16} />
           </button>
         )}
@@ -115,7 +149,7 @@ export const SearchUsers: React.FC = () => {
                     <UserPlus size={14} /> Add
                   </button>
                 ) : (
-                  getStatusBadge(status)
+                  getStatusBadge(user.id, status)
                 )}
               </div>
             )
