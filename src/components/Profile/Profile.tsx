@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useStreak } from '../../hooks/useStreak'
 import { useSubscription } from '../../hooks/useSubscription'
+import { supabase } from '../../lib/supabase'
 import { 
   User, Mail, Bookmark, PenLine, BookOpen, Calendar, Brain,
   Award, Heart, LogOut, ChevronRight, Edit2, X, Check,
@@ -36,16 +37,43 @@ export const Profile: React.FC<ProfileProps> = ({
   const { tier, storeId, linkStoreId, unlinkStoreId } = useSubscription()
   const [editing, setEditing] = useState(false)
   const [displayName, setDisplayName] = useState(user?.display_name || '')
-  const [selectedAvatar, setSelectedAvatar] = useState('📖')
+  const [selectedAvatar, setSelectedAvatar] = useState(user?.avatar_url || '📖')
   const [bio, setBio] = useState(user?.bio || '')
   const [streak, setStreak] = useState(0)
   const [bestStreak, setBestStreak] = useState(0)
+  const [saving, setSaving] = useState(false)
+  const [saveMessage, setSaveMessage] = useState('')
 
   useEffect(() => {
     const data = getStreak()
     setStreak(data.currentStreak)
     setBestStreak(data.bestStreak)
   }, [])
+
+  // Load profile from Supabase when user changes
+  useEffect(() => {
+    if (user) {
+      loadProfileFromSupabase()
+    }
+  }, [user?.id])
+
+  const loadProfileFromSupabase = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('display_name, avatar_url, bio')
+        .eq('id', user?.id)
+        .maybeSingle()
+
+      if (data && !error) {
+        setDisplayName(data.display_name || '')
+        setSelectedAvatar(data.avatar_url || '📖')
+        setBio(data.bio || '')
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error)
+    }
+  }
 
   const currentAvatar = selectedAvatar
 
@@ -58,8 +86,39 @@ export const Profile: React.FC<ProfileProps> = ({
   }
 
   const handleSave = async () => {
-    await updateProfile({ display_name: displayName, avatar_url: selectedAvatar, bio: bio })
-    setEditing(false)
+    setSaving(true)
+    setSaveMessage('')
+
+    try {
+      // Update auth user metadata
+      await updateProfile({ 
+        display_name: displayName, 
+        avatar_url: selectedAvatar, 
+        bio: bio 
+      })
+
+      // Update profiles table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          display_name: displayName,
+          avatar_url: selectedAvatar,
+          bio: bio,
+          email: user.email,
+        })
+
+      if (profileError) throw profileError
+
+      setSaveMessage('✓ Profile saved!')
+      setEditing(false)
+      setTimeout(() => setSaveMessage(''), 3000)
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      setSaveMessage('✗ Failed to save. Try again.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleLinkHyeSpace = () => {
@@ -130,9 +189,21 @@ export const Profile: React.FC<ProfileProps> = ({
               </div>
             </div>
             <div className={styles.buttonGroup}>
-              <button className={styles.saveBtn} onClick={handleSave}><Check size={16} />Save Changes</button>
+              <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
+                {saving ? 'Saving...' : <><Check size={16} />Save Changes</>}
+              </button>
               <button className={styles.cancelBtn} onClick={() => setEditing(false)}><X size={16} />Cancel</button>
             </div>
+            {saveMessage && (
+              <p style={{ 
+                textAlign: 'center', 
+                fontSize: 12, 
+                color: saveMessage.includes('✓') ? '#22c55e' : '#dc2626',
+                margin: '8px 0 0' 
+              }}>
+                {saveMessage}
+              </p>
+            )}
           </div>
         ) : (
           <div className={styles.profileInfo}>
