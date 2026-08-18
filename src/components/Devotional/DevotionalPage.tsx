@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../lib/supabase'
 import { createPost } from '../../lib/community'
 import { useAuth } from '../../hooks/useAuth'
+import { Filesystem, Directory } from '@capacitor/filesystem'
 import { 
   Copy, Share, BookOpen, RefreshCw, Heart, Clock, Check, Users, Image as ImageIcon, Download
 } from 'lucide-react'
@@ -235,12 +236,10 @@ export const DevotionalPage: React.FC = () => {
     }
   }
 
-  // Platform detection
   const isCapacitorPlatform = (): boolean => {
     return !!(window as any).Capacitor?.isNativePlatform?.()
   }
 
-  // Generate image data URL
   const generateImageDataUrl = async (): Promise<string> => {
     const canvas = document.createElement('canvas')
     const size = 1080
@@ -307,17 +306,6 @@ export const DevotionalPage: React.FC = () => {
     return canvas.toDataURL('image/png')
   }
 
-  // Silent download helper
-  const downloadImage = (dataUrl: string, fileName: string) => {
-    const link = document.createElement('a')
-    link.download = fileName
-    link.href = dataUrl
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
-
-  // Single share function — handles everything silently
   const handleShareImage = async () => {
     setIsGenerating(true)
     setShowImageOptions(false)
@@ -326,42 +314,52 @@ export const DevotionalPage: React.FC = () => {
       const fileName = `${scriptureData.reference.replace(/\s/g, '_')}.png`
       const shareText = `${scriptureData.reference} - ${scriptureData.verse}`
 
-      // Web: Native Share API
+      // WEB
       if (!isCapacitorPlatform() && navigator.share && navigator.canShare) {
         try {
           const response = await fetch(imageDataUrl)
           const blob = await response.blob()
           const file = new File([blob], fileName, { type: 'image/png' })
-
           const shareData: any = { title: 'Daily Devotional', text: shareText }
-          if (navigator.canShare({ files: [file] })) {
-            shareData.files = [file]
-          }
+          if (navigator.canShare({ files: [file] })) shareData.files = [file]
           await navigator.share(shareData)
           return
-        } catch {
-          return // User cancelled
-        }
+        } catch { return }
       }
 
-      // APK: Capacitor Share
+      // APK — save file first, then share the URI
       if (isCapacitorPlatform()) {
         try {
+          const base64Data = imageDataUrl.split(',')[1]
+          await Filesystem.writeFile({
+            path: fileName,
+            data: base64Data,
+            directory: Directory.Cache,
+          })
+          const fileInfo = await Filesystem.getUri({
+            path: fileName,
+            directory: Directory.Cache,
+          })
           const { Share } = await import('@capacitor/share')
           await Share.share({
             title: 'Daily Devotional',
             text: shareText,
-            url: imageDataUrl,
+            url: fileInfo.uri,
             dialogTitle: 'Share devotional verse',
           })
           return
-        } catch {
-          // Continue to fallback
+        } catch (error) {
+          console.error('APK share failed:', error)
         }
       }
 
-      // Fallback: Download
-      downloadImage(imageDataUrl, fileName)
+      // FALLBACK — download
+      const link = document.createElement('a')
+      link.download = fileName
+      link.href = imageDataUrl
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
 
     } catch (error) {
       console.error('Error sharing image:', error)
@@ -370,16 +368,32 @@ export const DevotionalPage: React.FC = () => {
     }
   }
 
-  // Silent download
   const handleDownloadImage = async () => {
     setIsGenerating(true)
     setShowImageOptions(false)
     try {
       const imageDataUrl = await generateImageDataUrl()
       const fileName = `${scriptureData.reference.replace(/\s/g, '_')}.png`
-      downloadImage(imageDataUrl, fileName)
+
+      if (isCapacitorPlatform()) {
+        const base64Data = imageDataUrl.split(',')[1]
+        await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.Documents,
+        })
+        alert('Image saved to your device!')
+      } else {
+        const link = document.createElement('a')
+        link.download = fileName
+        link.href = imageDataUrl
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
     } catch (error) {
       console.error('Error downloading image:', error)
+      alert('Failed to download image.')
     } finally {
       setIsGenerating(false)
     }
@@ -491,7 +505,6 @@ export const DevotionalPage: React.FC = () => {
       </div>
 
       <div className={styles.content}>
-        {/* Scripture Card */}
         <div 
           ref={scriptureCardRef}
           className={styles.scriptureImageCard} 
@@ -517,7 +530,6 @@ export const DevotionalPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Actions */}
         <div className={styles.cardActions}>
           <button className={`${styles.cardActionBtn} ${liked ? styles.likedBtn : ''}`} onClick={handleLike} disabled={liking}>
             <Heart size={14} className={liked ? styles.likedIcon : ''} fill={liked ? 'currentColor' : 'none'} />
@@ -533,7 +545,6 @@ export const DevotionalPage: React.FC = () => {
             {sharedVerse ? 'Shared!' : 'Share'}
           </button>
 
-          {/* Image Dropdown */}
           <div className={styles.shareDropdown}>
             <button className={styles.cardActionBtn} onClick={() => setShowImageOptions(!showImageOptions)} disabled={isGenerating}>
               {isGenerating ? <RefreshCw size={14} className={styles.spinning} /> : <ImageIcon size={14} />}
@@ -557,7 +568,6 @@ export const DevotionalPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Reflection Card */}
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <span className={styles.cardIcon}>💭</span>
@@ -571,7 +581,6 @@ export const DevotionalPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Prayer Card */}
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <span className={styles.cardIcon}>🙏</span>
@@ -588,7 +597,6 @@ export const DevotionalPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Copy Full */}
         <button className={styles.copyFullBtn} onClick={handleCopyFull}>
           {copiedFull ? <Check size={16} /> : <Copy size={16} />}
           {copiedFull ? 'Copied Full Devotional!' : 'Copy Full Devotional'}
