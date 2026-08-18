@@ -1,12 +1,8 @@
 // src/components/Community/PostCard.tsx
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import type { Post, Comment } from '../../lib/community'
 import { 
-  deletePost, 
-  getComments, 
-  createComment, 
-  deleteComment,
-  editComment
+  deletePost, getComments, createComment, deleteComment, editComment
 } from '../../lib/community'
 import { sendFriendRequest, getFriendshipStatus } from '../../lib/friends'
 import { useAuth } from '../../hooks/useAuth'
@@ -61,20 +57,24 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
 
   const isAuthor = user?.id === post.user_id
 
+  // Check friendship status for post author
   useEffect(() => {
     if (!isAuthor && post.user_id) {
       checkFriendStatus(post.user_id)
     }
   }, [post.user_id, isAuthor])
 
-  const checkFriendStatus = async (userId: string) => {
+  const checkFriendStatus = useCallback(async (userId: string) => {
     const status = await getFriendshipStatus(userId)
     setFriendStatus(status)
-  }
+  }, [])
 
-  const handleAddFriend = async (userId: string) => {
+  const handleAddFriend = async (userId: string, event?: React.MouseEvent) => {
+    if (event) event.stopPropagation()
     const success = await sendFriendRequest(userId)
-    if (success) setFriendStatus('pending_sent')
+    if (success) {
+      setFriendStatus('pending_sent')
+    }
   }
 
   const loadComments = async () => {
@@ -86,7 +86,8 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
       const statuses: Record<string, FriendStatus> = {}
       for (const comment of data) {
         if (comment.user_id !== user?.id) {
-          statuses[comment.user_id] = await getFriendshipStatus(comment.user_id)
+          const status = await getFriendshipStatus(comment.user_id)
+          statuses[comment.user_id] = status
         }
       }
       setCommentFriendStatuses(statuses)
@@ -187,10 +188,14 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
       return <span className={styles.friendPending}><Clock size={12} /> Request Sent</span>
     }
     if (status === 'pending_received') {
-      return <span className={styles.friendPending}><Clock size={12} /> Accept Request</span>
+      return (
+        <button className={styles.acceptRequestBtn} onClick={(e) => handleAddFriend(userId, e)}>
+          <Check size={12} /> Accept
+        </button>
+      )
     }
     return (
-      <button className={styles.addFriendBtn} onClick={() => handleAddFriend(userId)}>
+      <button className={styles.addFriendBtn} onClick={(e) => handleAddFriend(userId, e)}>
         <UserPlus size={12} /> Add
       </button>
     )
@@ -208,9 +213,6 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
         <div className={styles.commentContent}>
           <div className={styles.commentHeader}>
             <span className={styles.commentUser}>{comment.user?.display_name || 'Unknown'}</span>
-            {tier === 'elder' && comment.user_id === 'hyacinthmichael36@gmail.com' && (
-              <Crown size={12} className={styles.elderCrown} />
-            )}
             <span className={styles.commentTime}>{timeAgo(comment.created_at)}</span>
             {!isCommentAuthor && (
               <span className={styles.commentFriendBtn}>
@@ -284,7 +286,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUp
           <div>
             <span className={styles.userName}>
               {post.user?.display_name || 'Unknown'}
-              {tier === 'elder' && post.user_id === user?.id && (
+              {tier === 'elder' && isAuthor && (
                 <Crown size={12} className={styles.elderCrown} />
               )}
             </span>
