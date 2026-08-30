@@ -54,11 +54,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
   const verseOfTheDay = useMemo(() => {
     if (!bible || bible.verses.length === 0) return null
-    console.log("Total verses:", bible.verses.length)
-console.log(
-  "Books available:",
-  [...new Set(bible.verses.map(v => v.book))]
-)
     const seed = getDailySeed()
     const random = seededRandom(seed)
     const index = Math.floor(random() * bible.verses.length)
