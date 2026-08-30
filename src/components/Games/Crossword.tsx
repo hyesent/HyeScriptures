@@ -67,15 +67,35 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
   const [xpEarned, setXpEarned] = useState(0);
   const [bestScore, setBestScore] = useState(0);
   const [wrongWord, setWrongWord] = useState<string>('');
+  const [isMobile, setIsMobile] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const themes = ['all', ...getAllThemes()];
 
   // ================================================================
-  // GAME INITIALIZATION
+  // DETECT MOBILE
+  // ================================================================
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // ================================================================
+  // GAME INITIALIZATION - FIXED: Timer race condition
   // ================================================================
 
   const startGame = () => {
+    // Clean up existing timer FIRST
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      setTimerInterval(null);
+    }
+
     let newPuzzle: CrosswordPuzzle;
     
     if (selectedTheme !== 'all') {
@@ -119,11 +139,7 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
     setWrongWord('');
     setBestScore(gameEngine.getBestScore('crossword'));
     
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      setTimerInterval(null);
-    }
-    
+    // Start new timer
     const interval = setInterval(() => {
       setTime(prev => prev + 1);
     }, 1000);
@@ -134,7 +150,19 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
   };
 
   // ================================================================
-  // CLUE SELECTION
+  // CLEANUP TIMER ON UNMOUNT
+  // ================================================================
+
+  useEffect(() => {
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+    };
+  }, [timerInterval]);
+
+  // ================================================================
+  // CLUE SELECTION - FIXED: Overlapping clue selection
   // ================================================================
 
   const selectClue = (clue: CrosswordClue) => {
@@ -157,13 +185,38 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
     if (gameOver) return;
     if (grid[row]?.[col] === '■') return;
     
-    // Find which clue this cell belongs to
+    // Find which clue this cell belongs to - prioritize selected direction
     const clue = puzzle?.clues.find(c => {
-      if (c.direction === 'across') {
-        return c.row === row && c.col <= col && c.col + c.length > col;
-      } else {
-        return c.col === col && c.row <= row && c.row + c.length > row;
+      const isAcross = c.direction === 'across' && 
+        c.row === row && 
+        c.col <= col && 
+        c.col + c.length > col;
+      
+      const isDown = c.direction === 'down' && 
+        c.col === col && 
+        c.row <= row && 
+        c.row + c.length > row;
+      
+      // If we have a selected direction, prioritize it
+      if (selectedClue) {
+        if (selectedDirection === 'across') {
+          return isAcross || (isDown && !puzzle?.clues.some(cc => 
+            cc.direction === 'across' && 
+            cc.row === row && 
+            cc.col <= col && 
+            cc.col + cc.length > col
+          ));
+        } else {
+          return isDown || (isAcross && !puzzle?.clues.some(cc => 
+            cc.direction === 'down' && 
+            cc.col === col && 
+            cc.row <= row && 
+            cc.row + cc.length > row
+          ));
+        }
       }
+      
+      return isAcross || isDown;
     });
     
     if (clue) {
@@ -174,7 +227,7 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
   };
 
   // ================================================================
-  // WORD INPUT HANDLING
+  // WORD INPUT HANDLING - FIXED: Correct feedback & wrong word erasure
   // ================================================================
 
   const handleWordSubmit = () => {
@@ -214,16 +267,14 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
       const points = 10 + timeBonus;
       setScore(prev => prev + points);
       
-      // Clear input and reset
+      // Clear input
       setWordInput('');
       
-      // Show correct animation
+      // FIXED: Show correct animation, THEN auto-select next clue
       setTimeout(() => {
         setIsCorrect(false);
+        autoSelectNextClue();
       }, 500);
-      
-      // Auto-select next clue
-      autoSelectNextClue();
       
       // Check if puzzle is complete
       if (completedWords.size + 1 === puzzle.clues.length) {
@@ -250,15 +301,15 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
       }
       setUserGrid(newUserGrid);
       
-      // Clear the input and wrong state after delay
+      // FIXED: Only remove ✗ markers, keep any real letters
       setTimeout(() => {
-        // Restore the grid (remove wrong markers)
-        const restoredGrid = userGrid.map(row => [...row]);
+        const restoredGrid = userGrid.map(row => 
+          row.map(cell => cell === '✗' ? '' : cell)
+        );
         setUserGrid(restoredGrid);
         setWordInput('');
         setIsWrong(false);
         setWrongWord('');
-        // Focus back on input
         inputRef.current?.focus();
       }, 1200);
     }
@@ -282,6 +333,35 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
     }
   };
 
+  // ================================================================
+  // KEYBOARD NAVIGATION - NEW FEATURE
+  // ================================================================
+
+  const moveSelection = (rowDelta: number, colDelta: number) => {
+    if (!selectedCell || !puzzle) return;
+    
+    let newRow = selectedCell.row + rowDelta;
+    let newCol = selectedCell.col + colDelta;
+    
+    // Clamp to grid bounds
+    newRow = Math.max(0, Math.min(puzzle.grid.length - 1, newRow));
+    newCol = Math.max(0, Math.min(puzzle.grid[0].length - 1, newCol));
+    
+    // Find if the new cell is part of a clue
+    const clue = puzzle?.clues.find(c => {
+      if (c.direction === 'across') {
+        return c.row === newRow && c.col <= newCol && c.col + c.length > newCol;
+      } else {
+        return c.col === newCol && c.row <= newRow && c.row + c.length > newRow;
+      }
+    });
+    
+    if (clue && !completedWords.has(clue.id)) {
+      setSelectedCell({ row: newRow, col: newCol });
+      selectClue(clue);
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -292,6 +372,40 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
       setWordInput('');
       setIsWrong(false);
       setIsCorrect(false);
+    }
+    
+    // Arrow key navigation
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      moveSelection(-1, 0);
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      moveSelection(1, 0);
+    }
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      moveSelection(0, -1);
+    }
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      moveSelection(0, 1);
+    }
+    
+    // Spacebar to toggle direction
+    if (e.key === ' ' && !e.repeat) {
+      e.preventDefault();
+      if (selectedClue) {
+        const oppositeDir = selectedDirection === 'across' ? 'down' : 'across';
+        const oppositeClue = puzzle?.clues.find(c => 
+          c.direction === oppositeDir && 
+          c.row === selectedClue.row && 
+          c.col === selectedClue.col
+        );
+        if (oppositeClue && !completedWords.has(oppositeClue.id)) {
+          selectClue(oppositeClue);
+        }
+      }
     }
     
     if (e.key === 'Tab') {
@@ -311,7 +425,7 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
   };
 
   // ================================================================
-  // PUZZLE COMPLETE
+  // PUZZLE COMPLETE - FIXED: totalCells undefined
   // ================================================================
 
   const handlePuzzleComplete = () => {
@@ -338,7 +452,7 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
   };
 
   // ================================================================
-  // RENDER HELPERS
+  // RENDER HELPERS - FIXED: getClueNumber uses number field
   // ================================================================
 
   const getTimeString = (seconds: number) => {
@@ -352,7 +466,8 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
       (c.direction === 'across' && c.row === row && c.col === col) ||
       (c.direction === 'down' && c.row === row && c.col === col)
     );
-    return clue ? clue.id.replace(/[ad]/g, '') : null;
+    // FIXED: Use clue.number directly instead of parsing ID
+    return clue ? String(clue.number) : null;
   };
 
   const getCellClass = (row: number, col: number): string => {
@@ -405,9 +520,62 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
     return classes;
   };
 
-  // ============================================================
+  // ================================================================
+  // HINT SYSTEM - NEW FEATURE
+  // ================================================================
+
+  const revealLetter = () => {
+    if (!selectedClue || completedWords.has(selectedClue.id) || gameOver) return;
+    
+    const clue = selectedClue;
+    const newUserGrid = userGrid.map(row => [...row]);
+    let filledCount = 0;
+    
+    // Find the first empty cell in the clue
+    for (let i = 0; i < clue.answer.length; i++) {
+      const r = clue.direction === 'down' ? clue.row + i : clue.row;
+      const c = clue.direction === 'across' ? clue.col + i : clue.col;
+      if (newUserGrid[r][c] === '' || newUserGrid[r][c] === '✗') {
+        newUserGrid[r][c] = clue.answer[i];
+        filledCount++;
+        break; // Only reveal one letter
+      }
+    }
+    
+    if (filledCount > 0) {
+      setUserGrid(newUserGrid);
+      // Penalty: -2 points for using a hint
+      setScore(prev => Math.max(0, prev - 2));
+      // Check if the word is now complete
+      let wordComplete = true;
+      for (let i = 0; i < clue.answer.length; i++) {
+        const r = clue.direction === 'down' ? clue.row + i : clue.row;
+        const c = clue.direction === 'across' ? clue.col + i : clue.col;
+        if (newUserGrid[r][c] !== clue.answer[i]) {
+          wordComplete = false;
+          break;
+        }
+      }
+      if (wordComplete && !completedWords.has(clue.id)) {
+        // Auto-complete the word
+        setCompletedWords(prev => new Set([...prev, clue.id]));
+        setCompletedCount(prev => prev + 1);
+        setTotalCorrect(prev => prev + 1);
+        setIsCorrect(true);
+        setTimeout(() => {
+          setIsCorrect(false);
+          autoSelectNextClue();
+        }, 500);
+        if (completedWords.size + 1 === puzzle?.clues.length) {
+          handlePuzzleComplete();
+        }
+      }
+    }
+  };
+
+  // ================================================================
   // START SCREEN
-  // ============================================================
+  // ================================================================
   if (!gameStarted) {
     return (
       <div className={styles.container}>
@@ -464,11 +632,12 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
     );
   }
 
-  // ============================================================
-  // GAME OVER SCREEN
-  // ============================================================
+  // ================================================================
+  // GAME OVER SCREEN - FIXED: totalCells undefined
+  // ================================================================
   if (gameOver && isComplete) {
-    const completed = totalCells > 0 ? (completedCount / puzzle!.clues.length) * 100 : 0;
+    // FIXED: Use puzzle.clues.length instead of undefined totalCells
+    const completed = puzzle ? (completedCount / puzzle.clues.length) * 100 : 0;
     const isNewBest = score >= bestScore && score > 0;
     
     return (
@@ -575,9 +744,9 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
     );
   }
 
-  // ============================================================
-  // ACTIVE GAME
-  // ============================================================
+  // ================================================================
+  // ACTIVE GAME - MOBILE RESPONSIVE
+  // ================================================================
   return (
     <div className={styles.container}>
       <div className={styles.ambientGlow} />
@@ -626,10 +795,10 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
           </div>
 
           <div className={styles.crosswordLayout}>
-            {/* Grid */}
+            {/* Grid - MOBILE RESPONSIVE */}
             <div className={styles.gridContainer}>
               <div 
-                className={styles.grid}
+                className={`${styles.grid} ${isMobile ? styles.gridMobile : ''}`}
                 style={{ 
                   gridTemplateColumns: `repeat(${puzzle?.grid[0]?.length || 10}, 1fr)`
                 }}
@@ -647,7 +816,10 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                         onClick={() => handleCellClick(rowIndex, colIndex)}
                         className={`${getCellClass(rowIndex, colIndex)} ${isSelected ? styles.selected : ''}`}
                         style={{
-                          cursor: isBlack ? 'default' : 'pointer'
+                          cursor: isBlack ? 'default' : 'pointer',
+                          // Mobile touch target: minimum 44px
+                          minWidth: isMobile ? '44px' : 'auto',
+                          minHeight: isMobile ? '44px' : 'auto',
                         }}
                       >
                         {!isBlack && (
@@ -667,8 +839,8 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
               </div>
             </div>
 
-            {/* Clues Panel */}
-            <div className={styles.cluesPanel}>
+            {/* Clues Panel - MOBILE RESPONSIVE */}
+            <div className={`${styles.cluesPanel} ${isMobile ? styles.cluesPanelMobile : ''}`}>
               {/* Selected Clue Input */}
               {selectedClue && !completedWords.has(selectedClue.id) && (
                 <div className={styles.inputSection}>
@@ -677,7 +849,8 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                       {selectedDirection === 'across' ? '→' : '↓'}
                     </span>
                     <span className={styles.inputClue}>
-                      {selectedClue.id.replace(/[ad]/g, '')}. {selectedClue.clue}
+                      {/* FIXED: Use clue.number directly */}
+                      {selectedClue.number}. {selectedClue.clue}
                     </span>
                   </div>
                   <div className={styles.inputWrapper}>
@@ -695,6 +868,8 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                       autoFocus
                       maxLength={selectedClue.answer.length}
                       disabled={gameOver}
+                      // Mobile: prevent zoom on focus
+                      style={{ fontSize: isMobile ? '16px' : 'inherit' }}
                     />
                     <button 
                       className={styles.submitBtn}
@@ -702,6 +877,15 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                       disabled={gameOver}
                     >
                       <CheckCircle size={18} />
+                    </button>
+                    {/* NEW: Hint button */}
+                    <button 
+                      className={styles.hintBtn}
+                      onClick={revealLetter}
+                      disabled={gameOver}
+                      title="Reveal a letter (-2 points)"
+                    >
+                      <Lightbulb size={18} />
                     </button>
                   </div>
                   {isWrong && (
@@ -733,7 +917,7 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                 )}
               </div>
 
-              {/* Across Clues */}
+              {/* Across Clues - FIXED: Use clue.number */}
               <div className={styles.clueGroup}>
                 <h4 className={styles.clueGroupTitle}>Across</h4>
                 {puzzle?.clues.filter(c => c.direction === 'across').map((clue) => {
@@ -749,7 +933,7 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                       }}
                       style={{ cursor: isCompleted ? 'default' : 'pointer' }}
                     >
-                      <span className={styles.clueNumber}>{clue.id.replace('a', '')}.</span>
+                      <span className={styles.clueNumber}>{clue.number}.</span>
                       <span className={styles.clueText}>{clue.clue}</span>
                       {isCompleted && (
                         <span className={styles.clueCheck}>✓</span>
@@ -759,7 +943,7 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                 })}
               </div>
               
-              {/* Down Clues */}
+              {/* Down Clues - FIXED: Use clue.number */}
               <div className={styles.clueGroup}>
                 <h4 className={styles.clueGroupTitle}>Down</h4>
                 {puzzle?.clues.filter(c => c.direction === 'down').map((clue) => {
@@ -775,7 +959,7 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                       }}
                       style={{ cursor: isCompleted ? 'default' : 'pointer' }}
                     >
-                      <span className={styles.clueNumber}>{clue.id.replace('d', '')}.</span>
+                      <span className={styles.clueNumber}>{clue.number}.</span>
                       <span className={styles.clueText}>{clue.clue}</span>
                       {isCompleted && (
                         <span className={styles.clueCheck}>✓</span>
@@ -785,12 +969,15 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                 })}
               </div>
 
-              {/* Instructions */}
-              <div className={styles.instructions}>
-                <p>✏️ Type the full word</p>
+              {/* Instructions - Mobile friendly */}
+              <div className={`${styles.instructions} ${isMobile ? styles.instructionsMobile : ''}`}>
+                <p> Type the full word</p>
                 <p>↵ Press Enter to submit</p>
-                <p>⌨️ Tab to switch between across/down</p>
-                <p>👆 Click a clue to select it</p>
+                <p> Arrow keys to navigate</p>
+                <p> Click a clue to select it</p>
+                {isMobile && (
+                  <p className={styles.mobileHint}>💡 Tap a clue to select it</p>
+                )}
               </div>
             </div>
           </div>
