@@ -26,10 +26,10 @@ const getDailySeed = (): number => {
 }
 
 const seededRandom = (seed: number) => {
-  let s = seed
+  let x = Math.sin(seed) * 10000
   return () => {
-    s = (s * 1664525 + 1013904223) & 0xffffffff
-    return (s >>> 0) / 0xffffffff
+    x = Math.sin(x) * 10000
+    return x - Math.floor(x)
   }
 }
 
