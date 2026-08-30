@@ -1,5 +1,5 @@
 // src/components/Games/TimelineChallenge.tsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, 
@@ -17,26 +17,27 @@ import {
   Loader2,
   Calendar,
   ChevronRight,
-  ChevronDown,
-  GripVertical,
   History,
-  Award
+  Filter,
+  SkipForward,
+  EyeOff
 } from 'lucide-react';
 import { gameEngine } from '../../lib/games/game-engine';
 import { TIMING, EASING } from '../../lib/animations';
+import { 
+  timelineEvents, 
+  getEventsByCategory,
+  getCategories,
+  getDifficultyLevels,
+  type TimelineEvent 
+} from '../../data/games/timeline';
 import styles from './TimelineChallenge.module.css';
-
-interface TimelineEvent {
-  id: string;
-  year: string;
-  description: string;
-  category: 'old-testament' | 'new-testament' | 'early-church';
-  reference?: string;
-}
 
 interface TimelineChallengeProps {
   onBack: () => void;
 }
+
+type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
 
 // ============================================================
 // SVG ICONS
@@ -54,59 +55,14 @@ const Icons = {
       <line x1="18" y1="8" x2="18" y2="16" />
     </svg>
   ),
-  Event: () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  )
 };
-
-// ============================================================
-// DATA
-// ============================================================
-
-const TIMELINE_EVENTS: TimelineEvent[] = [
-  // Old Testament
-  { id: 'creation', year: '4000 BC', description: 'Creation of the world', category: 'old-testament', reference: 'Genesis 1' },
-  { id: 'flood', year: '2300 BC', description: 'The Great Flood', category: 'old-testament', reference: 'Genesis 6-9' },
-  { id: 'abraham', year: '2000 BC', description: 'Abraham called by God', category: 'old-testament', reference: 'Genesis 12' },
-  { id: 'exodus', year: '1446 BC', description: 'Exodus from Egypt', category: 'old-testament', reference: 'Exodus 12' },
-  { id: 'law', year: '1446 BC', description: 'Law given at Sinai', category: 'old-testament', reference: 'Exodus 20' },
-  { id: 'conquest', year: '1406 BC', description: 'Conquest of Canaan', category: 'old-testament', reference: 'Joshua 1-12' },
-  { id: 'judges', year: '1350 BC', description: 'Period of the Judges', category: 'old-testament', reference: 'Judges 2' },
-  { id: 'saul', year: '1050 BC', description: 'Saul becomes first king', category: 'old-testament', reference: '1 Samuel 10' },
-  { id: 'david', year: '1010 BC', description: 'David becomes king', category: 'old-testament', reference: '1 Samuel 16' },
-  { id: 'solomon', year: '970 BC', description: 'Solomon builds the Temple', category: 'old-testament', reference: '1 Kings 6' },
-  { id: 'divided', year: '930 BC', description: 'Kingdom divided', category: 'old-testament', reference: '1 Kings 12' },
-  { id: 'exile', year: '586 BC', description: 'Babylonian exile', category: 'old-testament', reference: '2 Kings 25' },
-  { id: 'return', year: '538 BC', description: 'Return from exile', category: 'old-testament', reference: 'Ezra 1' },
-  { id: 'nehemiah', year: '445 BC', description: 'Nehemiah rebuilds walls', category: 'old-testament', reference: 'Nehemiah 2' },
-  { id: 'malachi', year: '430 BC', description: 'Malachi\'s prophecy', category: 'old-testament', reference: 'Malachi 1' },
-  
-  // New Testament
-  { id: 'john-baptist', year: '6 BC', description: 'John the Baptist born', category: 'new-testament', reference: 'Luke 1' },
-  { id: 'jesus-birth', year: '4 BC', description: 'Jesus Christ born', category: 'new-testament', reference: 'Matthew 1' },
-  { id: 'jesus-baptism', year: 'AD 27', description: 'Jesus baptized', category: 'new-testament', reference: 'Matthew 3' },
-  { id: 'jesus-ministry', year: 'AD 28-30', description: 'Jesus\' ministry', category: 'new-testament', reference: 'Matthew 4-28' },
-  { id: 'crucifixion', year: 'AD 30', description: 'Crucifixion and resurrection', category: 'new-testament', reference: 'Matthew 27-28' },
-  { id: 'pentecost', year: 'AD 30', description: 'Pentecost - Church begins', category: 'new-testament', reference: 'Acts 2' },
-  { id: 'paul-conversion', year: 'AD 35', description: 'Paul\'s conversion', category: 'new-testament', reference: 'Acts 9' },
-  
-  // Early Church
-  { id: 'jerusalem-council', year: 'AD 49', description: 'Jerusalem Council', category: 'early-church', reference: 'Acts 15' },
-  { id: 'paul-missionary', year: 'AD 46-57', description: 'Paul\'s missionary journeys', category: 'early-church', reference: 'Acts 13-21' },
-  { id: 'paul-epistles', year: 'AD 50-67', description: 'Paul\'s epistles written', category: 'early-church' },
-  { id: 'rome-persecution', year: 'AD 64', description: 'Persecution in Rome', category: 'early-church' },
-  { id: 'jerusalem-destruction', year: 'AD 70', description: 'Jerusalem destroyed', category: 'early-church' },
-  { id: 'john-revelation', year: 'AD 95', description: 'John writes Revelation', category: 'early-church', reference: 'Revelation 1' }
-];
 
 // ============================================================
 // TIMELINE CHALLENGE COMPONENT
 // ============================================================
 
 const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
+  // Game State
   const [events, setEvents] = useState<TimelineEvent[]>([]);
   const [shuffledEvents, setShuffledEvents] = useState<TimelineEvent[]>([]);
   const [gameStarted, setGameStarted] = useState(false);
@@ -117,32 +73,64 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
   const [streak, setStreak] = useState(0);
   const [xpEarned, setXpEarned] = useState(0);
   const [bestScore, setBestScore] = useState(0);
-  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
-  const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
+  const [difficulty, setDifficulty] = useState<Difficulty>('easy');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [eventCount, setEventCount] = useState(0);
   const [completed, setCompleted] = useState(false);
   const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [maxAttempts, setMaxAttempts] = useState(2);
   const [level, setLevel] = useState(1);
+  const [isCorrect, setIsCorrect] = useState(false);
+  const [isWrong, setIsWrong] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+  const [hintText, setHintText] = useState('');
+  const [showSkip, setShowSkip] = useState(false);
+  const [totalCorrect, setTotalCorrect] = useState(0);
+  const [totalWrong, setTotalWrong] = useState(0);
+  const [correctAnimation, setCorrectAnimation] = useState(false);
+  const [wrongAnimation, setWrongAnimation] = useState(false);
+  const [placedEvents, setPlacedEvents] = useState<TimelineEvent[]>([]);
+  const [showTimelinePreview, setShowTimelinePreview] = useState(false);
 
-  // Get events based on difficulty
-  const getEventsForDifficulty = useCallback(() => {
-    let filtered = [...TIMELINE_EVENTS];
+  // Get events based on difficulty and category
+  const getFilteredEvents = useCallback(() => {
+    let filtered = selectedCategory === 'all' 
+      ? [...timelineEvents] 
+      : getEventsByCategory(selectedCategory);
     
-    if (difficulty === 'easy') {
-      filtered = filtered.slice(0, 10);
-    } else if (difficulty === 'medium') {
-      filtered = filtered.slice(0, 20);
-    }
+    const difficultyMap: Record<Difficulty, number> = {
+      easy: 10,
+      medium: 20,
+      hard: 30,
+      expert: 50
+    };
     
-    return filtered;
-  }, [difficulty]);
+    const count = difficultyMap[difficulty] || 10;
+    const shuffled = [...filtered].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, Math.min(count, shuffled.length));
+  }, [difficulty, selectedCategory]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        setTimerInterval(null);
+      }
+    };
+  }, [timerInterval]);
 
   const startGame = () => {
-    const selectedEvents = getEventsForDifficulty();
+    const selectedEvents = getFilteredEvents();
+    
+    // Sort events chronologically (oldest first) for the correct order
+    const sorted = [...selectedEvents].sort((a, b) => a.year - b.year);
+    // Shuffle for display
     const shuffled = [...selectedEvents].sort(() => Math.random() - 0.5);
     
-    setEvents(selectedEvents);
+    setEvents(sorted);
     setShuffledEvents(shuffled);
+    setPlacedEvents([]);
     setGameStarted(true);
     setGameOver(false);
     setCompleted(false);
@@ -153,7 +141,16 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
     setWrongAttempts(0);
     setLevel(1);
     setEventCount(0);
-    setSelectedEvent(null);
+    setTotalCorrect(0);
+    setTotalWrong(0);
+    setMaxAttempts(difficulty === 'easy' ? 3 : difficulty === 'medium' ? 2 : 1);
+    setIsCorrect(false);
+    setIsWrong(false);
+    setShowHint(false);
+    setShowSkip(false);
+    setCorrectAnimation(false);
+    setWrongAnimation(false);
+    setShowTimelinePreview(false);
     setBestScore(gameEngine.getBestScore('timeline'));
     
     if (timerInterval) clearInterval(timerInterval);
@@ -163,16 +160,73 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
     setTimerInterval(interval);
   };
 
+  // Get year display string (ONLY used for hints/reveals, NOT in gameplay)
+  const getYearDisplay = (year: number): string => {
+    if (year < 0) {
+      return `${Math.abs(year)} BC`;
+    }
+    return `AD ${year}`;
+  };
+
+  // Generate a HINT that DOES NOT reveal the year
+  const getHintForEvent = (event: TimelineEvent): string => {
+    const index = events.indexOf(event);
+    const total = events.length;
+    
+    // Calculate position without revealing exact year
+    let position = '';
+    if (index < total / 3) {
+      position = 'early';
+    } else if (index < total * 2 / 3) {
+      position = 'middle';
+    } else {
+      position = 'late';
+    }
+    
+    // Get the event before and after (if they exist)
+    const prevEvent = index > 0 ? events[index - 1] : null;
+    const nextEvent = index < total - 1 ? events[index + 1] : null;
+    
+    const hints = [
+      `This event is in the ${position} part of biblical history`,
+      `This event is from the ${event.category.replace('-', ' ')} period`,
+      `${event.people && event.people.length > 0 ? `Key figure${event.people.length > 1 ? 's' : ''}: ${event.people.slice(0, 3).join(', ')}` : ''}`,
+    ];
+    
+    // Add a contextual hint without revealing the year
+    if (prevEvent) {
+      hints.push(`This event happens after ${prevEvent.event}`);
+    }
+    if (nextEvent) {
+      hints.push(`This event happens before ${nextEvent.event}`);
+    }
+    
+    return hints[Math.floor(Math.random() * hints.length)];
+  };
+
   const handleEventSelect = (event: TimelineEvent) => {
     if (gameOver || completed) return;
+    if (isCorrect || isWrong) return;
+    if (wrongAttempts >= maxAttempts) {
+      setShowSkip(true);
+      return;
+    }
     
-    setSelectedEvent(event);
     const currentIndex = eventCount;
     const correctEvent = events[currentIndex];
     
     if (event.id === correctEvent.id) {
+      // ✅ CORRECT!
+      setIsCorrect(true);
+      setCorrectAnimation(true);
+      setShowSkip(false);
+      
+      setPlacedEvents(prev => [...prev, event]);
       setEventCount(prev => prev + 1);
+      setTotalCorrect(prev => prev + 1);
       setStreak(prev => prev + 1);
+      setWrongAttempts(0);
+      
       const points = 10 + (streak * 2);
       setScore(prev => prev + points);
       
@@ -180,23 +234,101 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
       const streakBonus = Math.min(streak * 5, 25);
       setXpEarned(prev => prev + baseXP + streakBonus);
       
+      // Remove the correct event from shuffled
+      setShuffledEvents(prev => prev.filter(e => e.id !== event.id));
+      
+      // Level up every 5 correct
+      if ((totalCorrect + 1) % 5 === 0) {
+        setLevel(prev => prev + 1);
+      }
+      
+      // Clear animation after delay
+      setTimeout(() => {
+        setCorrectAnimation(false);
+        setIsCorrect(false);
+      }, 600);
+      
+      // Check if complete
       if (eventCount + 1 === events.length) {
-        setCompleted(true);
-        setGameOver(true);
-        if (timerInterval) {
-          clearInterval(timerInterval);
-          setTimerInterval(null);
-        }
-        const timeBonus = Math.max(0, 50 - time);
-        setScore(prev => prev + timeBonus);
-        gameEngine.recordAnswer('timeline', true, 'mixed');
+        handleGameComplete();
       }
     } else {
+      // ❌ WRONG!
+      setIsWrong(true);
+      setWrongAnimation(true);
       setWrongAttempts(prev => prev + 1);
+      setTotalWrong(prev => prev + 1);
       setStreak(0);
-      // Remove wrong event from shuffled
-      setShuffledEvents(prev => prev.filter(e => e.id !== event.id));
+      
+      // Check if max attempts reached
+      if (wrongAttempts + 1 >= maxAttempts) {
+        setShowSkip(true);
+      }
+      
+      setTimeout(() => {
+        setWrongAnimation(false);
+        setIsWrong(false);
+      }, 600);
     }
+  };
+
+  // Skip current event (with penalty)
+  const handleSkipEvent = () => {
+    if (gameOver || completed) return;
+    
+    const currentIndex = eventCount;
+    const correctEvent = events[currentIndex];
+    
+    // Add the correct event (with penalty)
+    setPlacedEvents(prev => [...prev, correctEvent]);
+    setEventCount(prev => prev + 1);
+    setScore(prev => Math.max(0, prev - 5));
+    setWrongAttempts(0);
+    setShowSkip(false);
+    
+    // Remove the correct event from shuffled
+    setShuffledEvents(prev => prev.filter(e => e.id !== correctEvent.id));
+    
+    // Check if complete
+    if (eventCount + 1 === events.length) {
+      handleGameComplete();
+    }
+  };
+
+  // Use hint (shows contextual info, NOT the year)
+  const useHint = () => {
+    const currentIndex = eventCount;
+    const correctEvent = events[currentIndex];
+    
+    if (correctEvent) {
+      setHintText(getHintForEvent(correctEvent));
+      setShowHint(true);
+      // Penalty: -3 points
+      setScore(prev => Math.max(0, prev - 3));
+      
+      setTimeout(() => {
+        setShowHint(false);
+      }, 6000);
+    }
+  };
+
+  const handleGameComplete = () => {
+    setCompleted(true);
+    setGameOver(true);
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      setTimerInterval(null);
+    }
+    
+    const timeBonus = Math.max(0, 100 - time);
+    const accuracyBonus = totalCorrect + totalWrong > 0 
+      ? Math.round((totalCorrect / (totalCorrect + totalWrong)) * 10) 
+      : 0;
+    const finalScore = score + timeBonus + accuracyBonus;
+    setScore(finalScore);
+    
+    gameEngine.recordAnswer('timeline', true, 'mixed');
+    if (finalScore > bestScore) setBestScore(finalScore);
   };
 
   const getTimeString = (seconds: number) => {
@@ -211,6 +343,9 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
   // START SCREEN
   // ============================================================
   if (!gameStarted) {
+    const categories = getCategories();
+    const difficulties = getDifficultyLevels();
+    
     return (
       <div className={styles.container}>
         <div className={styles.ambientGlow} />
@@ -233,24 +368,40 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
             <h2 className={styles.startTitle}>Timeline Challenge</h2>
             <p className={styles.startSubtitle}>Place biblical events in chronological order</p>
             <p className={styles.startCount}>
-              {TIMELINE_EVENTS.length} events available
+              {timelineEvents.length} events available
             </p>
+
+            <div className={styles.startSection}>
+              <span className={styles.startLabel}>Category</span>
+              <div className={styles.chipGroup}>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.value}
+                    className={`${styles.chip} ${selectedCategory === cat.value ? styles.active : ''}`}
+                    onClick={() => setSelectedCategory(cat.value)}
+                  >
+                    {cat.label}
+                    {cat.value !== 'all' && (
+                      <span className={styles.chipCount}>
+                        {timelineEvents.filter(e => e.category === cat.value).length}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <div className={styles.startSection}>
               <span className={styles.startLabel}>Difficulty</span>
               <div className={styles.chipGroup}>
-                {[
-                  { id: 'easy', label: 'Easy', count: '10 events' },
-                  { id: 'medium', label: 'Medium', count: '20 events' },
-                  { id: 'hard', label: 'Hard', count: 'All events' }
-                ].map((diff) => (
+                {difficulties.map((diff) => (
                   <button
-                    key={diff.id}
-                    className={`${styles.chip} ${difficulty === diff.id ? styles.active : ''}`}
-                    onClick={() => setDifficulty(diff.id as 'easy' | 'medium' | 'hard')}
+                    key={diff.value}
+                    className={`${styles.chip} ${difficulty === diff.value ? styles.active : ''}`}
+                    onClick={() => setDifficulty(diff.value as Difficulty)}
                   >
                     {diff.label}
-                    <span className={styles.chipCount}>{diff.count}</span>
+                    <span className={styles.chipCount}>{diff.count} events</span>
                   </button>
                 ))}
               </div>
@@ -276,8 +427,8 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
   // ============================================================
   if (gameOver) {
     const isNewBest = score >= bestScore && score > 0;
-    const accuracy = eventCount + wrongAttempts > 0 
-      ? Math.round((eventCount / (eventCount + wrongAttempts)) * 100) 
+    const accuracy = totalCorrect + totalWrong > 0 
+      ? Math.round((totalCorrect / (totalCorrect + totalWrong)) * 100) 
       : 0;
     
     return (
@@ -327,7 +478,7 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
                 <span className={styles.resultsStatLabel}>Score</span>
               </div>
               <div className={styles.resultsStat}>
-                <span className={styles.resultsStatValue}>{eventCount}/{events.length}</span>
+                <span className={styles.resultsStatValue}>{totalCorrect}/{events.length}</span>
                 <span className={styles.resultsStatLabel}>Placed</span>
               </div>
               <div className={styles.resultsStat}>
@@ -335,6 +486,30 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
                 <span className={styles.resultsStatLabel}>Accuracy</span>
               </div>
             </div>
+
+            {/* ✅ NEW: Show the full timeline with years (only on game over) */}
+            {completed && (
+              <div className={styles.timelineReveal}>
+                <h4 className={styles.timelineRevealTitle}>
+                  <Clock size={14} /> Complete Timeline
+                </h4>
+                <div className={styles.timelineRevealList}>
+                  {events.map((event, index) => (
+                    <div key={event.id} className={styles.timelineRevealItem}>
+                      <span className={styles.timelineRevealYear}>
+                        {getYearDisplay(event.year)}
+                      </span>
+                      <span className={styles.timelineRevealEvent}>
+                        {event.event || event.description}
+                      </span>
+                      {index < events.length - 1 && (
+                        <span className={styles.timelineRevealArrow}>→</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <motion.div 
               className={styles.xpEarned}
@@ -392,6 +567,11 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
               <span className={styles.gameModeLabel}>
                 <History size={16} />
                 Timeline
+                {selectedCategory !== 'all' && (
+                  <span className={styles.categoryBadge}>
+                    {selectedCategory.replace('-', ' ')}
+                  </span>
+                )}
               </span>
               <span className={styles.gameProgress}>
                 Level {level} • {eventCount} of {events.length} placed
@@ -425,49 +605,158 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
             />
           </div>
 
-          {/* Next Event to Place */}
+          {/* Stats bar */}
+          <div className={styles.statsBar}>
+            <span>✅ Correct: {totalCorrect}</span>
+            <span>❌ Wrong: {totalWrong}</span>
+            <span>🎯 Attempts: {wrongAttempts}/{maxAttempts}</span>
+          </div>
+
+          {/* Next Event to Place - NO YEAR SHOWN! */}
           {currentEvent && (
             <div className={styles.targetBox}>
               <p className={styles.targetLabel}>
                 <span className={styles.targetIcon}>
                   <Calendar size={14} />
                 </span>
-                Place this event in order
+                Which event comes next in chronological order?
+                {showHint && (
+                  <span className={styles.hintBadge}>
+                    <Lightbulb size={12} /> {hintText}
+                  </span>
+                )}
               </p>
               <div className={styles.currentEventDisplay}>
-                <div className={styles.currentEventYear}>{currentEvent.year}</div>
-                <div className={styles.currentEventDescription}>{currentEvent.description}</div>
+                {/* ✅ NO YEAR shown here! */}
+                <div className={styles.currentEventDescription}>
+                  {currentEvent.event || currentEvent.description}
+                </div>
                 {currentEvent.reference && (
                   <div className={styles.currentEventReference}>
                     <BookOpen size={12} />
                     {currentEvent.reference}
                   </div>
                 )}
+                {currentEvent.people && currentEvent.people.length > 0 && (
+                  <div className={styles.currentEventPeople}>
+                    👤 {currentEvent.people.join(', ')}
+                  </div>
+                )}
+                {/* ✅ Year is hidden - shows as "???" */}
+                <div className={styles.currentEventYearHidden}>
+                  <EyeOff size={12} /> Year hidden
+                </div>
               </div>
+
+              {/* Feedback */}
+              {correctAnimation && (
+                <div className={styles.correctFeedback}>
+                  <CheckCircle size={16} /> Correct! +{10 + (streak * 2)} pts
+                </div>
+              )}
+              {wrongAnimation && (
+                <div className={styles.wrongFeedback}>
+                  <XCircle size={16} /> Wrong! {maxAttempts - wrongAttempts} attempts left
+                </div>
+              )}
+              {showSkip && (
+                <div className={styles.skipContainer}>
+                  <button
+                    onClick={handleSkipEvent}
+                    className={styles.skipBtn}
+                  >
+                    <SkipForward size={14} />
+                    Skip (-5 pts)
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Available Events to Place */}
+          {/* Action Buttons */}
+          <div className={styles.actionBar}>
+            {!showHint && currentEvent && (
+              <button
+                onClick={useHint}
+                className={styles.hintBtn}
+                disabled={isCorrect || isWrong || wrongAttempts >= maxAttempts}
+              >
+                <Lightbulb size={14} />
+                Hint (-3 pts)
+              </button>
+            )}
+            {showHint && (
+              <button
+                onClick={() => setShowHint(false)}
+                className={styles.hintCloseBtn}
+              >
+                ✕ Close Hint
+              </button>
+            )}
+          </div>
+
+          {/* Available Events to Place - NO YEARS SHOWN! */}
           <div className={styles.eventsGrid}>
+            {shuffledEvents.length === 0 && !completed && (
+              <div className={styles.noEvents}>
+                <Loader2 size={24} className={styles.spinning} />
+                Loading events...
+              </div>
+            )}
             {shuffledEvents.map((event) => (
               <motion.button
                 key={event.id}
-                className={styles.eventBtn}
+                className={`${styles.eventBtn} ${isCorrect || isWrong ? styles.disabled : ''}`}
                 onClick={() => handleEventSelect(event)}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: isCorrect || isWrong ? 1 : 1.03 }}
+                whileTap={{ scale: isCorrect || isWrong ? 1 : 0.95 }}
+                disabled={isCorrect || isWrong}
               >
-                <span className={styles.eventYear}>{event.year}</span>
-                <span className={styles.eventDescription}>{event.description}</span>
+                {/* ✅ NO YEAR shown here! */}
+                <span className={styles.eventDescription}>
+                  {event.event || event.description}
+                </span>
+                {event.people && event.people.length > 0 && (
+                  <span className={styles.eventPeople}>
+                    👤 {event.people.slice(0, 2).join(', ')}
+                    {event.people.length > 2 && ' +'}
+                  </span>
+                )}
+                <span className={styles.eventYearHidden}>
+                  ❓ Year hidden
+                </span>
               </motion.button>
             ))}
           </div>
 
-          {/* Stats */}
+          {/* Bottom Stats */}
           <div className={styles.bottomStats}>
             <span>Remaining: {shuffledEvents.length}</span>
             <span>Wrong attempts: {wrongAttempts}</span>
+            {eventCount > 0 && (
+              <span>Placed: {eventCount}</span>
+            )}
           </div>
+
+          {/* ✅ Show placed events count as mini timeline */}
+          {placedEvents.length > 0 && (
+            <div className={styles.placedTimeline}>
+              <p className={styles.placedTimelineLabel}>
+                ✅ Placed: {placedEvents.length} of {events.length}
+              </p>
+              <div className={styles.placedTimelineItems}>
+                {placedEvents.slice(-5).map((event, index) => (
+                  <span key={event.id} className={styles.placedEvent}>
+                    {event.event || event.description}
+                    {index < placedEvents.length - 1 && ' → '}
+                  </span>
+                ))}
+                {placedEvents.length > 5 && (
+                  <span className={styles.placedMore}>... (+{placedEvents.length - 5} more)</span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
