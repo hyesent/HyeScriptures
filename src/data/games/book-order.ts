@@ -1,848 +1,792 @@
-// src/components/Games/BookOrder.tsx
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ArrowLeft, 
-  Trophy, 
-  Zap, 
-  Crown,
-  ChevronRight,
-  CheckCircle,
-  XCircle,
-  BookOpen,
-  Target,
-  Clock,
-  Heart,
-  Flame,
-  Star,
-  Layers,
-  Shuffle,
-  Brain,
-  Lightbulb,
-  Loader2
-} from 'lucide-react';
-import { getTestaments, oldTestamentBooks, newTestamentBooks } from '../../data/games/book-order';
-import { gameEngine } from '../../lib/games/game-engine';
-import { TIMING, EASING } from '../../lib/animations';
-import styles from './BookOrder.module.css';
+// src/data/games/book-order.ts
 
-interface BookOrderProps {
-  onBack: () => void;
+export interface BookOrderGame {
+  testament: 'old' | 'new';
+  books: string[];
+  shuffled: string[];
+  categories?: Record<string, string[]>;
 }
 
-type GameMode = 'classic' | 'speed' | 'challenge' | 'categories' | 'reorder' | 'memory';
-type Difficulty = 'easy' | 'medium' | 'hard';
+export interface BookCategory {
+  name: string;
+  books: string[];
+  description?: string;
+}
 
-// Valid game modes (exclude placeholder modes)
-const VALID_MODES: GameMode[] = ['classic', 'speed', 'challenge', 'reorder'];
+// ================================================================
+// OLD TESTAMENT BOOKS
+// ================================================================
 
-const BookOrder: React.FC<BookOrderProps> = ({ onBack }) => {
-  // Game State
-  const [testament, setTestament] = useState<'old' | 'new'>('old');
-  const [gameMode, setGameMode] = useState<GameMode>('classic');
-  const [difficulty, setDifficulty] = useState<Difficulty>('medium');
-  const [availableBooks, setAvailableBooks] = useState<string[]>([]);
-  const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
-  const [score, setScore] = useState(0);
-  const [attempts, setAttempts] = useState(0);
-  const [time, setTime] = useState(0);
-  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
-  const [streak, setStreak] = useState(0);
-  const [combo, setCombo] = useState(0);
-  const [bestScore, setBestScore] = useState(0);
-  const [level, setLevel] = useState(1);
-  const [totalCorrect, setTotalCorrect] = useState(0);
-  const [totalWrong, setTotalWrong] = useState(0);
-  const [lives, setLives] = useState(3);
-  const [xpEarned, setXpEarned] = useState(0);
-  const [isWrong, setIsWrong] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
-  const [shuffledBooks, setShuffledBooks] = useState<string[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [hintsRemaining, setHintsRemaining] = useState(3);
-  const [showHint, setShowHint] = useState(false);
-  const [correctAnimation, setCorrectAnimation] = useState(false);
-  const [wrongAnimation, setWrongAnimation] = useState(false);
-  const [showSkipButton, setShowSkipButton] = useState(false);
+export const oldTestamentBooks = [
+  'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy',
+  'Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel',
+  '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles',
+  'Ezra', 'Nehemiah', 'Esther', 'Job', 'Psalms',
+  'Proverbs', 'Ecclesiastes', 'Song of Solomon', 'Isaiah',
+  'Jeremiah', 'Lamentations', 'Ezekiel', 'Daniel', 'Hosea',
+  'Joel', 'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum',
+  'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi'
+];
 
-  const correctOrder = testament === 'old' ? oldTestamentBooks : newTestamentBooks;
-  const maxAttempts = difficulty === 'easy' ? 3 : difficulty === 'medium' ? 2 : 1;
+// ================================================================
+// NEW TESTAMENT BOOKS
+// ================================================================
 
-  // ================================================================
-  // CLEANUP TIMER ON UNMOUNT
-  // ================================================================
-  useEffect(() => {
-    return () => {
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        setTimerInterval(null);
-      }
-    };
-  }, [timerInterval]);
+export const newTestamentBooks = [
+  'Matthew', 'Mark', 'Luke', 'John', 'Acts',
+  'Romans', '1 Corinthians', '2 Corinthians', 'Galatians',
+  'Ephesians', 'Philippians', 'Colossians', '1 Thessalonians',
+  '2 Thessalonians', '1 Timothy', '2 Timothy', 'Titus',
+  'Philemon', 'Hebrews', 'James', '1 Peter', '2 Peter',
+  '1 John', '2 John', '3 John', 'Jude', 'Revelation'
+];
 
-  // ================================================================
-  // GAME FUNCTIONS
-  // ================================================================
+// ================================================================
+// BOOK CATEGORIES
+// ================================================================
 
-  const getGameBooks = useCallback(() => {
-    // For categories mode, we use all books but with category labels
-    if (gameMode === 'categories') {
-      return correctOrder;
-    }
-    return correctOrder;
-  }, [gameMode, correctOrder]);
+export const oldTestamentCategories: BookCategory[] = [
+  {
+    name: 'Law',
+    description: 'The first five books, also known as the Torah or Pentateuch',
+    books: ['Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy']
+  },
+  {
+    name: 'History',
+    description: 'The historical books of Israel',
+    books: ['Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel', '1 Kings', '2 Kings', 
+            '1 Chronicles', '2 Chronicles', 'Ezra', 'Nehemiah', 'Esther']
+  },
+  {
+    name: 'Wisdom & Poetry',
+    description: 'Books of wisdom literature and poetry',
+    books: ['Job', 'Psalms', 'Proverbs', 'Ecclesiastes', 'Song of Solomon']
+  },
+  {
+    name: 'Major Prophets',
+    description: 'The longer prophetic books',
+    books: ['Isaiah', 'Jeremiah', 'Lamentations', 'Ezekiel', 'Daniel']
+  },
+  {
+    name: 'Minor Prophets',
+    description: 'The shorter prophetic books',
+    books: ['Hosea', 'Joel', 'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum',
+            'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi']
+  }
+];
 
-  const startGame = useCallback(() => {
-    const gameBooks = getGameBooks();
-    const shuffled = [...gameBooks].sort(() => Math.random() - 0.5);
-    
-    // Clean up existing timer
-    if (timerInterval) {
-      clearInterval(timerInterval);
-    }
-    
-    setShuffledBooks(shuffled);
-    setAvailableBooks(shuffled);
-    setSelectedBooks([]);
-    setGameStarted(true);
-    setGameOver(false);
-    setScore(0);
-    setAttempts(0);
-    setTime(0);
-    setStreak(0);
-    setCombo(0);
-    setLevel(1);
-    setTotalCorrect(0);
-    setTotalWrong(0);
-    setXpEarned(0);
-    setLives(3);
-    setIsWrong(false);
-    setIsCorrect(false);
-    setSelectedIndex(null);
-    setHintsRemaining(3);
-    setShowHint(false);
-    setCorrectAnimation(false);
-    setWrongAnimation(false);
-    setShowSkipButton(false);
-    setBestScore(gameEngine.getBestScore('book-order'));
-    
-    // Start new timer
-    const interval = setInterval(() => {
-      setTime(prev => {
-        const newTime = prev + 1;
-        // Speed mode: time limit of 60 seconds
-        if (gameMode === 'speed' && newTime >= 60) {
-          setGameOver(true);
-          if (timerInterval) {
-            clearInterval(timerInterval);
-            setTimerInterval(null);
-          }
-        }
-        return newTime;
-      });
-    }, 1000);
-    setTimerInterval(interval);
-  }, [gameMode, getGameBooks, timerInterval]);
+export const newTestamentCategories: BookCategory[] = [
+  {
+    name: 'Gospels',
+    description: 'The four accounts of Jesus\' life and ministry',
+    books: ['Matthew', 'Mark', 'Luke', 'John']
+  },
+  {
+    name: 'History',
+    description: 'The early history of the church',
+    books: ['Acts']
+  },
+  {
+    name: 'Pauline Epistles',
+    description: 'Letters written by the Apostle Paul',
+    books: ['Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians', 
+            'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', 
+            '1 Timothy', '2 Timothy', 'Titus', 'Philemon']
+  },
+  {
+    name: 'General Epistles',
+    description: 'Letters written by various apostles',
+    books: ['Hebrews', 'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John', 'Jude']
+  },
+  {
+    name: 'Prophecy',
+    description: 'The apocalyptic book of Revelation',
+    books: ['Revelation']
+  }
+];
 
-  // ================================================================
-  // HANDLERS - FIXED
-  // ================================================================
+// ================================================================
+// BOOK FACTS & TRIVIA
+// ================================================================
 
-  const handleBookClick = (book: string) => {
-    if (gameOver) return;
-    if (isCorrect || isWrong) return; // Prevent clicks during animation
-    
-    const nextIndex = selectedBooks.length;
-    const correctBook = correctOrder[nextIndex];
-    
-    // If user has used all attempts, show skip option
-    if (attempts >= maxAttempts) {
-      setShowSkipButton(true);
-      return;
-    }
-    
-    if (book === correctBook) {
-      // ✅ CORRECT!
-      setIsWrong(false);
-      setIsCorrect(true);
-      setCorrectAnimation(true);
-      setShowSkipButton(false);
-      
-      // FIXED: Don't remove wrong books, only remove the correct one
-      setSelectedBooks([...selectedBooks, book]);
-      setAvailableBooks(availableBooks.filter(b => b !== book));
-      
-      // FIXED: Use updated streak for XP calculation
-      const newStreak = streak + 1;
-      const points = 10 + (combo * 2) + (gameMode === 'speed' ? 5 : 0);
-      setScore(prev => prev + points);
-      setTotalCorrect(prev => prev + 1);
-      setStreak(newStreak);
-      setCombo(prev => prev + 1);
-      setAttempts(0);
-      setShowHint(false);
-      
-      // FIXED: Use newStreak for XP calculation
-      const baseXP = 15;
-      const streakBonus = Math.min(newStreak * 5, 25);
-      setXpEarned(prev => prev + baseXP + streakBonus);
-      
-      if ((totalCorrect + 1) % 5 === 0 && totalCorrect > 0) {
-        setLevel(prev => prev + 1);
-      }
-      
-      // Clear correct animation after delay
-      setTimeout(() => {
-        setCorrectAnimation(false);
-        setIsCorrect(false);
-      }, 600);
-      
-      // Check if puzzle is complete
-      if (selectedBooks.length + 1 === correctOrder.length) {
-        handleGameComplete();
-      }
-    } else {
-      // ❌ WRONG!
-      setIsWrong(true);
-      setWrongAnimation(true);
-      setAttempts(prev => prev + 1);
-      setTotalWrong(prev => prev + 1);
-      setStreak(0);
-      setCombo(0);
-      
-      // FIXED: Don't remove the book from available list!
-      // Just show the error and increment attempts
-      
-      // Challenge mode: lose a life
-      if (gameMode === 'challenge') {
-        setLives(prev => {
-          const newLives = prev - 1;
-          // FIXED: Check the updated value
-          if (newLives <= 0) {
-            setGameOver(true);
-            if (timerInterval) {
-              clearInterval(timerInterval);
-              setTimerInterval(null);
-            }
-          }
-          return newLives;
-        });
-      }
-      
-      // Check if max attempts reached
-      if (attempts + 1 >= maxAttempts) {
-        setShowSkipButton(true);
-      }
-      
-      // Clear wrong animation after delay
-      setTimeout(() => {
-        setWrongAnimation(false);
-        setIsWrong(false);
-      }, 600);
-    }
-  };
+export interface BookFact {
+  book: string;
+  author?: string;
+  yearWritten?: string;
+  keyVerse?: string;
+  theme?: string;
+  chapters?: number;
+  verses?: number;
+}
 
-  // FIXED: Skip current book if user is stuck
-  const handleSkipBook = () => {
-    if (gameOver) return;
-    
-    const nextIndex = selectedBooks.length;
-    const correctBook = correctOrder[nextIndex];
-    
-    // Add the correct book and move on (but with a penalty)
-    setSelectedBooks([...selectedBooks, correctBook]);
-    setAvailableBooks(availableBooks.filter(b => b !== correctBook));
-    setAttempts(0);
-    setShowSkipButton(false);
-    setScore(prev => Math.max(0, prev - 5)); // Penalty for skipping
-    
-    // Check if puzzle is complete
-    if (selectedBooks.length + 1 === correctOrder.length) {
-      handleGameComplete();
-    }
-  };
+export const bookFacts: Record<string, BookFact> = {
+  // Old Testament
+  'Genesis': {
+    author: 'Moses',
+    yearWritten: '1445-1405 BC',
+    keyVerse: 'Genesis 1:1',
+    theme: 'Beginnings',
+    chapters: 50,
+    verses: 1533
+  },
+  'Exodus': {
+    author: 'Moses',
+    yearWritten: '1445-1405 BC',
+    keyVerse: 'Exodus 20:2-3',
+    theme: 'Redemption',
+    chapters: 40,
+    verses: 1213
+  },
+  'Leviticus': {
+    author: 'Moses',
+    yearWritten: '1445-1405 BC',
+    keyVerse: 'Leviticus 19:2',
+    theme: 'Holiness',
+    chapters: 27,
+    verses: 859
+  },
+  'Numbers': {
+    author: 'Moses',
+    yearWritten: '1445-1405 BC',
+    keyVerse: 'Numbers 6:24-26',
+    theme: 'Wandering',
+    chapters: 36,
+    verses: 1288
+  },
+  'Deuteronomy': {
+    author: 'Moses',
+    yearWritten: '1405 BC',
+    keyVerse: 'Deuteronomy 6:4-5',
+    theme: 'Renewal of the Covenant',
+    chapters: 34,
+    verses: 959
+  },
+  'Joshua': {
+    author: 'Joshua',
+    yearWritten: '1400-1370 BC',
+    keyVerse: 'Joshua 1:9',
+    theme: 'Conquest of Canaan',
+    chapters: 24,
+    verses: 658
+  },
+  'Judges': {
+    author: 'Unknown',
+    yearWritten: '1050-1000 BC',
+    keyVerse: 'Judges 21:25',
+    theme: 'Cycle of Sin and Deliverance',
+    chapters: 21,
+    verses: 618
+  },
+  'Ruth': {
+    author: 'Unknown',
+    yearWritten: '1100-1000 BC',
+    keyVerse: 'Ruth 1:16-17',
+    theme: 'Loyalty and Redemption',
+    chapters: 4,
+    verses: 85
+  },
+  '1 Samuel': {
+    author: 'Unknown',
+    yearWritten: '930-720 BC',
+    keyVerse: '1 Samuel 16:7',
+    theme: 'Rise of the Monarchy',
+    chapters: 31,
+    verses: 810
+  },
+  '2 Samuel': {
+    author: 'Unknown',
+    yearWritten: '930-720 BC',
+    keyVerse: '2 Samuel 7:16',
+    theme: 'David\'s Reign',
+    chapters: 24,
+    verses: 695
+  },
+  '1 Kings': {
+    author: 'Unknown',
+    yearWritten: '560-540 BC',
+    keyVerse: '1 Kings 8:61',
+    theme: 'Divided Kingdom',
+    chapters: 22,
+    verses: 816
+  },
+  '2 Kings': {
+    author: 'Unknown',
+    yearWritten: '560-540 BC',
+    keyVerse: '2 Kings 17:23',
+    theme: 'Fall of Israel and Judah',
+    chapters: 25,
+    verses: 719
+  },
+  '1 Chronicles': {
+    author: 'Ezra',
+    yearWritten: '450-425 BC',
+    keyVerse: '1 Chronicles 16:31',
+    theme: 'David\'s Lineage',
+    chapters: 29,
+    verses: 942
+  },
+  '2 Chronicles': {
+    author: 'Ezra',
+    yearWritten: '450-425 BC',
+    keyVerse: '2 Chronicles 7:14',
+    theme: 'Temple Worship',
+    chapters: 36,
+    verses: 822
+  },
+  'Ezra': {
+    author: 'Ezra',
+    yearWritten: '450-425 BC',
+    keyVerse: 'Ezra 7:10',
+    theme: 'Return from Exile',
+    chapters: 10,
+    verses: 280
+  },
+  'Nehemiah': {
+    author: 'Nehemiah',
+    yearWritten: '445-425 BC',
+    keyVerse: 'Nehemiah 8:10',
+    theme: 'Rebuilding Jerusalem',
+    chapters: 13,
+    verses: 406
+  },
+  'Esther': {
+    author: 'Unknown',
+    yearWritten: '470-450 BC',
+    keyVerse: 'Esther 4:14',
+    theme: 'Divine Providence',
+    chapters: 10,
+    verses: 167
+  },
+  'Job': {
+    author: 'Unknown',
+    yearWritten: '2000-1800 BC',
+    keyVerse: 'Job 19:25',
+    theme: 'Suffering and Faith',
+    chapters: 42,
+    verses: 1070
+  },
+  'Psalms': {
+    author: 'Various (mainly David)',
+    yearWritten: '1440-586 BC',
+    keyVerse: 'Psalm 23:1',
+    theme: 'Worship and Praise',
+    chapters: 150,
+    verses: 2461
+  },
+  'Proverbs': {
+    author: 'Solomon',
+    yearWritten: '950-700 BC',
+    keyVerse: 'Proverbs 1:7',
+    theme: 'Wisdom',
+    chapters: 31,
+    verses: 915
+  },
+  'Ecclesiastes': {
+    author: 'Solomon',
+    yearWritten: '935 BC',
+    keyVerse: 'Ecclesiastes 12:13',
+    theme: 'Meaning of Life',
+    chapters: 12,
+    verses: 222
+  },
+  'Song of Solomon': {
+    author: 'Solomon',
+    yearWritten: '960-931 BC',
+    keyVerse: 'Song 8:7',
+    theme: 'Love and Marriage',
+    chapters: 8,
+    verses: 117
+  },
+  'Isaiah': {
+    author: 'Isaiah',
+    yearWritten: '740-681 BC',
+    keyVerse: 'Isaiah 53:5-6',
+    theme: 'Salvation',
+    chapters: 66,
+    verses: 1292
+  },
+  'Jeremiah': {
+    author: 'Jeremiah',
+    yearWritten: '627-586 BC',
+    keyVerse: 'Jeremiah 29:11',
+    theme: 'Judgment and Hope',
+    chapters: 52,
+    verses: 1364
+  },
+  'Lamentations': {
+    author: 'Jeremiah',
+    yearWritten: '586 BC',
+    keyVerse: 'Lamentations 3:22-23',
+    theme: 'Sorrow and Hope',
+    chapters: 5,
+    verses: 154
+  },
+  'Ezekiel': {
+    author: 'Ezekiel',
+    yearWritten: '593-571 BC',
+    keyVerse: 'Ezekiel 36:26',
+    theme: 'Restoration',
+    chapters: 48,
+    verses: 1273
+  },
+  'Daniel': {
+    author: 'Daniel',
+    yearWritten: '605-536 BC',
+    keyVerse: 'Daniel 2:21',
+    theme: 'God\'s Sovereignty',
+    chapters: 12,
+    verses: 357
+  },
+  'Hosea': {
+    author: 'Hosea',
+    yearWritten: '760-720 BC',
+    keyVerse: 'Hosea 6:6',
+    theme: 'Unfaithfulness and Love',
+    chapters: 14,
+    verses: 197
+  },
+  'Joel': {
+    author: 'Joel',
+    yearWritten: '835-795 BC',
+    keyVerse: 'Joel 2:28-29',
+    theme: 'Day of the Lord',
+    chapters: 3,
+    verses: 73
+  },
+  'Amos': {
+    author: 'Amos',
+    yearWritten: '760-750 BC',
+    keyVerse: 'Amos 5:24',
+    theme: 'Social Justice',
+    chapters: 9,
+    verses: 146
+  },
+  'Obadiah': {
+    author: 'Obadiah',
+    yearWritten: '848-841 BC',
+    keyVerse: 'Obadiah 1:15',
+    theme: 'Judgment on Edom',
+    chapters: 1,
+    verses: 21
+  },
+  'Jonah': {
+    author: 'Jonah',
+    yearWritten: '793-753 BC',
+    keyVerse: 'Jonah 2:9',
+    theme: 'God\'s Mercy',
+    chapters: 4,
+    verses: 48
+  },
+  'Micah': {
+    author: 'Micah',
+    yearWritten: '740-700 BC',
+    keyVerse: 'Micah 6:8',
+    theme: 'Justice and Mercy',
+    chapters: 7,
+    verses: 105
+  },
+  'Nahum': {
+    author: 'Nahum',
+    yearWritten: '663-654 BC',
+    keyVerse: 'Nahum 1:7',
+    theme: 'Judgment on Nineveh',
+    chapters: 3,
+    verses: 47
+  },
+  'Habakkuk': {
+    author: 'Habakkuk',
+    yearWritten: '605-597 BC',
+    keyVerse: 'Habakkuk 2:4',
+    theme: 'Living by Faith',
+    chapters: 3,
+    verses: 56
+  },
+  'Zephaniah': {
+    author: 'Zephaniah',
+    yearWritten: '640-621 BC',
+    keyVerse: 'Zephaniah 3:17',
+    theme: 'Day of Judgment',
+    chapters: 3,
+    verses: 53
+  },
+  'Haggai': {
+    author: 'Haggai',
+    yearWritten: '520 BC',
+    keyVerse: 'Haggai 2:9',
+    theme: 'Rebuilding the Temple',
+    chapters: 2,
+    verses: 38
+  },
+  'Zechariah': {
+    author: 'Zechariah',
+    yearWritten: '520-518 BC',
+    keyVerse: 'Zechariah 4:6',
+    theme: 'Messianic Prophecy',
+    chapters: 14,
+    verses: 211
+  },
+  'Malachi': {
+    author: 'Malachi',
+    yearWritten: '435-425 BC',
+    keyVerse: 'Malachi 3:10',
+    theme: 'Covenant Faithfulness',
+    chapters: 4,
+    verses: 55
+  },
 
-  const handleGameComplete = () => {
-    setGameOver(true);
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      setTimerInterval(null);
-    }
-    const bonus = Math.max(0, 100 - time);
-    setScore(prev => prev + bonus);
-    gameEngine.recordAnswer('book-order', true, testament === 'old' ? 'old-testament' : 'new-testament');
-    if (score > bestScore) setBestScore(score);
-  };
-
-  const handleReorderClick = (index: number) => {
-    if (gameOver) return;
-    
-    if (selectedIndex === null) {
-      setSelectedIndex(index);
-    } else {
-      const newShuffled = [...shuffledBooks];
-      const temp = newShuffled[selectedIndex];
-      newShuffled[selectedIndex] = newShuffled[index];
-      newShuffled[index] = temp;
-      setShuffledBooks(newShuffled);
-      setSelectedIndex(null);
-      
-      // Check if the order is now correct
-      const isCorrect = newShuffled.every((book, i) => book === correctOrder[i]);
-      if (isCorrect) {
-        setGameOver(true);
-        if (timerInterval) {
-          clearInterval(timerInterval);
-          setTimerInterval(null);
-        }
-        const points = 100 - (time * 2);
-        setScore(Math.max(points, 10));
-        gameEngine.recordAnswer('book-order', true, testament === 'old' ? 'old-testament' : 'new-testament');
-        if (score > bestScore) setBestScore(score);
-      }
-    }
-  };
-
-  // FIXED: Better hint system - more cryptic
-  const useHint = () => {
-    if (hintsRemaining > 0 && !gameOver) {
-      setShowHint(true);
-      setHintsRemaining(prev => prev - 1);
-    }
-  };
-
-  const getHintForBook = (bookName: string): string => {
-    const index = correctOrder.indexOf(bookName);
-    const total = correctOrder.length;
-    const position = index + 1;
-    
-    const hints = [
-      `This book is in the ${position <= total / 3 ? 'first' : position <= total * 2 / 3 ? 'middle' : 'last'} part of the ${testament === 'old' ? 'Old' : 'New'} Testament`,
-      `There are ${total - position} books after this one`,
-      `This book is ${position} of ${total} in the ${testament === 'old' ? 'Old' : 'New'} Testament`,
-    ];
-    
-    return hints[Math.floor(Math.random() * hints.length)];
-  };
-
-  const getTimeString = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // ================================================================
-  // RENDER FUNCTIONS
-  // ================================================================
-
-  // FIXED: Categories mode - show books grouped with their categories
-  const renderCategoriesMode = () => {
-    const categoryData = getCategoryGroups();
-    
-    return (
-      <div className={styles.gameCard}>
-        <div className={styles.gameHeader}>
-          <div>
-            <span className={styles.gameModeLabel}>
-              <Layers size={16} />
-              Categories
-            </span>
-            <span className={styles.gameProgress}>
-              Learn how books are grouped
-            </span>
-          </div>
-          <div className={styles.gameStats}>
-            <span className={styles.gameScore}>
-              <Trophy size={14} />
-              {score}
-            </span>
-            <span className={styles.gameTime}>
-              <Clock size={14} />
-              {getTimeString(time)}
-            </span>
-          </div>
-        </div>
-
-        <div className={styles.categoryGrid}>
-          {Object.entries(categoryData).map(([category, books]) => (
-            <div key={category} className={styles.categoryGroup}>
-              <h4 className={styles.categoryTitle}>{category}</h4>
-              <div className={styles.categoryBooks}>
-                {books.map(book => (
-                  <span key={book} className={styles.categoryBook}>
-                    {book}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        <div className={styles.categoriesHint}>
-          <p>📖 {Object.keys(categoryData).length} categories • {correctOrder.length} books total</p>
-          <button className={styles.startBtn} onClick={startGame}>
-            <Target size={16} /> Try Classic Mode
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  const getCategoryGroups = () => {
-    if (testament === 'old') {
-      return {
-        'Law (5)': ['Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy'],
-        'History (12)': ['Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel', '1 Kings', '2 Kings', 
-                    '1 Chronicles', '2 Chronicles', 'Ezra', 'Nehemiah', 'Esther'],
-        'Wisdom (5)': ['Job', 'Psalms', 'Proverbs', 'Ecclesiastes', 'Song of Solomon'],
-        'Prophets (17)': ['Isaiah', 'Jeremiah', 'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel', 
-                     'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum', 'Habakkuk', 'Zephaniah', 
-                     'Haggai', 'Zechariah', 'Malachi']
-      };
-    } else {
-      return {
-        'Gospels (4)': ['Matthew', 'Mark', 'Luke', 'John'],
-        'History (1)': ['Acts'],
-        'Pauline (13)': ['Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians', 
-                    'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', 
-                    '1 Timothy', '2 Timothy', 'Titus', 'Philemon'],
-        'General (8)': ['Hebrews', 'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John', 'Jude'],
-        'Prophecy (1)': ['Revelation']
-      };
-    }
-  };
-
-  const renderReorderMode = () => {
-    return (
-      <div className={styles.gameCard}>
-        <div className={styles.gameHeader}>
-          <div>
-            <span className={styles.gameModeLabel}>
-              <Shuffle size={16} />
-              Reorder
-            </span>
-            <span className={styles.gameProgress}>
-              Swap books to correct order
-            </span>
-          </div>
-          <div className={styles.gameStats}>
-            <span className={styles.gameScore}>
-              <Trophy size={14} />
-              {score}
-            </span>
-            <span className={styles.gameTime}>
-              <Clock size={14} />
-              {getTimeString(time)}
-            </span>
-          </div>
-        </div>
-
-        <div className={styles.reorderGrid}>
-          {shuffledBooks.map((book, index) => {
-            const isCorrectPosition = book === correctOrder[index];
-            return (
-              <motion.button
-                key={book + index}
-                className={`${styles.reorderBook} ${selectedIndex === index ? styles.selected : ''} ${isCorrectPosition ? styles.correctPosition : ''}`}
-                onClick={() => handleReorderClick(index)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {book}
-                {selectedIndex === index && ' 👆'}
-                {isCorrectPosition && ' ✅'}
-              </motion.button>
-            );
-          })}
-        </div>
-
-        <div className={styles.reorderHint}>
-          {selectedIndex === null ? 'Click a book to select, then click another to swap' : 'Click another book to swap'}
-        </div>
-        
-        {shuffledBooks.some((book, i) => book === correctOrder[i]) && (
-          <div className={styles.reorderProgress}>
-            {shuffledBooks.filter((book, i) => book === correctOrder[i]).length} / {correctOrder.length} in correct position
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  // ================================================================
-  // START SCREEN
-  // ================================================================
-
-  const renderStartScreen = () => {
-    // Filter out placeholder modes
-    const availableModes = [
-      { id: 'classic' as GameMode, label: 'Classic', icon: <Target size={20} />, desc: 'Place books in order' },
-      { id: 'speed' as GameMode, label: 'Speed', icon: <Clock size={20} />, desc: 'Race against time' },
-      { id: 'challenge' as GameMode, label: 'Challenge', icon: <Flame size={20} />, desc: '3 lives' },
-      { id: 'categories' as GameMode, label: 'Categories', icon: <Layers size={20} />, desc: 'Learn by category' },
-      { id: 'reorder' as GameMode, label: 'Reorder', icon: <Shuffle size={20} />, desc: 'Swap to correct order' },
-    ];
-
-    return (
-      <motion.div 
-        className={styles.startCard}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: TIMING.NORMAL / 1000 }}
-      >
-        <div className={styles.startIcon}>
-          <BookOpen size={48} strokeWidth={1.5} />
-        </div>
-        <h2 className={styles.startTitle}>Book Order</h2>
-        <p className={styles.startSubtitle}>Master the order of the Bible books</p>
-
-        <div className={styles.startSection}>
-          <span className={styles.startLabel}>Testament</span>
-          <div className={styles.chipGroup}>
-            {getTestaments().map((t) => (
-              <button
-                key={t.value}
-                className={`${styles.chip} ${testament === t.value ? styles.active : ''}`}
-                onClick={() => setTestament(t.value)}
-              >
-                {t.label}
-                <span className={styles.chipCount}>{t.count}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.startSection}>
-          <span className={styles.startLabel}>Game Mode</span>
-          <div className={styles.modeGrid}>
-            {availableModes.map((mode) => (
-              <button
-                key={mode.id}
-                className={`${styles.modeChip} ${gameMode === mode.id ? styles.active : ''}`}
-                onClick={() => setGameMode(mode.id)}
-              >
-                <span className={styles.modeIcon}>{mode.icon}</span>
-                <span className={styles.modeLabel}>{mode.label}</span>
-                <span className={styles.modeDesc}>{mode.desc}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {gameMode !== 'categories' && (
-          <div className={styles.startSection}>
-            <span className={styles.startLabel}>Difficulty</span>
-            <div className={styles.chipGroup}>
-              {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (
-                <button
-                  key={d}
-                  className={`${styles.chip} ${difficulty === d ? styles.active : ''}`}
-                  onClick={() => setDifficulty(d)}
-                >
-                  {d.charAt(0).toUpperCase() + d.slice(1)}
-                  <span className={styles.chipCount}>
-                    {d === 'easy' ? '3 tries' : d === 'medium' ? '2 tries' : '1 try'}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <motion.button
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.98 }}
-          className={styles.startBtn}
-          onClick={startGame}
-        >
-          {gameMode === 'categories' ? 'Learn Categories' : 'Begin Mission'}
-          <ChevronRight size={18} />
-        </motion.button>
-      </motion.div>
-    );
-  };
-
-  // ================================================================
-  // GAME OVER SCREEN
-  // ================================================================
-
-  const renderGameOver = () => {
-    const isWin = totalCorrect > totalWrong || selectedBooks.length === correctOrder.length;
-    const percentage = totalCorrect + totalWrong > 0 
-      ? Math.round((totalCorrect / (totalCorrect + totalWrong)) * 100) 
-      : 0;
-    const isNewBest = score >= bestScore && score > 0;
-    
-    return (
-      <motion.div 
-        className={styles.resultsCard}
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: TIMING.NORMAL / 1000 }}
-      >
-        <motion.span 
-          className={styles.resultsEmoji}
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}
-        >
-          {isWin ? '🏆' : '💪'}
-        </motion.span>
-
-        <h2 className={styles.resultsTitle}>
-          {isWin ? 'Mission Complete!' : 'Keep Practicing'}
-        </h2>
-        {isWin && (
-          <p className={styles.resultsSubtitle}>
-            Completed in {getTimeString(time)}
-          </p>
-        )}
-
-        {isNewBest && (
-          <motion.div 
-            className={styles.newBest}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Star size={14} />
-            New Best Score!
-          </motion.div>
-        )}
-
-        <div className={styles.resultsStats}>
-          <div className={styles.resultsStat}>
-            <span className={styles.resultsStatValue}>{score}</span>
-            <span className={styles.resultsStatLabel}>Score</span>
-          </div>
-          <div className={styles.resultsStat}>
-            <span className={styles.resultsStatValue}>{totalCorrect}</span>
-            <span className={styles.resultsStatLabel}>Correct</span>
-          </div>
-          <div className={styles.resultsStat}>
-            <span className={styles.resultsStatValue}>{totalWrong}</span>
-            <span className={styles.resultsStatLabel}>Wrong</span>
-          </div>
-          <div className={styles.resultsStat}>
-            <span className={styles.resultsStatValue}>{percentage}%</span>
-            <span className={styles.resultsStatLabel}>Accuracy</span>
-          </div>
-        </div>
-
-        <motion.div 
-          className={styles.xpEarned}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          <span className={styles.xpEmoji}>✨</span>
-          <span className={styles.xpValue}>+{xpEarned} XP</span>
-        </motion.div>
-
-        <div className={styles.resultsButtons}>
-          <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.98 }}
-            className={styles.primary}
-            onClick={startGame}
-          >
-            Train Again
-          </motion.button>
-          <div className={styles.resultsSecondaryGroup}>
-            <motion.button
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
-              className={styles.secondary}
-              onClick={() => {
-                setGameStarted(false);
-                setGameOver(false);
-              }}
-            >
-              Change Mode
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
-              className={styles.secondary}
-              onClick={onBack}
-            >
-              Menu
-            </motion.button>
-          </div>
-        </div>
-      </motion.div>
-    );
-  };
-
-  // ================================================================
-  // ACTIVE GAME
-  // ================================================================
-
-  const renderActiveGame = () => {
-    // Render different modes
-    if (gameMode === 'categories') return renderCategoriesMode();
-    if (gameMode === 'reorder') return renderReorderMode();
-
-    // Classic, Speed, Challenge modes
-    const progress = (selectedBooks.length / correctOrder.length) * 100;
-    const nextBookName = correctOrder[selectedBooks.length];
-    const hintText = nextBookName ? getHintForBook(nextBookName) : '';
-
-    return (
-      <div className={styles.gameCard}>
-        <div className={styles.gameHeader}>
-          <div>
-            <span className={styles.gameModeLabel}>
-              {gameMode === 'classic' && <Target size={16} />}
-              {gameMode === 'speed' && <Clock size={16} />}
-              {gameMode === 'challenge' && <Flame size={16} />}
-              {gameMode.charAt(0).toUpperCase() + gameMode.slice(1)}
-            </span>
-            <span className={styles.gameProgress}>
-              Level {level} • {selectedBooks.length} of {correctOrder.length}
-            </span>
-          </div>
-          <div className={styles.gameStats}>
-            <span className={styles.gameScore}>
-              <Trophy size={14} />
-              {score}
-            </span>
-            <span className={styles.gameTime}>
-              <Clock size={14} />
-              {getTimeString(time)}
-            </span>
-            {gameMode === 'challenge' && (
-              <span className={styles.gameLives}>
-                <Heart size={14} />
-                {lives}
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className={styles.progressTrack}>
-          <motion.div 
-            className={styles.progressFill}
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: TIMING.LARGE / 1000 }}
-          />
-        </div>
-
-        <div className={styles.statsBar}>
-          <span><Flame size={12} /> Streak: {streak}</span>
-          <span><Zap size={12} /> Combo: {combo}x</span>
-          {gameMode === 'speed' && (
-            <span><Clock size={12} /> {Math.max(0, 60 - time)}s left</span>
-          )}
-          <span><Target size={12} /> {attempts}/{maxAttempts} tries</span>
-          {hintsRemaining > 0 && (
-            <span><Lightbulb size={12} /> {hintsRemaining} hints</span>
-          )}
-        </div>
-
-        <div className={styles.targetBox}>
-          <div className={styles.targetContent}>
-            <div>
-              <p className={styles.targetLabel}>
-                {selectedBooks.length === 0 
-                  ? 'Start by placing the first book' 
-                  : `Place the next book in order`}
-              </p>
-              {showHint && nextBookName && (
-                <p className={styles.hintText}>
-                  <Lightbulb size={14} />
-                  💡 {hintText}
-                </p>
-              )}
-            </div>
-            <div className={styles.targetActions}>
-              {hintsRemaining > 0 && !showHint && (
-                <button
-                  onClick={useHint}
-                  className={styles.hintBtn}
-                >
-                  <Lightbulb size={14} />
-                  Hint ({hintsRemaining})
-                </button>
-              )}
-              {showSkipButton && (
-                <button
-                  onClick={handleSkipBook}
-                  className={styles.skipBtn}
-                >
-                  Skip (-5 pts)
-                </button>
-              )}
-            </div>
-          </div>
-          {isWrong && !wrongAnimation && (
-            <p className={styles.attemptsWarning}>
-              Wrong! {maxAttempts - attempts} tries remaining
-            </p>
-          )}
-          {correctAnimation && (
-            <p className={styles.correctFeedback}>
-              <CheckCircle size={14} /> Correct! +{10 + (combo * 2)} pts
-            </p>
-          )}
-          {wrongAnimation && (
-            <p className={styles.wrongFeedback}>
-              <XCircle size={14} /> Wrong! Try again
-            </p>
-          )}
-        </div>
-
-        <div className={styles.booksGrid}>
-          {availableBooks.map((book) => (
-            <motion.button
-              key={book}
-              className={`${styles.bookBtn} ${wrongAnimation && book === correctOrder[selectedBooks.length] ? styles.highlightCorrect : ''}`}
-              onClick={() => handleBookClick(book)}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.95 }}
-              disabled={isCorrect || isWrong}
-            >
-              {book}
-            </motion.button>
-          ))}
-        </div>
-
-        <div className={styles.bottomStats}>
-          <span>Placed: {selectedBooks.length}</span>
-          <span>Remaining: {availableBooks.length}</span>
-          <span>
-            Accuracy: {totalCorrect + totalWrong > 0 
-              ? Math.round((totalCorrect / (totalCorrect + totalWrong)) * 100) 
-              : 0}%
-          </span>
-        </div>
-      </div>
-    );
-  };
-
-  // ================================================================
-  // MAIN RENDER
-  // ================================================================
-
-  return (
-    <div className={styles.container}>
-      <div className={styles.ambientGlow} />
-      
-      <div className={styles.content}>
-        <button className={styles.backBtn} onClick={onBack}>
-          <ArrowLeft size={18} />
-          <span>Back</span>
-        </button>
-
-        {!gameStarted && renderStartScreen()}
-        {gameStarted && !gameOver && renderActiveGame()}
-        {gameOver && renderGameOver()}
-      </div>
-    </div>
-  );
+  // New Testament
+  'Matthew': {
+    author: 'Matthew',
+    yearWritten: '60-65 AD',
+    keyVerse: 'Matthew 28:19-20',
+    theme: 'Jesus as King',
+    chapters: 28,
+    verses: 1071
+  },
+  'Mark': {
+    author: 'John Mark',
+    yearWritten: '55-65 AD',
+    keyVerse: 'Mark 10:45',
+    theme: 'Jesus as Servant',
+    chapters: 16,
+    verses: 678
+  },
+  'Luke': {
+    author: 'Luke',
+    yearWritten: '60-62 AD',
+    keyVerse: 'Luke 19:10',
+    theme: 'Jesus as Man',
+    chapters: 24,
+    verses: 1151
+  },
+  'John': {
+    author: 'John',
+    yearWritten: '85-95 AD',
+    keyVerse: 'John 3:16',
+    theme: 'Jesus as God',
+    chapters: 21,
+    verses: 879
+  },
+  'Acts': {
+    author: 'Luke',
+    yearWritten: '62-64 AD',
+    keyVerse: 'Acts 1:8',
+    theme: 'Birth of the Church',
+    chapters: 28,
+    verses: 1007
+  },
+  'Romans': {
+    author: 'Paul',
+    yearWritten: '56 AD',
+    keyVerse: 'Romans 3:23-24',
+    theme: 'Justification by Faith',
+    chapters: 16,
+    verses: 433
+  },
+  '1 Corinthians': {
+    author: 'Paul',
+    yearWritten: '55 AD',
+    keyVerse: '1 Corinthians 13:13',
+    theme: 'Church Problems and Solutions',
+    chapters: 16,
+    verses: 437
+  },
+  '2 Corinthians': {
+    author: 'Paul',
+    yearWritten: '55-56 AD',
+    keyVerse: '2 Corinthians 5:17',
+    theme: 'Apostolic Ministry',
+    chapters: 13,
+    verses: 256
+  },
+  'Galatians': {
+    author: 'Paul',
+    yearWritten: '49 AD',
+    keyVerse: 'Galatians 2:20',
+    theme: 'Freedom in Christ',
+    chapters: 6,
+    verses: 149
+  },
+  'Ephesians': {
+    author: 'Paul',
+    yearWritten: '60-62 AD',
+    keyVerse: 'Ephesians 2:8-9',
+    theme: 'The Church',
+    chapters: 6,
+    verses: 155
+  },
+  'Philippians': {
+    author: 'Paul',
+    yearWritten: '60-62 AD',
+    keyVerse: 'Philippians 4:13',
+    theme: 'Joy in Christ',
+    chapters: 4,
+    verses: 104
+  },
+  'Colossians': {
+    author: 'Paul',
+    yearWritten: '60-62 AD',
+    keyVerse: 'Colossians 3:2',
+    theme: 'Supremacy of Christ',
+    chapters: 4,
+    verses: 95
+  },
+  '1 Thessalonians': {
+    author: 'Paul',
+    yearWritten: '51 AD',
+    keyVerse: '1 Thessalonians 4:16-17',
+    theme: 'Second Coming',
+    chapters: 5,
+    verses: 89
+  },
+  '2 Thessalonians': {
+    author: 'Paul',
+    yearWritten: '51-52 AD',
+    keyVerse: '2 Thessalonians 3:13',
+    theme: 'Perseverance',
+    chapters: 3,
+    verses: 47
+  },
+  '1 Timothy': {
+    author: 'Paul',
+    yearWritten: '63-66 AD',
+    keyVerse: '1 Timothy 4:12',
+    theme: 'Church Leadership',
+    chapters: 6,
+    verses: 113
+  },
+  '2 Timothy': {
+    author: 'Paul',
+    yearWritten: '66-67 AD',
+    keyVerse: '2 Timothy 4:7-8',
+    theme: 'Faithfulness',
+    chapters: 4,
+    verses: 83
+  },
+  'Titus': {
+    author: 'Paul',
+    yearWritten: '63-66 AD',
+    keyVerse: 'Titus 2:11-12',
+    theme: 'Good Works',
+    chapters: 3,
+    verses: 46
+  },
+  'Philemon': {
+    author: 'Paul',
+    yearWritten: '60-62 AD',
+    keyVerse: 'Philemon 1:6',
+    theme: 'Forgiveness',
+    chapters: 1,
+    verses: 25
+  },
+  'Hebrews': {
+    author: 'Unknown',
+    yearWritten: '64-68 AD',
+    keyVerse: 'Hebrews 11:1',
+    theme: 'Superiority of Christ',
+    chapters: 13,
+    verses: 303
+  },
+  'James': {
+    author: 'James',
+    yearWritten: '44-49 AD',
+    keyVerse: 'James 2:26',
+    theme: 'Faith in Action',
+    chapters: 5,
+    verses: 108
+  },
+  '1 Peter': {
+    author: 'Peter',
+    yearWritten: '63-64 AD',
+    keyVerse: '1 Peter 5:7',
+    theme: 'Suffering and Hope',
+    chapters: 5,
+    verses: 105
+  },
+  '2 Peter': {
+    author: 'Peter',
+    yearWritten: '65-68 AD',
+    keyVerse: '2 Peter 3:9',
+    theme: 'Spiritual Growth',
+    chapters: 3,
+    verses: 61
+  },
+  '1 John': {
+    author: 'John',
+    yearWritten: '90 AD',
+    keyVerse: '1 John 4:8',
+    theme: 'Love and Fellowship',
+    chapters: 5,
+    verses: 105
+  },
+  '2 John': {
+    author: 'John',
+    yearWritten: '90 AD',
+    keyVerse: '2 John 1:6',
+    theme: 'Truth and Love',
+    chapters: 1,
+    verses: 13
+  },
+  '3 John': {
+    author: 'John',
+    yearWritten: '90 AD',
+    keyVerse: '3 John 1:4',
+    theme: 'Hospitality',
+    chapters: 1,
+    verses: 14
+  },
+  'Jude': {
+    author: 'Jude',
+    yearWritten: '65-80 AD',
+    keyVerse: 'Jude 1:24-25',
+    theme: 'Contending for the Faith',
+    chapters: 1,
+    verses: 25
+  },
+  'Revelation': {
+    author: 'John',
+    yearWritten: '95 AD',
+    keyVerse: 'Revelation 1:8',
+    theme: 'The End Times',
+    chapters: 22,
+    verses: 404
+  }
 };
 
-export default BookOrder;
+// ================================================================
+// BOOK PAIRS FOR MEMORY GAME
+// ================================================================
+
+export interface BookPair {
+  pairId: string;
+  book1: string;
+  book2: string;
+  category?: string;
+}
+
+export const getBookPairs = (testament: 'old' | 'new'): BookPair[] => {
+  const books = testament === 'old' ? oldTestamentBooks : newTestamentBooks;
+  const pairs: BookPair[] = [];
+  
+  // Create pairs of books with similar themes or categories
+  for (let i = 0; i < books.length - 1; i += 2) {
+    pairs.push({
+      pairId: `pair-${i}`,
+      book1: books[i],
+      book2: books[i + 1],
+      category: 'mixed'
+    });
+  }
+  
+  return pairs;
+};
+
+// ================================================================
+// CORE GAME FUNCTIONS
+// ================================================================
+
+export interface BookOrderGame {
+  testament: 'old' | 'new';
+  books: string[];
+  shuffled: string[];
+}
+
+export const getBookOrderGame = (testament: 'old' | 'new'): BookOrderGame => {
+  const books = testament === 'old' ? oldTestamentBooks : newTestamentBooks;
+  const shuffled = [...books].sort(() => Math.random() - 0.5);
+  return { testament, books, shuffled };
+};
+
+export const getTestaments = () => [
+  { value: 'old' as const, label: 'Old Testament', count: oldTestamentBooks.length },
+  { value: 'new' as const, label: 'New Testament', count: newTestamentBooks.length }
+];
+
+// ================================================================
+// CATEGORY FUNCTIONS
+// ================================================================
+
+export const getCategories = (testament: 'old' | 'new'): BookCategory[] => {
+  return testament === 'old' ? oldTestamentCategories : newTestamentCategories;
+};
+
+export const getCategoryForBook = (book: string, testament: 'old' | 'new'): string | undefined => {
+  const categories = getCategories(testament);
+  for (const category of categories) {
+    if (category.books.includes(book)) {
+      return category.name;
+    }
+  }
+  return undefined;
+};
+
+export const getBooksInCategory = (categoryName: string, testament: 'old' | 'new'): string[] => {
+  const categories = getCategories(testament);
+  const category = categories.find(c => c.name === categoryName);
+  return category ? category.books : [];
+};
+
+// ================================================================
+// BOOK FACT FUNCTIONS
+// ================================================================
+
+export const getBookFact = (book: string): BookFact | undefined => {
+  return bookFacts[book];
+};
+
+export const getBookKeyVerse = (book: string): string | undefined => {
+  return bookFacts[book]?.keyVerse;
+};
+
+export const getBookTheme = (book: string): string | undefined => {
+  return bookFacts[book]?.theme;
+};
+
+export const getBookAuthor = (book: string): string | undefined => {
+  return bookFacts[book]?.author;
+};
+
+// ================================================================
+// STATISTICS FUNCTIONS
+// ================================================================
+
+export const getBookOrderStats = () => ({
+  totalOldTestament: oldTestamentBooks.length,
+  totalNewTestament: newTestamentBooks.length,
+  totalBooks: oldTestamentBooks.length + newTestamentBooks.length,
+  oldTestamentCategories: oldTestamentCategories.length,
+  newTestamentCategories: newTestamentCategories.length,
+  totalCategories: oldTestamentCategories.length + newTestamentCategories.length
+});
+
+// ================================================================
+// SEARCH & UTILITY FUNCTIONS
+// ================================================================
+
+export const searchBooks = (query: string, testament?: 'old' | 'new'): string[] => {
+  const books = testament === 'old' ? oldTestamentBooks : 
+                testament === 'new' ? newTestamentBooks : 
+                [...oldTestamentBooks, ...newTestamentBooks];
+  
+  const lowerQuery = query.toLowerCase();
+  return books.filter(book => book.toLowerCase().includes(lowerQuery));
+};
+
+export const getBookIndex = (book: string, testament: 'old' | 'new'): number => {
+  const books = testament === 'old' ? oldTestamentBooks : newTestamentBooks;
+  return books.indexOf(book);
+};
+
+export const isBookInTestament = (book: string, testament: 'old' | 'new'): boolean => {
+  const books = testament === 'old' ? oldTestamentBooks : newTestamentBooks;
+  return books.includes(book);
+};
+
+export const getRandomBooks = (count: number = 5, testament?: 'old' | 'new'): string[] => {
+  const books = testament === 'old' ? oldTestamentBooks : 
+                testament === 'new' ? newTestamentBooks : 
+                [...oldTestamentBooks, ...newTestamentBooks];
+  
+  const shuffled = [...books].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, Math.min(count, shuffled.length));
+};
