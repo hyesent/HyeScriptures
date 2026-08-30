@@ -43,6 +43,8 @@ import {
   getJourneyProgress,
   getTotalLocations,
   getLocationByIndex,
+  getJourneyTotalQuestions,
+  getJourneyDifficulty,
   type Journey,
   type JourneyLocation,
   type JourneyQuestion
@@ -199,6 +201,7 @@ const MissionaryJourney: React.FC<MissionaryJourneyProps> = ({ onBack }) => {
   const [journeyId, setJourneyId] = useState<string>('first-journey')
   const [allJourneys, setAllJourneys] = useState<Journey[]>([])
   const [showJourneySelect, setShowJourneySelect] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   
   // Game State
   const [currentLocationIndex, setCurrentLocationIndex] = useState(0)
@@ -227,8 +230,6 @@ const MissionaryJourney: React.FC<MissionaryJourneyProps> = ({ onBack }) => {
   const [startTime, setStartTime] = useState<Date | null>(null)
   const [elapsedTime, setElapsedTime] = useState(0)
   const [isTimeRunning, setIsTimeRunning] = useState(false)
-  const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
-  const [shuffledQuestions, setShuffledQuestions] = useState<JourneyQuestion[]>([])
   
   // Timer ref
   const timerRef = useRef<NodeJS.Timeout | null>(null)
@@ -303,7 +304,7 @@ const MissionaryJourney: React.FC<MissionaryJourneyProps> = ({ onBack }) => {
 
   // Save progress to localStorage
   useEffect(() => {
-    if (gameStarted && journey) {
+    if (gameStarted && journey && !journeyComplete) {
       const progressData = {
         journeyId: journey.id,
         locationIndex: currentLocationIndex,
@@ -349,6 +350,7 @@ const MissionaryJourney: React.FC<MissionaryJourneyProps> = ({ onBack }) => {
   }, [journey])
 
   const startGame = () => {
+    setIsLoading(true)
     setGameStarted(true)
     setCurrentLocationIndex(0)
     setCurrentQuestionIndex(0)
@@ -368,22 +370,10 @@ const MissionaryJourney: React.FC<MissionaryJourneyProps> = ({ onBack }) => {
     setElapsedTime(0)
     setReviewQuestions([])
     setIsReviewMode(false)
+    setCompletionBadges([])
     setBestScore(gameEngine.getBestScore('missionary-journey'))
     
-    // Shuffle questions within each location for variety
-    const shuffled = journey?.locations.map(loc => ({
-      ...loc,
-      questions: [...loc.questions].sort(() => Math.random() - 0.5)
-    })) || []
-    
-    // Update journey with shuffled questions
-    if (journey) {
-      const updatedJourney = {
-        ...journey,
-        locations: shuffled
-      }
-      // We need to handle this differently - for now we'll shuffle on the fly
-    }
+    setTimeout(() => setIsLoading(false), 300)
   }
 
   const continueGame = () => {
@@ -488,7 +478,8 @@ const MissionaryJourney: React.FC<MissionaryJourneyProps> = ({ onBack }) => {
         
         // Check for badges
         const badges: string[] = []
-        if (correctAnswers >= totalQuestionsAnswered * 0.9) badges.push('🏆 Scholar')
+        const totalQuestions = journey?.totalQuestions || 0
+        if (totalQuestions > 0 && correctAnswers >= totalQuestions * 0.9) badges.push('🏆 Scholar')
         if (bestStreak >= 5) badges.push('🔥 Hot Streak')
         if (totalWrong === 0) badges.push('💯 Perfect')
         if (elapsedTime < 120) badges.push('⚡ Speed Runner')
@@ -512,6 +503,7 @@ const MissionaryJourney: React.FC<MissionaryJourneyProps> = ({ onBack }) => {
   }
 
   const selectJourney = (id: string) => {
+    setIsLoading(true)
     setJourneyId(id)
     setShowJourneySelect(false)
     // Reset game state for new journey
@@ -531,6 +523,10 @@ const MissionaryJourney: React.FC<MissionaryJourneyProps> = ({ onBack }) => {
     setSelectedAnswer(null)
     setShowExplanation(false)
     setHintsRemaining(3)
+    setCompletionBadges([])
+    setPathProgress(0)
+    
+    setTimeout(() => setIsLoading(false), 300)
   }
 
   const toggleReviewMode = () => {
@@ -603,7 +599,7 @@ const MissionaryJourney: React.FC<MissionaryJourneyProps> = ({ onBack }) => {
               </div>
               <div className={styles.startStat}>
                 <span className={styles.startStatValue}>
-                  {journey?.locations.reduce((sum, loc) => sum + loc.questions.length, 0)}
+                  {journey?.totalQuestions || journey?.locations.reduce((sum, loc) => sum + loc.questions.length, 0) || 0}
                 </span>
                 <span className={styles.startStatLabel}><BookOpen size={12} /> Questions</span>
               </div>
@@ -614,6 +610,16 @@ const MissionaryJourney: React.FC<MissionaryJourneyProps> = ({ onBack }) => {
                 <span className={styles.startStatLabel}><MapIcons.Distance size={12} /> Miles</span>
               </div>
             </div>
+
+            {/* Difficulty Badge */}
+            {journey && (
+              <div className={styles.startDifficulty}>
+                <span className={`${styles.difficultyBadge} ${styles[getJourneyDifficulty(journey.id)]}`}>
+                  {getJourneyDifficulty(journey.id).charAt(0).toUpperCase() + getJourneyDifficulty(journey.id).slice(1)}
+                </span>
+                <span className={styles.difficultyLabel}>Difficulty</span>
+              </div>
+            )}
 
             {/* Key People */}
             {journey?.keyPeople && journey.keyPeople.length > 0 && (
@@ -636,9 +642,16 @@ const MissionaryJourney: React.FC<MissionaryJourneyProps> = ({ onBack }) => {
                 whileTap={{ scale: 0.98 }}
                 className={styles.startBtn}
                 onClick={startGame}
+                disabled={isLoading}
               >
-                <Play size={18} />
-                Begin Journey
+                {isLoading ? (
+                  <Loader2 size={18} className={styles.spinning} />
+                ) : (
+                  <>
+                    <Play size={18} />
+                    Begin Journey
+                  </>
+                )}
               </motion.button>
               
               {localStorage.getItem(`missionary-journey-${journeyId}`) && (
@@ -665,6 +678,7 @@ const MissionaryJourney: React.FC<MissionaryJourneyProps> = ({ onBack }) => {
   // COMPLETE SCREEN
   // ============================================================
   if (journeyComplete) {
+    const totalQuestions = journey?.totalQuestions || 0
     const accuracy = totalQuestionsAnswered > 0 
       ? Math.round((correctAnswers / totalQuestionsAnswered) * 100) 
       : 0
@@ -703,9 +717,15 @@ const MissionaryJourney: React.FC<MissionaryJourneyProps> = ({ onBack }) => {
             {completionBadges.length > 0 && (
               <div className={styles.completionBadges}>
                 {completionBadges.map((badge, index) => (
-                  <span key={index} className={styles.badge}>
+                  <motion.span 
+                    key={index} 
+                    className={styles.badge}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.2 + index * 0.1 }}
+                  >
                     {badge}
-                  </span>
+                  </motion.span>
                 ))}
               </div>
             )}
@@ -720,7 +740,7 @@ const MissionaryJourney: React.FC<MissionaryJourneyProps> = ({ onBack }) => {
                 <span className={styles.resultsStatLabel}><Target size={12} /> Accuracy</span>
               </div>
               <div className={styles.resultsStat}>
-                <span className={styles.resultsStatValue}>{correctAnswers}</span>
+                <span className={styles.resultsStatValue}>{correctAnswers}/{totalQuestions}</span>
                 <span className={styles.resultsStatLabel}><CheckCircle size={12} /> Correct</span>
               </div>
               <div className={styles.resultsStat}>
@@ -790,6 +810,17 @@ const MissionaryJourney: React.FC<MissionaryJourneyProps> = ({ onBack }) => {
   // ============================================================
   // ACTIVE GAME
   // ============================================================
+  if (isLoading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.ambientGlow} />
+        <div className={styles.content}>
+          <MapLoadingAnimation />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.ambientGlow} />
