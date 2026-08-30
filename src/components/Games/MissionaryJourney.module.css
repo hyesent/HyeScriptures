@@ -161,10 +161,167 @@
   transform: translateY(-2px) scale(1.01);
   box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
 }
+.startBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
 .startHint {
   font-size: 13px;
   color: #4a5568;
   margin: 12px 0 0 0;
+}
+
+/* ===== JOURNEY SELECTOR ===== */
+.journeySelector {
+  margin-bottom: 20px;
+  position: relative;
+}
+.journeySelectBtn {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 215, 120, 0.08);
+  border-radius: 12px;
+  color: #DDE7F2;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.journeySelectBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(212, 175, 55, 0.15);
+}
+.journeySelectDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  background: #15253A;
+  border: 1px solid rgba(255, 215, 120, 0.08);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+}
+.journeySelectDropdown::-webkit-scrollbar {
+  width: 4px;
+}
+.journeySelectDropdown::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+.journeySelectDropdown::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.2);
+  border-radius: 4px;
+}
+.journeySelectItem {
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #94A3B8;
+  cursor: pointer;
+  transition: all 200ms ease;
+  font-family: inherit;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.journeySelectItem:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #DDE7F2;
+}
+.journeySelectItem.active {
+  background: rgba(212, 175, 55, 0.08);
+  color: #D4AF37;
+}
+.journeySelectName {
+  font-size: 13px;
+  font-weight: 500;
+}
+.journeySelectLocations {
+  font-size: 11px;
+  color: #4a5568;
+}
+.journeySelectItem.active .journeySelectLocations {
+  color: #D4AF37;
+}
+
+/* ===== START BUTTONS ===== */
+.startButtons {
+  display: flex;
+  gap: 10px;
+}
+.startButtons .startBtn {
+  flex: 2;
+}
+.continueBtn {
+  flex: 1;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 215, 120, 0.08);
+  border-radius: 14px;
+  color: #94A3B8;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.continueBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #D4AF37;
+  border-color: rgba(212, 175, 55, 0.15);
+}
+
+/* ===== DIFFICULTY BADGE ===== */
+.startDifficulty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.difficultyBadge {
+  padding: 4px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.difficultyBadge.easy {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22C55E;
+  border: 1px solid rgba(34, 197, 94, 0.15);
+}
+.difficultyBadge.medium {
+  background: rgba(212, 175, 55, 0.12);
+  color: #D4AF37;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+}
+.difficultyBadge.hard {
+  background: rgba(239, 68, 68, 0.12);
+  color: #EF4444;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+.difficultyLabel {
+  font-size: 12px;
+  color: #94A3B8;
 }
 
 /* ===== HEADER ===== */
@@ -218,6 +375,16 @@
   color: #94A3B8;
 }
 .headerLocation svg { width: 14px; height: 14px; }
+.headerTime {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #4a5568;
+}
+.headerTime svg {
+  color: #94A3B8;
+}
 
 /* ===== JOURNEY STATS POPUP ===== */
 .journeyStatsPopup {
@@ -549,6 +716,11 @@
   font-size: 13px;
   color: #94A3B8;
 }
+.questionBadges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .streakBadge {
   display: flex;
   align-items: center;
@@ -560,6 +732,40 @@
   font-size: 12px;
   font-weight: 600;
   color: #D4AF37;
+}
+.hintBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: rgba(212, 175, 55, 0.06);
+  border: 1px solid rgba(212, 175, 55, 0.08);
+  border-radius: 12px;
+  color: #D4AF37;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+}
+.hintBtn:hover:not(:disabled) {
+  background: rgba(212, 175, 55, 0.12);
+}
+.hintBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.hintBanner {
+  padding: 10px 14px;
+  background: rgba(212, 175, 55, 0.06);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 10px;
+  color: #D4AF37;
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .questionText {
   font-size: 18px;
@@ -725,6 +931,100 @@
   font-weight: 600;
   margin-bottom: 24px;
 }
+
+/* ===== COMPLETION BADGES ===== */
+.completionBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.badge {
+  padding: 4px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  color: #D4AF37;
+}
+
+/* ===== REVIEW MODE ===== */
+.reviewToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  color: #94A3B8;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+  margin-bottom: 12px;
+}
+.reviewToggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #DDE7F2;
+}
+.reviewContainer {
+  margin-bottom: 20px;
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 215, 120, 0.04);
+}
+.reviewContainer::-webkit-scrollbar {
+  width: 4px;
+}
+.reviewContainer::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+.reviewContainer::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.2);
+  border-radius: 4px;
+}
+.reviewItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  font-size: 13px;
+}
+.reviewItem:last-child {
+  border-bottom: none;
+}
+.reviewIndex {
+  font-weight: 600;
+  color: #4a5568;
+  min-width: 32px;
+}
+.reviewQuestion {
+  flex: 1;
+  color: #94A3B8;
+  text-align: left;
+}
+.reviewResult {
+  flex-shrink: 0;
+}
+.reviewCorrect {
+  background: rgba(95, 175, 117, 0.04);
+}
+.reviewCorrect .reviewQuestion {
+  color: #5FAF75;
+}
+.reviewWrong {
+  background: rgba(184, 97, 97, 0.04);
+}
+.reviewWrong .reviewQuestion {
+  color: #B86161;
+}
+
 .resultsStats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -862,6 +1162,14 @@
   color: #94A3B8;
 }
 
+.spinning {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .container { padding: 16px; }
@@ -879,6 +1187,9 @@
   .questionText { font-size: 16px; }
   .journeyStatsContent { grid-template-columns: 1fr 1fr; gap: 6px 12px; }
   .journeyStat { font-size: 12px; }
+  .startButtons { flex-direction: column; }
+  .continueBtn { flex: 1; }
+  .headerInfo { gap: 10px; }
 }
 
 @media (max-width: 480px) {
@@ -898,4 +1209,10 @@
   .questionText { font-size: 14px; }
   .option { font-size: 13px; padding: 10px 12px; }
   .journeyStatsContent { grid-template-columns: 1fr; }
+  .reviewItem { font-size: 12px; padding: 6px 10px; flex-wrap: wrap; }
+  .reviewQuestion { font-size: 12px; }
+  .badge { font-size: 11px; padding: 3px 10px; }
+  .completionBadges { gap: 4px; }
+  .journeySelectItem { flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 12px; }
+  .resultsJourneyInfo { flex-direction: column; gap: 8px; align-items: center; }
 }
