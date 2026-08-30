@@ -20,7 +20,13 @@ import {
   History,
   Filter,
   SkipForward,
-  EyeOff
+  EyeOff,
+  ChevronLeft,
+  Award,
+  Users,
+  Hash,
+  Layers,
+  GripVertical
 } from 'lucide-react';
 import { gameEngine } from '../../lib/games/game-engine';
 import { TIMING, EASING } from '../../lib/animations';
@@ -40,12 +46,12 @@ interface TimelineChallengeProps {
 type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
 
 // ============================================================
-// SVG ICONS
+// SVG ICONS - Premium look
 // ============================================================
 
 const Icons = {
   Timeline: () => (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <line x1="3" y1="12" x2="21" y2="12" />
       <circle cx="6" cy="12" r="2" />
       <circle cx="12" cy="12" r="2" />
@@ -53,6 +59,62 @@ const Icons = {
       <line x1="6" y1="8" x2="6" y2="16" />
       <line x1="12" y1="8" x2="12" y2="16" />
       <line x1="18" y1="8" x2="18" y2="16" />
+    </svg>
+  ),
+  Correct: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+  ),
+  Wrong: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  ),
+  YearHidden: () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  ),
+  People: () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  ),
+  Reference: () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+    </svg>
+  ),
+  ArrowRight: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="9 18 15 12 9 6" />
+    </svg>
+  ),
+  StarFilled: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  ),
+  Trophy: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+      <path d="M4 22h16" />
+      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2z" />
+    </svg>
+  ),
+  Flame: () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
     </svg>
   ),
 };
@@ -90,7 +152,6 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
   const [correctAnimation, setCorrectAnimation] = useState(false);
   const [wrongAnimation, setWrongAnimation] = useState(false);
   const [placedEvents, setPlacedEvents] = useState<TimelineEvent[]>([]);
-  const [showTimelinePreview, setShowTimelinePreview] = useState(false);
 
   // Get events based on difficulty and category
   const getFilteredEvents = useCallback(() => {
@@ -123,9 +184,7 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
   const startGame = () => {
     const selectedEvents = getFilteredEvents();
     
-    // Sort events chronologically (oldest first) for the correct order
     const sorted = [...selectedEvents].sort((a, b) => a.year - b.year);
-    // Shuffle for display
     const shuffled = [...selectedEvents].sort(() => Math.random() - 0.5);
     
     setEvents(sorted);
@@ -150,7 +209,6 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
     setShowSkip(false);
     setCorrectAnimation(false);
     setWrongAnimation(false);
-    setShowTimelinePreview(false);
     setBestScore(gameEngine.getBestScore('timeline'));
     
     if (timerInterval) clearInterval(timerInterval);
@@ -160,7 +218,7 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
     setTimerInterval(interval);
   };
 
-  // Get year display string (ONLY used for hints/reveals, NOT in gameplay)
+  // Get year display (ONLY for results screen)
   const getYearDisplay = (year: number): string => {
     if (year < 0) {
       return `${Math.abs(year)} BC`;
@@ -173,7 +231,6 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
     const index = events.indexOf(event);
     const total = events.length;
     
-    // Calculate position without revealing exact year
     let position = '';
     if (index < total / 3) {
       position = 'early';
@@ -183,22 +240,18 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
       position = 'late';
     }
     
-    // Get the event before and after (if they exist)
-    const prevEvent = index > 0 ? events[index - 1] : null;
-    const nextEvent = index < total - 1 ? events[index + 1] : null;
-    
     const hints = [
       `This event is in the ${position} part of biblical history`,
       `This event is from the ${event.category.replace('-', ' ')} period`,
-      `${event.people && event.people.length > 0 ? `Key figure${event.people.length > 1 ? 's' : ''}: ${event.people.slice(0, 3).join(', ')}` : ''}`,
     ];
     
-    // Add a contextual hint without revealing the year
-    if (prevEvent) {
-      hints.push(`This event happens after ${prevEvent.event}`);
+    if (event.people && event.people.length > 0) {
+      hints.push(`Key figure${event.people.length > 1 ? 's' : ''}: ${event.people.slice(0, 3).join(', ')}`);
     }
-    if (nextEvent) {
-      hints.push(`This event happens before ${nextEvent.event}`);
+    
+    const prevEvent = index > 0 ? events[index - 1] : null;
+    if (prevEvent) {
+      hints.push(`This event happens after "${prevEvent.event}"`);
     }
     
     return hints[Math.floor(Math.random() * hints.length)];
@@ -234,21 +287,17 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
       const streakBonus = Math.min(streak * 5, 25);
       setXpEarned(prev => prev + baseXP + streakBonus);
       
-      // Remove the correct event from shuffled
       setShuffledEvents(prev => prev.filter(e => e.id !== event.id));
       
-      // Level up every 5 correct
       if ((totalCorrect + 1) % 5 === 0) {
         setLevel(prev => prev + 1);
       }
       
-      // Clear animation after delay
       setTimeout(() => {
         setCorrectAnimation(false);
         setIsCorrect(false);
       }, 600);
       
-      // Check if complete
       if (eventCount + 1 === events.length) {
         handleGameComplete();
       }
@@ -260,7 +309,6 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
       setTotalWrong(prev => prev + 1);
       setStreak(0);
       
-      // Check if max attempts reached
       if (wrongAttempts + 1 >= maxAttempts) {
         setShowSkip(true);
       }
@@ -272,30 +320,25 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
     }
   };
 
-  // Skip current event (with penalty)
   const handleSkipEvent = () => {
     if (gameOver || completed) return;
     
     const currentIndex = eventCount;
     const correctEvent = events[currentIndex];
     
-    // Add the correct event (with penalty)
     setPlacedEvents(prev => [...prev, correctEvent]);
     setEventCount(prev => prev + 1);
     setScore(prev => Math.max(0, prev - 5));
     setWrongAttempts(0);
     setShowSkip(false);
     
-    // Remove the correct event from shuffled
     setShuffledEvents(prev => prev.filter(e => e.id !== correctEvent.id));
     
-    // Check if complete
     if (eventCount + 1 === events.length) {
       handleGameComplete();
     }
   };
 
-  // Use hint (shows contextual info, NOT the year)
   const useHint = () => {
     const currentIndex = eventCount;
     const correctEvent = events[currentIndex];
@@ -303,7 +346,6 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
     if (correctEvent) {
       setHintText(getHintForEvent(correctEvent));
       setShowHint(true);
-      // Penalty: -3 points
       setScore(prev => Math.max(0, prev - 3));
       
       setTimeout(() => {
@@ -368,11 +410,15 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
             <h2 className={styles.startTitle}>Timeline Challenge</h2>
             <p className={styles.startSubtitle}>Place biblical events in chronological order</p>
             <p className={styles.startCount}>
+              <Hash size={14} />
               {timelineEvents.length} events available
             </p>
 
             <div className={styles.startSection}>
-              <span className={styles.startLabel}>Category</span>
+              <span className={styles.startLabel}>
+                <Layers size={14} />
+                Category
+              </span>
               <div className={styles.chipGroup}>
                 {categories.map((cat) => (
                   <button
@@ -392,7 +438,10 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
             </div>
 
             <div className={styles.startSection}>
-              <span className={styles.startLabel}>Difficulty</span>
+              <span className={styles.startLabel}>
+                <Target size={14} />
+                Difficulty
+              </span>
               <div className={styles.chipGroup}>
                 {difficulties.map((diff) => (
                   <button
@@ -448,7 +497,11 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
               animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}
             >
-              {completed ? '🏆' : '💪'}
+              {completed ? (
+                <Icons.Trophy />
+              ) : (
+                <Target size={48} strokeWidth={1.5} />
+              )}
             </motion.span>
 
             <h2 className={styles.resultsTitle}>
@@ -456,6 +509,7 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
             </h2>
             {completed && (
               <p className={styles.resultsSubtitle}>
+                <Clock size={14} />
                 Completed in {getTimeString(time)}
               </p>
             )}
@@ -467,7 +521,7 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.3 }}
               >
-                <Star size={14} />
+                <Icons.StarFilled />
                 New Best Score!
               </motion.div>
             )}
@@ -475,19 +529,25 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
             <div className={styles.resultsStats}>
               <div className={styles.resultsStat}>
                 <span className={styles.resultsStatValue}>{score}</span>
-                <span className={styles.resultsStatLabel}>Score</span>
+                <span className={styles.resultsStatLabel}>
+                  <Icons.Trophy /> Score
+                </span>
               </div>
               <div className={styles.resultsStat}>
                 <span className={styles.resultsStatValue}>{totalCorrect}/{events.length}</span>
-                <span className={styles.resultsStatLabel}>Placed</span>
+                <span className={styles.resultsStatLabel}>
+                  <CheckCircle size={12} /> Placed
+                </span>
               </div>
               <div className={styles.resultsStat}>
                 <span className={styles.resultsStatValue}>{accuracy}%</span>
-                <span className={styles.resultsStatLabel}>Accuracy</span>
+                <span className={styles.resultsStatLabel}>
+                  <Target size={12} /> Accuracy
+                </span>
               </div>
             </div>
 
-            {/* ✅ NEW: Show the full timeline with years (only on game over) */}
+            {/* ✅ Full timeline reveal with SVG arrows */}
             {completed && (
               <div className={styles.timelineReveal}>
                 <h4 className={styles.timelineRevealTitle}>
@@ -503,7 +563,9 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
                         {event.event || event.description}
                       </span>
                       {index < events.length - 1 && (
-                        <span className={styles.timelineRevealArrow}>→</span>
+                        <span className={styles.timelineRevealArrow}>
+                          <Icons.ArrowRight />
+                        </span>
                       )}
                     </div>
                   ))}
@@ -517,7 +579,9 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              <span className={styles.xpEmoji}>✨</span>
+              <span className={styles.xpEmoji}>
+                <Award size={18} />
+              </span>
               <span className={styles.xpValue}>+{xpEarned} XP</span>
             </motion.div>
 
@@ -528,6 +592,7 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
                 className={styles.primary}
                 onClick={startGame}
               >
+                <RefreshCw size={16} />
                 New Timeline
               </motion.button>
               <motion.button
@@ -536,6 +601,7 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
                 className={styles.secondary}
                 onClick={onBack}
               >
+                <ArrowLeft size={16} />
                 Menu
               </motion.button>
             </div>
@@ -574,17 +640,18 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
                 )}
               </span>
               <span className={styles.gameProgress}>
+                <Target size={12} />
                 Level {level} • {eventCount} of {events.length} placed
               </span>
             </div>
             <div className={styles.gameStats}>
               <span className={styles.gameScore}>
-                <Trophy size={14} />
+                <Icons.Trophy />
                 {score}
               </span>
               {streak > 1 && (
                 <span className={styles.streakBadge}>
-                  <Flame size={12} />
+                  <Icons.Flame />
                   {streak}x
                 </span>
               )}
@@ -607,9 +674,18 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
 
           {/* Stats bar */}
           <div className={styles.statsBar}>
-            <span>✅ Correct: {totalCorrect}</span>
-            <span>❌ Wrong: {totalWrong}</span>
-            <span>🎯 Attempts: {wrongAttempts}/{maxAttempts}</span>
+            <span>
+              <CheckCircle size={12} />
+              {totalCorrect}
+            </span>
+            <span>
+              <XCircle size={12} />
+              {totalWrong}
+            </span>
+            <span>
+              <Target size={12} />
+              {wrongAttempts}/{maxAttempts} tries
+            </span>
           </div>
 
           {/* Next Event to Place - NO YEAR SHOWN! */}
@@ -619,7 +695,7 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
                 <span className={styles.targetIcon}>
                   <Calendar size={14} />
                 </span>
-                Which event comes next in chronological order?
+                Which event comes next?
                 {showHint && (
                   <span className={styles.hintBadge}>
                     <Lightbulb size={12} /> {hintText}
@@ -627,7 +703,6 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
                 )}
               </p>
               <div className={styles.currentEventDisplay}>
-                {/* ✅ NO YEAR shown here! */}
                 <div className={styles.currentEventDescription}>
                   {currentEvent.event || currentEvent.description}
                 </div>
@@ -639,24 +714,25 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
                 )}
                 {currentEvent.people && currentEvent.people.length > 0 && (
                   <div className={styles.currentEventPeople}>
-                    👤 {currentEvent.people.join(', ')}
+                    <Users size={12} />
+                    {currentEvent.people.join(', ')}
                   </div>
                 )}
-                {/* ✅ Year is hidden - shows as "???" */}
                 <div className={styles.currentEventYearHidden}>
-                  <EyeOff size={12} /> Year hidden
+                  <Icons.YearHidden />
+                  Year hidden
                 </div>
               </div>
 
-              {/* Feedback */}
+              {/* Feedback with SVG icons */}
               {correctAnimation && (
                 <div className={styles.correctFeedback}>
-                  <CheckCircle size={16} /> Correct! +{10 + (streak * 2)} pts
+                  <Icons.Correct /> Correct! +{10 + (streak * 2)} pts
                 </div>
               )}
               {wrongAnimation && (
                 <div className={styles.wrongFeedback}>
-                  <XCircle size={16} /> Wrong! {maxAttempts - wrongAttempts} attempts left
+                  <Icons.Wrong /> Wrong! {maxAttempts - wrongAttempts} attempts left
                 </div>
               )}
               {showSkip && (
@@ -690,12 +766,13 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
                 onClick={() => setShowHint(false)}
                 className={styles.hintCloseBtn}
               >
-                ✕ Close Hint
+                <XCircle size={14} />
+                Close Hint
               </button>
             )}
           </div>
 
-          {/* Available Events to Place - NO YEARS SHOWN! */}
+          {/* Available Events - NO YEARS SHOWN! */}
           <div className={styles.eventsGrid}>
             {shuffledEvents.length === 0 && !completed && (
               <div className={styles.noEvents}>
@@ -708,22 +785,23 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
                 key={event.id}
                 className={`${styles.eventBtn} ${isCorrect || isWrong ? styles.disabled : ''}`}
                 onClick={() => handleEventSelect(event)}
-                whileHover={{ scale: isCorrect || isWrong ? 1 : 1.03 }}
-                whileTap={{ scale: isCorrect || isWrong ? 1 : 0.95 }}
+                whileHover={{ scale: isCorrect || isWrong ? 1 : 1.02 }}
+                whileTap={{ scale: isCorrect || isWrong ? 1 : 0.97 }}
                 disabled={isCorrect || isWrong}
               >
-                {/* ✅ NO YEAR shown here! */}
                 <span className={styles.eventDescription}>
                   {event.event || event.description}
                 </span>
                 {event.people && event.people.length > 0 && (
                   <span className={styles.eventPeople}>
-                    👤 {event.people.slice(0, 2).join(', ')}
+                    <Users size={12} />
+                    {event.people.slice(0, 2).join(', ')}
                     {event.people.length > 2 && ' +'}
                   </span>
                 )}
                 <span className={styles.eventYearHidden}>
-                  ❓ Year hidden
+                  <Icons.YearHidden />
+                  Year hidden
                 </span>
               </motion.button>
             ))}
@@ -731,18 +809,28 @@ const TimelineChallenge: React.FC<TimelineChallengeProps> = ({ onBack }) => {
 
           {/* Bottom Stats */}
           <div className={styles.bottomStats}>
-            <span>Remaining: {shuffledEvents.length}</span>
-            <span>Wrong attempts: {wrongAttempts}</span>
+            <span>
+              <Layers size={12} />
+              Remaining: {shuffledEvents.length}
+            </span>
+            <span>
+              <Target size={12} />
+              Wrong attempts: {wrongAttempts}
+            </span>
             {eventCount > 0 && (
-              <span>Placed: {eventCount}</span>
+              <span>
+                <CheckCircle size={12} />
+                Placed: {eventCount}
+              </span>
             )}
           </div>
 
-          {/* ✅ Show placed events count as mini timeline */}
+          {/* Placed events mini timeline */}
           {placedEvents.length > 0 && (
             <div className={styles.placedTimeline}>
               <p className={styles.placedTimelineLabel}>
-                ✅ Placed: {placedEvents.length} of {events.length}
+                <CheckCircle size={12} />
+                Placed: {placedEvents.length} of {events.length}
               </p>
               <div className={styles.placedTimelineItems}>
                 {placedEvents.slice(-5).map((event, index) => (
