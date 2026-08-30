@@ -39,6 +39,9 @@
   transition: all 280ms ease;
   margin-bottom: 24px;
   font-family: inherit;
+  /* Mobile touch target */
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .backBtn:hover {
@@ -46,6 +49,10 @@
   border-color: rgba(212, 175, 55, 0.2);
   color: #F8F6F2;
   transform: translateY(-2px);
+}
+
+.backBtn:active {
+  transform: scale(0.96);
 }
 
 /* ============================================
@@ -123,11 +130,18 @@
   cursor: pointer;
   transition: all 280ms ease;
   font-family: inherit;
+  /* Mobile touch */
+  min-height: 40px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .chip:hover {
   background: rgba(255, 255, 255, 0.06);
   color: #DDE7F2;
+}
+
+.chip:active {
+  transform: scale(0.96);
 }
 
 .chip.active {
@@ -153,11 +167,18 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  /* Mobile touch */
+  min-height: 52px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .startBtn:hover {
   transform: translateY(-2px) scale(1.01);
   box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
+}
+
+.startBtn:active {
+  transform: scale(0.97);
 }
 
 /* ============================================
@@ -260,15 +281,19 @@
 /* Grid */
 .gridContainer {
   overflow-x: auto;
+  overflow-y: auto;
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  padding: 4px 0;
+  -webkit-overflow-scrolling: touch;
 }
 
 .grid {
   display: grid;
   gap: 2px;
   max-width: 100%;
+  touch-action: manipulation;
 }
 
 .cell {
@@ -289,12 +314,23 @@
   color: #F8F6F2;
   text-transform: uppercase;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Mobile touch feedback */
+.cell:active:not(.cellBlack) {
+  transform: scale(0.92);
 }
 
 .cellBlack {
   background: #0a1628;
   border: none;
   cursor: default;
+}
+
+.cellBlack:active {
+  transform: none;
 }
 
 .cellSelected {
@@ -333,6 +369,7 @@
   font-weight: 600;
   color: #4a5568;
   pointer-events: none;
+  line-height: 1;
 }
 
 /* ============================================
@@ -346,6 +383,7 @@
   max-height: 520px;
   overflow-y: auto;
   padding-right: 4px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .cluesPanel::-webkit-scrollbar {
@@ -387,6 +425,7 @@
 .inputClue {
   font-size: 13px;
   color: #DDE7F2;
+  word-break: break-word;
 }
 
 .inputWrapper {
@@ -408,6 +447,11 @@
   text-transform: uppercase;
   letter-spacing: 2px;
   transition: all 280ms ease;
+  /* Mobile */
+  min-height: 44px;
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
 }
 
 .wordInput:focus {
@@ -445,13 +489,52 @@
   cursor: pointer;
   transition: all 280ms ease;
   font-family: inherit;
+  /* Mobile touch */
+  min-width: 44px;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .submitBtn:hover {
   background: rgba(212, 175, 55, 0.2);
 }
 
+.submitBtn:active {
+  transform: scale(0.92);
+}
+
 .submitBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Hint button */
+.hintBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background: rgba(212, 175, 55, 0.06);
+  border: 1px solid rgba(212, 175, 55, 0.08);
+  border-radius: 10px;
+  color: #D4AF37;
+  cursor: pointer;
+  transition: all 280ms ease;
+  font-family: inherit;
+  min-width: 44px;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hintBtn:hover {
+  background: rgba(212, 175, 55, 0.12);
+}
+
+.hintBtn:active {
+  transform: scale(0.92);
+}
+
+.hintBtn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
 }
@@ -527,11 +610,18 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  /* Mobile touch */
+  min-height: 36px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .clueItem:hover {
   background: rgba(255, 255, 255, 0.04);
   color: #DDE7F2;
+}
+
+.clueItem:active {
+  transform: scale(0.97);
 }
 
 .clueItem.active {
@@ -550,9 +640,14 @@
   color: #4a5568;
 }
 
+.clueItem.completed:active {
+  transform: none;
+}
+
 .clueNumber {
   font-weight: 600;
   color: #4a5568;
+  flex-shrink: 0;
 }
 
 .clueItem.active .clueNumber {
@@ -567,6 +662,16 @@
   color: #5FAF75;
   font-weight: 700;
   margin-left: auto;
+}
+
+.clueReference {
+  font-size: 10px;
+  color: #4a5568;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 4px;
+  flex-shrink: 0;
 }
 
 /* Instructions */
@@ -589,6 +694,18 @@
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.instructionsMobile {
+  grid-template-columns: 1fr 1fr;
+}
+
+.instructionsMobile p {
+  font-size: 10px;
+}
+
+.mobileHint {
+  color: #D4AF37 !important;
 }
 
 /* ============================================
@@ -704,11 +821,18 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  /* Mobile touch */
+  min-height: 48px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .resultsButtons .primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
+}
+
+.resultsButtons .primary:active {
+  transform: scale(0.97);
 }
 
 .resultsButtons .secondary {
@@ -723,11 +847,18 @@
   cursor: pointer;
   transition: all 280ms ease;
   font-family: inherit;
+  /* Mobile touch */
+  min-height: 48px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .resultsButtons .secondary:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #F8F6F2;
+}
+
+.resultsButtons .secondary:active {
+  transform: scale(0.97);
 }
 
 /* ============================================
@@ -748,35 +879,600 @@
 }
 
 /* ============================================
-   RESPONSIVE
+   RESPONSIVE - TABLET
+   ============================================ */
+
+@media (max-width: 900px) {
+  .crosswordLayout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .gridContainer {
+    justify-content: center;
+  }
+  
+  .cluesPanel {
+    max-height: 400px;
+  }
+  
+  .cell {
+    min-width: 34px;
+    min-height: 34px;
+    font-size: 16px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE - MOBILE LARGE
    ============================================ */
 
 @media (max-width: 768px) {
-  .container { padding: 16px; }
-  .startCard { padding: 24px 18px; }
-  .crosswordLayout { grid-template-columns: 1fr; gap: 16px; }
-  .cell { min-width: 30px; min-height: 30px; font-size: 14px; }
-  .cluesPanel { max-height: 300px; }
-  .resultsStats { grid-template-columns: repeat(3, 1fr); }
-  .resultsButtons { flex-direction: column; }
-  .gameHeader { flex-direction: column; align-items: flex-start; }
-  .gameStats { width: 100%; justify-content: flex-start; flex-wrap: wrap; gap: 8px; }
-  .instructions { grid-template-columns: 1fr 1fr; }
-  .inputSection { padding: 12px; }
-  .wordInput { font-size: 14px; padding: 8px 12px; }
+  .container {
+    padding: 12px;
+  }
+  
+  .startCard {
+    padding: 24px 16px;
+  }
+  
+  .gameCard {
+    padding: 16px;
+    border-radius: 16px;
+  }
+  
+  .crosswordLayout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .gridContainer {
+    overflow-x: auto;
+    overflow-y: visible;
+    justify-content: flex-start;
+    padding: 2px 0;
+  }
+  
+  .grid {
+    gap: 2px;
+    touch-action: pan-x;
+  }
+  
+  .cell {
+    min-width: 32px;
+    min-height: 32px;
+    font-size: 14px;
+    border-radius: 3px;
+  }
+  
+  .clueNumber {
+    font-size: 7px;
+    top: 1px;
+    left: 2px;
+  }
+  
+  .cluesPanel {
+    max-height: 300px;
+    gap: 10px;
+  }
+  
+  .resultsStats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  
+  .resultsButtons {
+    flex-direction: column;
+  }
+  
+  .gameHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .gameStats {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .gameTime, .gameProgress, .gameScore {
+    font-size: 12px;
+  }
+  
+  .instructions {
+    grid-template-columns: 1fr 1fr;
+    padding: 10px 12px;
+    gap: 2px 12px;
+  }
+  
+  .instructions p {
+    font-size: 10px;
+  }
+  
+  .inputSection {
+    padding: 10px 12px;
+  }
+  
+  .inputClue {
+    font-size: 12px;
+  }
+  
+  .wordInput {
+    font-size: 14px;
+    padding: 8px 12px;
+    min-height: 40px;
+    letter-spacing: 1px;
+  }
+  
+  .submitBtn, .hintBtn {
+    min-width: 40px;
+    min-height: 40px;
+    padding: 8px;
+  }
+  
+  .resultsCard {
+    padding: 24px 16px;
+  }
+  
+  .startTitle {
+    font-size: 24px;
+  }
+  
+  .resultsTitle {
+    font-size: 24px;
+  }
+  
+  .resultsStatValue {
+    font-size: 20px;
+  }
+  
+  .chipGroup {
+    gap: 6px;
+  }
+  
+  .chip {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-height: 36px;
+  }
+  
+  .clueItem {
+    padding: 5px 10px;
+    font-size: 12px;
+    min-height: 32px;
+  }
+  
+  .clueNumber {
+    font-size: 11px;
+  }
+  
+  .clueGroupTitle {
+    font-size: 11px;
+  }
+  
+  .clueStatsText, .clueStatsComplete {
+    font-size: 11px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE - MOBILE SMALL
+   ============================================ */
+
+@media (max-width: 480px) {
+  .container {
+    padding: 8px;
+  }
+  
+  .startCard {
+    padding: 20px 14px;
+    border-radius: 16px;
+  }
+  
+  .startIcon {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .startTitle {
+    font-size: 20px;
+  }
+  
+  .startSubtitle {
+    font-size: 14px;
+  }
+  
+  .startCount {
+    font-size: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .startBtn {
+    font-size: 16px;
+    padding: 14px;
+    min-height: 46px;
+  }
+  
+  .gameCard {
+    padding: 12px;
+    border-radius: 12px;
+  }
+  
+  .gameModeLabel {
+    font-size: 12px;
+  }
+  
+  .gameTitle {
+    font-size: 11px;
+  }
+  
+  .gameStats {
+    gap: 6px;
+  }
+  
+  .gameTime, .gameProgress, .gameScore {
+    font-size: 10px;
+  }
+  
+  .gameTime svg, .gameProgress svg, .gameScore svg {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .grid {
+    gap: 1.5px;
+  }
+  
+  .cell {
+    min-width: 28px;
+    min-height: 28px;
+    font-size: 11px;
+    border-radius: 2px;
+    border-width: 1px;
+  }
+  
+  .clueNumber {
+    font-size: 6px;
+    top: 1px;
+    left: 2px;
+  }
+  
+  .selected {
+    transform: scale(1.02);
+  }
+  
+  .cellSelected {
+    transform: scale(1.02);
+  }
+  
+  .cluesPanel {
+    max-height: 250px;
+    gap: 8px;
+  }
+  
+  .inputSection {
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+  
+  .inputLabel {
+    margin-bottom: 6px;
+  }
+  
+  .inputDirection {
+    font-size: 12px;
+  }
+  
+  .inputClue {
+    font-size: 11px;
+  }
+  
+  .inputWrapper {
+    gap: 6px;
+  }
+  
+  .wordInput {
+    font-size: 13px;
+    padding: 6px 10px;
+    min-height: 36px;
+    letter-spacing: 1px;
+    border-radius: 8px;
+  }
+  
+  .submitBtn, .hintBtn {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 6px;
+    border-radius: 8px;
+  }
+  
+  .submitBtn svg, .hintBtn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .wrongFeedback, .correctFeedback {
+    font-size: 11px;
+    margin-top: 4px;
+  }
+  
+  .inputHint {
+    font-size: 10px;
+    margin-top: 4px;
+  }
+  
+  .instructions {
+    grid-template-columns: 1fr;
+    padding: 8px 10px;
+    gap: 2px;
+    border-radius: 10px;
+  }
+  
+  .instructions p {
+    font-size: 9px;
+  }
+  
+  .instructionsMobile {
+    grid-template-columns: 1fr;
+  }
+  
+  .clueItem {
+    padding: 4px 8px;
+    font-size: 11px;
+    min-height: 28px;
+    border-radius: 6px;
+  }
+  
+  .clueNumber {
+    font-size: 10px;
+  }
+  
+  .clueGroupTitle {
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+  
+  .clueStats {
+    padding: 2px 2px 0 2px;
+  }
+  
+  .clueStatsText, .clueStatsComplete {
+    font-size: 10px;
+  }
+  
+  .clueCheck {
+    font-size: 11px;
+  }
+  
+  .resultsCard {
+    padding: 20px 14px;
+    border-radius: 16px;
+  }
+  
+  .resultsEmoji {
+    font-size: 40px;
+  }
+  
+  .resultsTitle {
+    font-size: 20px;
+  }
+  
+  .resultsSubtitle {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  
+  .resultsStats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  
+  .resultsStat {
+    padding: 10px 8px;
+    border-radius: 10px;
+  }
+  
+  .resultsStatValue {
+    font-size: 16px;
+  }
+  
+  .resultsStatLabel {
+    font-size: 10px;
+  }
+  
+  .xpEarned {
+    padding: 6px 14px;
+    margin-bottom: 16px;
+  }
+  
+  .xpEmoji {
+    font-size: 14px;
+  }
+  
+  .xpValue {
+    font-size: 14px;
+  }
+  
+  .resultsButtons .primary,
+  .resultsButtons .secondary {
+    font-size: 14px;
+    padding: 12px;
+    min-height: 42px;
+    border-radius: 10px;
+  }
+  
+  .newBest {
+    font-size: 12px;
+    padding: 4px 14px;
+    margin-bottom: 16px;
+  }
+  
+  .chip {
+    padding: 5px 10px;
+    font-size: 11px;
+    min-height: 32px;
+    border-radius: 8px;
+  }
+  
+  .chipCount {
+    font-size: 9px;
+    padding: 0 6px;
+  }
+  
+  .backBtn {
+    padding: 8px 14px;
+    font-size: 12px;
+    min-height: 38px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+  }
+  
+  .backBtn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .progressTrack {
+    height: 3px;
+    margin-bottom: 12px;
+  }
+  
+  .clueReference {
+    font-size: 9px;
+  }
+  
+  .mobileHint {
+    font-size: 9px;
+  }
+}
+
+/* ============================================
+   TOUCH-OPTIMIZED SCROLLING
+   ============================================ */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets for all interactive elements */
+  .cell {
+    min-width: 40px;
+    min-height: 40px;
+  }
+  
+  .clueItem {
+    padding: 8px 12px;
+    min-height: 44px;
+  }
+  
+  .chip {
+    padding: 10px 16px;
+    min-height: 44px;
+  }
+  
+  .wordInput {
+    min-height: 48px;
+    font-size: 18px;
+  }
+  
+  .submitBtn, .hintBtn {
+    min-width: 48px;
+    min-height: 48px;
+  }
+  
+  .backBtn {
+    min-height: 48px;
+  }
+  
+  .startBtn {
+    min-height: 56px;
+  }
+  
+  /* Disable hover effects on touch devices */
+  .cell:hover:not(.cellBlack):not(.cellSelected) {
+    transform: none;
+  }
+  
+  .clueItem:hover {
+    background: transparent;
+  }
+  
+  .chip:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+  
+  .submitBtn:hover {
+    background: rgba(212, 175, 55, 0.12);
+  }
+  
+  /* Smooth scrolling for containers */
+  .gridContainer {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  .cluesPanel {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* ============================================
+   MOBILE GRID SIZING - DYNAMIC
+   ============================================ */
+
+/* For very small grids (few columns) */
+.gridMobile .cell {
+  min-width: 44px !important;
+  min-height: 44px !important;
+  font-size: 16px;
+}
+
+/* For medium grids */
+@media (max-width: 600px) {
+  .grid:not(.gridMobile) .cell {
+    min-width: 30px;
+    min-height: 30px;
+    font-size: 12px;
+  }
+}
+
+/* For large grids (many columns) on mobile */
+@media (max-width: 480px) {
+  .grid .cell {
+    min-width: 24px !important;
+    min-height: 24px !important;
+    font-size: 9px;
+    gap: 1px;
+  }
+  
+  .grid .clueNumber {
+    font-size: 5px !important;
+    top: 0.5px;
+    left: 1.5px;
+  }
+}
+
+/* ============================================
+   SAFE AREA INSETS (Notch phones)
+   ============================================ */
+
+@supports (padding: max(0px)) {
+  .container {
+    padding-left: max(24px, env(safe-area-inset-left));
+    padding-right: max(24px, env(safe-area-inset-right));
+    padding-top: max(24px, env(safe-area-inset-top));
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
 }
 
 @media (max-width: 480px) {
-  .startTitle { font-size: 22px; }
-  .cell { min-width: 26px; min-height: 26px; font-size: 12px; }
-  .clueNumber { font-size: 6px; top: 1px; left: 2px; }
-  .resultsTitle { font-size: 22px; }
-  .resultsStatValue { font-size: 18px; }
-  .chipGroup { flex-wrap: wrap; }
-  .selectedClueText { font-size: 13px; }
-  .instructions { grid-template-columns: 1fr; }
-  .gameStats { gap: 6px; }
-  .gameTime { font-size: 11px; }
-  .gameProgress { font-size: 11px; }
-  .gameScore { font-size: 11px; }
+  @supports (padding: max(0px)) {
+    .container {
+      padding-left: max(8px, env(safe-area-inset-left));
+      padding-right: max(8px, env(safe-area-inset-right));
+      padding-top: max(8px, env(safe-area-inset-top));
+    }
+  }
 }
