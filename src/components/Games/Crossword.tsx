@@ -68,6 +68,8 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
   const [bestScore, setBestScore] = useState(0);
   const [wrongWord, setWrongWord] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
+  const [hintsRemaining, setHintsRemaining] = useState(3); // ✅ NEW: Max 3 hints
+  const [hintUsed, setHintUsed] = useState(false); // ✅ NEW: Track if hint was used
 
   const inputRef = useRef<HTMLInputElement>(null);
   const themes = ['all', ...getAllThemes()];
@@ -138,6 +140,8 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
     setXpEarned(0);
     setWrongWord('');
     setBestScore(gameEngine.getBestScore('crossword'));
+    setHintsRemaining(3); // ✅ Reset hints
+    setHintUsed(false);
     
     // Start new timer
     const interval = setInterval(() => {
@@ -466,7 +470,6 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
       (c.direction === 'across' && c.row === row && c.col === col) ||
       (c.direction === 'down' && c.row === row && c.col === col)
     );
-    // FIXED: Use clue.number directly instead of parsing ID
     return clue ? String(clue.number) : null;
   };
 
@@ -521,11 +524,16 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
   };
 
   // ================================================================
-  // HINT SYSTEM - NEW FEATURE
+  // HINT SYSTEM - ✅ FIXED: Limited to 3 hints
   // ================================================================
 
   const revealLetter = () => {
+    // ✅ Check if hints remaining
     if (!selectedClue || completedWords.has(selectedClue.id) || gameOver) return;
+    if (hintsRemaining <= 0) {
+      // Optional: Could show a toast notification
+      return;
+    }
     
     const clue = selectedClue;
     const newUserGrid = userGrid.map(row => [...row]);
@@ -544,8 +552,12 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
     
     if (filledCount > 0) {
       setUserGrid(newUserGrid);
+      // ✅ Decrease hints remaining
+      setHintsRemaining(prev => prev - 1);
+      setHintUsed(true);
       // Penalty: -2 points for using a hint
       setScore(prev => Math.max(0, prev - 2));
+      
       // Check if the word is now complete
       let wordComplete = true;
       for (let i = 0; i < clue.answer.length; i++) {
@@ -633,10 +645,9 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
   }
 
   // ================================================================
-  // GAME OVER SCREEN - FIXED: totalCells undefined
+  // GAME OVER SCREEN
   // ================================================================
   if (gameOver && isComplete) {
-    // FIXED: Use puzzle.clues.length instead of undefined totalCells
     const completed = puzzle ? (completedCount / puzzle.clues.length) * 100 : 0;
     const isNewBest = score >= bestScore && score > 0;
     
@@ -817,7 +828,6 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                         className={`${getCellClass(rowIndex, colIndex)} ${isSelected ? styles.selected : ''}`}
                         style={{
                           cursor: isBlack ? 'default' : 'pointer',
-                          // Mobile touch target: minimum 44px
                           minWidth: isMobile ? '44px' : 'auto',
                           minHeight: isMobile ? '44px' : 'auto',
                         }}
@@ -849,7 +859,6 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                       {selectedDirection === 'across' ? '→' : '↓'}
                     </span>
                     <span className={styles.inputClue}>
-                      {/* FIXED: Use clue.number directly */}
                       {selectedClue.number}. {selectedClue.clue}
                     </span>
                   </div>
@@ -868,7 +877,6 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                       autoFocus
                       maxLength={selectedClue.answer.length}
                       disabled={gameOver}
-                      // Mobile: prevent zoom on focus
                       style={{ fontSize: isMobile ? '16px' : 'inherit' }}
                     />
                     <button 
@@ -878,14 +886,15 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                     >
                       <CheckCircle size={18} />
                     </button>
-                    {/* NEW: Hint button */}
+                    {/* ✅ HINT BUTTON - Shows remaining hints */}
                     <button 
-                      className={styles.hintBtn}
+                      className={`${styles.hintBtn} ${hintsRemaining <= 0 ? styles.hintBtnDisabled : ''}`}
                       onClick={revealLetter}
-                      disabled={gameOver}
-                      title="Reveal a letter (-2 points)"
+                      disabled={gameOver || hintsRemaining <= 0}
+                      title={hintsRemaining > 0 ? `Reveal a letter (-2 points) (${hintsRemaining} left)` : 'No hints remaining'}
                     >
                       <Lightbulb size={18} />
+                      <span className={styles.hintCount}>{hintsRemaining}</span>
                     </button>
                   </div>
                   {isWrong && (
@@ -917,7 +926,7 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                 )}
               </div>
 
-              {/* Across Clues - FIXED: Use clue.number */}
+              {/* Across Clues */}
               <div className={styles.clueGroup}>
                 <h4 className={styles.clueGroupTitle}>Across</h4>
                 {puzzle?.clues.filter(c => c.direction === 'across').map((clue) => {
@@ -943,7 +952,7 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                 })}
               </div>
               
-              {/* Down Clues - FIXED: Use clue.number */}
+              {/* Down Clues */}
               <div className={styles.clueGroup}>
                 <h4 className={styles.clueGroupTitle}>Down</h4>
                 {puzzle?.clues.filter(c => c.direction === 'down').map((clue) => {
@@ -969,12 +978,13 @@ const Crossword: React.FC<CrosswordProps> = ({ onBack }) => {
                 })}
               </div>
 
-              {/* Instructions - Mobile friendly */}
+              {/* Instructions */}
               <div className={`${styles.instructions} ${isMobile ? styles.instructionsMobile : ''}`}>
                 <p> Type the full word</p>
                 <p>↵ Press Enter to submit</p>
                 <p> Arrow keys to navigate</p>
                 <p> Click a clue to select it</p>
+                <p>💡 {hintsRemaining} hints remaining</p>
                 {isMobile && (
                   <p className={styles.mobileHint}>💡 Tap a clue to select it</p>
                 )}
