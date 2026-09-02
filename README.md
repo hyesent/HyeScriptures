@@ -188,4 +188,3 @@ This README lists and briefly explains the app features implemented in this repo
 
 ---
 
-If you want any of these feature bullets expanded into full paragraphs with links to the exact source files that implement them, I can add file links and commit another README version. 
