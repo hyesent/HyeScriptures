@@ -8,6 +8,7 @@ import { getActivePlans } from '../../lib/reading-plans'
 import { Search } from '../Search/Search'
 import { NoteEditor } from '../Notes/NoteEditor'
 import { PrayerEditor } from '../Prayer/PrayerEditor'
+import { ScriptureMomentCard } from '../ScriptureMoment/ScriptureMomentCard'
 import { 
   Search as SearchIcon, Headphones, PenLine, Heart, ChevronRight, X, Sparkles, CheckCircle, ChevronDown, BookOpen
 } from 'lucide-react'
@@ -18,6 +19,7 @@ interface HomeScreenProps {
   onNavigateToAudio?: () => void
   onNavigateToBible?: (book: string, chapter: number) => void
   onNavigateToPlans?: () => void
+  onNavigateToScriptureMoment?: () => void
 }
 
 const getDailySeed = (): number => {
@@ -35,6 +37,7 @@ const seededRandom = (seed: number) => {
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   onNavigateToDevotional, onNavigateToAudio, onNavigateToBible, onNavigateToPlans,
+  onNavigateToScriptureMoment,
 }) => {
   const { bible, currentBook, currentChapter } = useBible()
   const { getStreak } = useStreak()
@@ -82,7 +85,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     const streakData = getStreak(); setStreak(streakData.currentStreak)
     setChapterStats(getStats())
     
-    // Load active plans
     const plans = getActivePlans()
     setActivePlans(plans)
     if (plans.length === 1) setShowPlans(true)
@@ -156,6 +158,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <h2>{getGreetingEmoji()} {greeting}</h2>
         <p>{userName}{streak > 0 ? ` · 🔥 ${streak} day streak` : ''}</p>
       </div>
+
+      {/* Scripture for the Moment */}
+      {onNavigateToScriptureMoment && (
+        <ScriptureMomentCard onNavigate={onNavigateToScriptureMoment} />
+      )}
 
       {/* Reading Progress Card */}
       {chapterStats.totalChaptersRead > 0 && (
