@@ -1,0 +1,399 @@
+/* src/components/ScriptureMoment/ScriptureMomentPage.module.css */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0a0e1a 0%, #0f1628 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  position: sticky;
+  top: 0;
+  background: rgba(10, 14, 26, 0.95);
+  backdrop-filter: blur(20px);
+  z-index: 10;
+}
+
+.backBtn,
+.historyBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #a8b2c4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.backBtn:hover,
+.historyBtn:hover {
+  background: rgba(201, 168, 76, 0.1);
+  color: #c9a84c;
+  border-color: rgba(201, 168, 76, 0.3);
+}
+
+.headerTitle {
+  flex: 1;
+}
+
+.headerTitle h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.remaining {
+  font-size: 11px;
+  color: #c9a84c;
+  font-weight: 500;
+}
+
+/* History drawer */
+.historyDrawer {
+  position: fixed;
+  top: 70px;
+  right: 16px;
+  width: 320px;
+  max-height: 400px;
+  background: #131a2c;
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: 16px;
+  padding: 16px;
+  z-index: 20;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+}
+
+.historyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.historyHeader button {
+  background: none;
+  border: none;
+  color: #a8b2c4;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.historyEmpty {
+  font-size: 12px;
+  color: #6b7280;
+  text-align: center;
+  padding: 20px;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.historyContent {
+  flex: 1;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.historyInput {
+  display: block;
+  font-size: 12px;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.historyDate {
+  font-size: 10px;
+  color: #6b7280;
+}
+
+.historyDelete {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+.historyDelete:hover { color: #ef4444; }
+
+/* Content */
+.content {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+/* Input stage */
+.inputStage {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.prompt {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.promptTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 8px;
+  letter-spacing: -0.3px;
+  font-family: Georgia, serif;
+}
+
+.promptSubtitle {
+  font-size: 14px;
+  color: #8892a6;
+  line-height: 1.6;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.textarea {
+  width: 100%;
+  padding: 18px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  color: #ffffff;
+  font-size: 15px;
+  line-height: 1.7;
+  font-family: Georgia, serif;
+  resize: vertical;
+  outline: none;
+  transition: all 0.2s;
+  min-height: 140px;
+}
+
+.textarea:focus {
+  border-color: rgba(201, 168, 76, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.textarea::placeholder {
+  color: #556075;
+  font-style: italic;
+}
+
+.submitBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #c9a84c, #e8c96a);
+  color: #1a1a2e;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submitBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(201, 168, 76, 0.3);
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(26, 26, 46, 0.3);
+  border-top-color: #1a1a2e;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error {
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  color: #ef4444;
+  font-size: 13px;
+  text-align: center;
+}
+
+.limitNote {
+  font-size: 12px;
+  color: #8892a6;
+  text-align: center;
+  padding: 8px;
+}
+
+/* Result stage */
+.resultStage {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.momentInput {
+  padding: 16px 20px;
+  background: rgba(201, 168, 76, 0.05);
+  border-left: 3px solid #c9a84c;
+  border-radius: 12px;
+}
+
+.momentLabel {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #c9a84c;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.momentText {
+  font-size: 14px;
+  color: #c4c9d4;
+  font-style: italic;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.sectionLabel {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8892a6;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.versesSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.versesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.verseChip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  background: rgba(201, 168, 76, 0.08);
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  border-radius: 12px;
+  color: #c9a84c;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.verseChip:hover {
+  background: rgba(201, 168, 76, 0.15);
+  border-color: #c9a84c;
+  transform: translateY(-2px);
+}
+
+.wordSection,
+.prayerSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.wordText {
+  font-size: 16px;
+  color: #e4e8f0;
+  line-height: 1.85;
+  font-family: Georgia, serif;
+  margin: 0;
+}
+
+.prayerText {
+  font-size: 15px;
+  color: #c4c9d4;
+  line-height: 1.8;
+  font-family: Georgia, serif;
+  font-style: italic;
+  margin: 0;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+}
+
+.newBtn {
+  padding: 14px 24px;
+  background: transparent;
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  border-radius: 14px;
+  color: #c9a84c;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.newBtn:hover {
+  background: rgba(201, 168, 76, 0.08);
+  border-color: #c9a84c;
+}
+
+@media (max-width: 640px) {
+  .historyDrawer {
+    right: 12px;
+    left: 12px;
+    width: auto;
+  }
+  .promptTitle { font-size: 20px; }
+}
