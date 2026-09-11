@@ -9,6 +9,7 @@ import { Search } from '../Search/Search'
 import { NoteEditor } from '../Notes/NoteEditor'
 import { PrayerEditor } from '../Prayer/PrayerEditor'
 import { ScriptureMomentCard } from '../ScriptureMoment/ScriptureMomentCard'
+import { ScriptureMomentPage } from '../ScriptureMoment/ScriptureMomentPage'
 import { 
   Search as SearchIcon, Headphones, PenLine, Heart, ChevronRight, X, Sparkles, CheckCircle, ChevronDown, BookOpen
 } from 'lucide-react'
@@ -19,7 +20,6 @@ interface HomeScreenProps {
   onNavigateToAudio?: () => void
   onNavigateToBible?: (book: string, chapter: number) => void
   onNavigateToPlans?: () => void
-  onNavigateToScriptureMoment?: () => void
 }
 
 const getDailySeed = (): number => {
@@ -37,7 +37,6 @@ const seededRandom = (seed: number) => {
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   onNavigateToDevotional, onNavigateToAudio, onNavigateToBible, onNavigateToPlans,
-  onNavigateToScriptureMoment,
 }) => {
   const { bible, currentBook, currentChapter } = useBible()
   const { getStreak } = useStreak()
@@ -47,6 +46,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [greeting, setGreeting] = useState('Good Morning')
   const [userName, setUserName] = useState('')
   const [showSearch, setShowSearch] = useState(false)
+  const [showScriptureMoment, setShowScriptureMoment] = useState(false)
   const [showNoteEditor, setShowNoteEditor] = useState(false)
   const [showPrayerEditor, setShowPrayerEditor] = useState(false)
   const [lastPosition, setLastPosition] = useState<{book: string, chapter: number} | null>(null)
@@ -112,6 +112,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     return '🌙'
   }
 
+  // ===== OVERLAY: Scripture Moment =====
+  if (showScriptureMoment) {
+    return <ScriptureMomentPage onBack={() => setShowScriptureMoment(false)} />
+  }
+
+  // ===== OVERLAY: Search =====
   if (showSearch) {
     return (
       <div className="home-search-overlay">
@@ -160,9 +166,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       </div>
 
       {/* Scripture for the Moment */}
-      {onNavigateToScriptureMoment && (
-        <ScriptureMomentCard onNavigate={onNavigateToScriptureMoment} />
-      )}
+      <ScriptureMomentCard onNavigate={() => setShowScriptureMoment(true)} />
 
       {/* Reading Progress Card */}
       {chapterStats.totalChaptersRead > 0 && (
