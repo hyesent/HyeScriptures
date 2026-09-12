@@ -4,6 +4,8 @@ import { useAILimits } from '../../hooks/useAILimits'
 import { useSubscription } from '../../hooks/useSubscription'
 import { AICounter } from '../AICounter'
 import { Crown } from 'lucide-react'
+import { Filesystem, Directory } from '@capacitor/filesystem'
+import jsPDF from 'jspdf'
 import styles from './SermonBuilder.module.css'
 
 type Step = 'type' | 'form' | 'result' | 'saved'
@@ -43,6 +45,7 @@ const Icons = {
   Share: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>),
   Folder: () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>),
   Trash: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>),
+  PDF: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>),
 }
 
 const TYPE_CARDS: { type: SermonType; icon: React.ElementType; label: string; desc: string }[] = [
@@ -60,6 +63,14 @@ const ensureString = (val: any): string => {
   if (Array.isArray(val)) return val.map(v => ensureString(v)).join('\n')
   if (typeof val === 'object') return JSON.stringify(val, null, 2)
   return String(val)
+}
+
+const stripMarkdown = (text: string): string => {
+  return ensureString(text)
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/`(.*?)`/g, '$1')
 }
 
 const formatContent = (text: string): string => {
@@ -89,6 +100,7 @@ export const SermonBuilder: React.FC = () => {
   const [savedSermons, setSavedSermons] = useState<SavedSermon[]>([])
   const [sectionModes, setSectionModes] = useState<Record<string, 'original' | 'notes'>>({})
   const [sectionNotes, setSectionNotes] = useState<Record<string, string>>({})
+  const [copiedMode, setCopiedMode] = useState<'original' | 'edited' | null>(null)
   const { checkOnly, commit } = useAILimits('sermon')
 
   useEffect(() => {
@@ -123,7 +135,6 @@ export const SermonBuilder: React.FC = () => {
   }
 
   const handleGenerate = async () => {
-    // Check limit — does NOT increment
     const { allowed, message } = checkOnly('sermon')
     if (!allowed) { setError(message || 'AI limit reached'); return }
 
@@ -140,7 +151,6 @@ export const SermonBuilder: React.FC = () => {
       const prompt = buildSermonPrompt(topic, formData, sermonType!)
       const result = await callSermonEdgeFunction(prompt)
       if (result) {
-        // Only count on success
         commit('sermon')
 
         setSections([
@@ -181,9 +191,206 @@ export const SermonBuilder: React.FC = () => {
     else if (step === 'result') { setStep('form'); setSections([]) }
     else if (step === 'saved') setStep('type')
   }
-  const copySermon = () => {
-    const text = sections.map(s => `${s.title}\n\n${sectionNotes[s.id] || s.content}`).join('\n\n---\n\n')
-    navigator.clipboard.writeText(text)
+
+  // ===== COPY =====
+  const getSermonText = (mode: 'original' | 'edited'): string => {
+    return sections.map(s => {
+      const content = mode === 'edited' && sectionNotes[s.id] ? sectionNotes[s.id] : s.content
+      return `${stripMarkdown(s.title)}\n\n${stripMarkdown(content)}`
+    }).join('\n\n' + '─'.repeat(30) + '\n\n')
+  }
+
+  const copySermon = (mode: 'original' | 'edited') => {
+    const text = getSermonText(mode)
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedMode(mode)
+      setTimeout(() => setCopiedMode(null), 2000)
+    }).catch(() => {
+      const textarea = document.createElement('textarea')
+      textarea.value = text
+      document.body.appendChild(textarea)
+      textarea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textarea)
+      setCopiedMode(mode)
+      setTimeout(() => setCopiedMode(null), 2000)
+    })
+  }
+
+  // ===== SHARE (text) =====
+  const shareSermon = async (mode: 'original' | 'edited') => {
+    const text = getSermonText(mode)
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Sermon', text })
+        return
+      }
+      await navigator.clipboard.writeText(text)
+      setCopiedMode(mode)
+      setTimeout(() => setCopiedMode(null), 2000)
+    } catch {}
+  }
+
+  // ===== BUILD PDF =====
+  const buildPDF = (mode: 'original' | 'edited'): jsPDF => {
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' })
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const margin = 48
+    const maxWidth = pageWidth - margin * 2
+    let y = margin
+
+    const checkPage = (needed: number) => {
+      if (y + needed > pageHeight - margin) {
+        doc.addPage()
+        y = margin
+      }
+    }
+
+    doc.setFont('times', 'bold')
+    doc.setFontSize(22)
+    doc.setTextColor(20, 20, 40)
+    const titleText = stripMarkdown(
+      formData.title || topicInput || passageInput || selectedOccasion || selectedAudience || 'Sermon'
+    )
+    const titleLines = doc.splitTextToSize(titleText, maxWidth)
+    titleLines.forEach((line: string) => {
+      checkPage(30)
+      doc.text(line, pageWidth / 2, y, { align: 'center' })
+      y += 30
+    })
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    doc.setTextColor(140, 140, 140)
+    const metaParts: string[] = []
+    if (formData.duration) metaParts.push(formData.duration)
+    if (formData.tone) metaParts.push(formData.tone)
+    if (formData.audience) metaParts.push(formData.audience)
+    if (metaParts.length) {
+      checkPage(24)
+      doc.text(metaParts.join('  ·  '), pageWidth / 2, y, { align: 'center' })
+      y += 24
+    }
+
+    checkPage(20)
+    doc.setDrawColor(201, 168, 76)
+    doc.setLineWidth(1)
+    doc.line(margin + 100, y, pageWidth - margin - 100, y)
+    y += 30
+
+    sections.forEach(section => {
+      const content = mode === 'edited' && sectionNotes[section.id]
+        ? sectionNotes[section.id]
+        : section.content
+
+      const cleanedTitle = stripMarkdown(section.title).toUpperCase()
+      const cleanedContent = stripMarkdown(content)
+
+      checkPage(30)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(11)
+      doc.setTextColor(201, 168, 76)
+      doc.text(cleanedTitle, margin, y)
+      y += 18
+
+      doc.setFont('times', 'normal')
+      doc.setFontSize(11)
+      doc.setTextColor(40, 40, 50)
+      const lines = doc.splitTextToSize(cleanedContent, maxWidth)
+      lines.forEach((line: string) => {
+        checkPage(16)
+        doc.text(line, margin, y)
+        y += 16
+      })
+
+      y += 12
+    })
+
+    const pageCount = doc.getNumberOfPages()
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(9)
+      doc.setTextColor(160, 160, 160)
+      doc.text('Hyescriptures', pageWidth / 2, pageHeight - 20, { align: 'center' })
+    }
+
+    return doc
+  }
+
+  const isCapacitor = (): boolean => {
+    return !!(window as any).Capacitor?.isNativePlatform?.()
+  }
+
+  // ===== DOWNLOAD PDF =====
+  const downloadPDF = async (mode: 'original' | 'edited') => {
+    const doc = buildPDF(mode)
+    const fileName = `${(formData.title || topicInput || 'sermon').replace(/[^a-z0-9]/gi, '_').slice(0, 40)}_${mode}.pdf`
+
+    if (isCapacitor()) {
+      try {
+        const base64 = doc.output('datauristring').split(',')[1]
+        await Filesystem.writeFile({
+          path: fileName,
+          data: base64,
+          directory: Directory.Documents,
+        })
+        alert(`Saved to Documents/${fileName}`)
+      } catch (error) {
+        console.error('PDF save failed:', error)
+        alert('Failed to save PDF.')
+      }
+    } else {
+      doc.save(fileName)
+    }
+  }
+
+  // ===== SHARE PDF =====
+  const sharePDF = async (mode: 'original' | 'edited') => {
+    const doc = buildPDF(mode)
+    const fileName = `${(formData.title || topicInput || 'sermon').replace(/[^a-z0-9]/gi, '_').slice(0, 40)}_${mode}.pdf`
+
+    if (isCapacitor()) {
+      try {
+        const base64 = doc.output('datauristring').split(',')[1]
+        const result = await Filesystem.writeFile({
+          path: fileName,
+          data: base64,
+          directory: Directory.Cache,
+        })
+        const { Share } = await import('@capacitor/share')
+        await Share.share({
+          title: formData.title || 'Sermon',
+          text: 'Sermon from Hyescriptures',
+          url: result.uri,
+          dialogTitle: 'Share sermon PDF',
+        })
+      } catch (error) {
+        console.error('PDF share failed:', error)
+        try {
+          const base64 = doc.output('datauristring').split(',')[1]
+          await Filesystem.writeFile({
+            path: fileName,
+            data: base64,
+            directory: Directory.Documents,
+          })
+          alert(`Share failed. Saved to Documents/${fileName}`)
+        } catch {
+          alert('Failed to share or save PDF.')
+        }
+      }
+    } else {
+      const pdfBlob = doc.output('blob')
+      const file = new File([pdfBlob], fileName, { type: 'application/pdf' })
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ title: 'Sermon', files: [file] })
+          return
+        } catch {}
+      }
+      doc.save(fileName)
+    }
   }
 
   if (tier !== 'elder') {
@@ -210,6 +417,8 @@ export const SermonBuilder: React.FC = () => {
     )
   }
 
+  const hasEdits = Object.keys(sectionNotes).some(id => sectionNotes[id] && sectionNotes[id] !== sections.find(s => s.id === id)?.content)
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -226,7 +435,7 @@ export const SermonBuilder: React.FC = () => {
         </div>
       </div>
 
-       {step === 'saved' && (
+      {step === 'saved' && (
         <div className={styles.savedSection}>
           <h3>My Sermons</h3>
           {savedSermons.length === 0 ? <p className={styles.empty}>No saved sermons yet.</p> : (
@@ -298,13 +507,43 @@ export const SermonBuilder: React.FC = () => {
                 )}
               </div>
             ))}
+
             <div className={styles.actionBar}>
-              <button className={styles.actionBtn} onClick={copySermon}><Icons.Copy /> Copy</button>
-              <button className={styles.actionBtn}><Icons.Share /> Share</button>
-              <button className={styles.actionBtn} onClick={saveSermon}><Icons.Download /> Save</button>
-              <button className={styles.actionBtn} onClick={handleBack}><Icons.Sermon /> New Sermon</button>
+              <button className={styles.actionBtn} onClick={() => copySermon('edited')}>
+                <Icons.Copy /> {copiedMode === 'edited' ? 'Copied!' : 'Copy'}
+              </button>
+              <button className={styles.actionBtn} onClick={() => shareSermon('edited')}>
+                <Icons.Share /> Share Text
+              </button>
+              <button className={styles.actionBtn} onClick={() => downloadPDF('edited')}>
+                <Icons.Download /> Download PDF
+              </button>
+              <button className={styles.actionBtn} onClick={() => sharePDF('edited')}>
+                <Icons.PDF /> Share PDF
+              </button>
+              <button className={styles.actionBtn} onClick={saveSermon}>
+                <Icons.Download /> Save
+              </button>
+              <button className={styles.actionBtn} onClick={handleBack}>
+                <Icons.Sermon /> New Sermon
+              </button>
             </div>
+
+            {hasEdits && (
+              <div className={styles.originalActions}>
+                <p className={styles.originalHint}>You've edited some sections. Want the AI original instead?</p>
+                <div className={styles.originalBtnRow}>
+                  <button className={styles.originalBtn} onClick={() => copySermon('original')}>
+                    <Icons.Copy /> {copiedMode === 'original' ? 'Copied Original!' : 'Copy Original'}
+                  </button>
+                  <button className={styles.originalBtn} onClick={() => downloadPDF('original')}>
+                    <Icons.Download /> Download Original PDF
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
+
           <div className={styles.expansionSection}>
             <h4 className={styles.expansionTitle}>Points to Ponder</h4>
             <p className={styles.expansionDesc}>Use these prompts to deepen your message in your own words</p>
@@ -343,4 +582,4 @@ const callSermonEdgeFunction = async (prompt: string): Promise<any> => {
     if (error) throw error
     return data?.response || null
   } catch { return null }
-}                                                 }
+}
