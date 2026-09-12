@@ -73,7 +73,7 @@ export const VerseView: React.FC<VerseViewProps> = ({
   const verseRefs = useRef<(HTMLDivElement | null)[]>([])
   const touchStartX = useRef(0)
   const longPressTimer = useRef<NodeJS.Timeout | null>(null)
-  const { checkAndIncrement } = useAILimits()
+  const { checkOnly, commit } = useAILimits('explain')
   const { tier } = useSubscription()
 
   const { settings, isPlaying, isPaused, isLoading, currentVerseIndex, audioRef,
@@ -106,7 +106,7 @@ export const VerseView: React.FC<VerseViewProps> = ({
   const handleAddNote = (index: number) => { setNoteVerseRef(getVerseReference(index)); setShowNoteEditor(true); handleActionComplete() }
 
   const handleAIExplain = async (index: number) => {
-    const { allowed, message } = checkAndIncrement()
+    const { allowed, message } = checkOnly('explain')
     if (!allowed) { showToast(message || 'AI limit reached'); return }
     const reference = getVerseReference(index)
     const verseText = verses[index]
@@ -114,6 +114,10 @@ export const VerseView: React.FC<VerseViewProps> = ({
     setShowAI(prev => ({ ...prev, [reference]: true }))
     try {
       const result = await explainVerse(`${reference} - ${verseText}`)
+      // Only commit if we got a real explanation
+      if (result && !result.startsWith('Sorry')) {
+        commit('explain')
+      }
       setAiExplanation(prev => ({ ...prev, [reference]: result }))
     } catch {
       setAiExplanation(prev => ({ ...prev, [reference]: 'Sorry, I could not explain this verse at this time.' }))
@@ -137,12 +141,20 @@ export const VerseView: React.FC<VerseViewProps> = ({
 
   const handleSummarizeChapter = async () => {
     if (tier !== 'elder') { showToast('Chapter summary is an Elder exclusive feature. Upgrade to unlock.'); return }
-    const { allowed, message } = checkAndIncrement()
+    const { allowed, message } = checkOnly('explain')
     if (!allowed) { showToast(message || 'AI limit reached'); return }
     setLoadingSummary(true)
-    try { const result = await summarizeChapter(book, chapter); setChapterSummary(result) }
-    catch { showToast('Failed to generate summary') }
-    finally { setLoadingSummary(false); setShowReaderMenu(false) }
+    try {
+      const result = await summarizeChapter(book, chapter)
+      if (result && !result.startsWith('Sorry')) {
+        commit('explain')
+      }
+      setChapterSummary(result)
+    } catch {
+      showToast('Failed to generate summary')
+    } finally {
+      setLoadingSummary(false); setShowReaderMenu(false)
+    }
   }
 
   const handlePlayChapter = async () => {
@@ -175,7 +187,6 @@ export const VerseView: React.FC<VerseViewProps> = ({
         onContextMenu={(e) => { e.preventDefault(); handleLongPress(index) }}
         onTouchStart={(e) => {
           touchStartX.current = e.touches[0].clientX
-          // Long press for 3 seconds
           longPressTimer.current = setTimeout(() => handleLongPress(index), 3000)
         }}
         onTouchEnd={() => {
@@ -282,7 +293,6 @@ export const VerseView: React.FC<VerseViewProps> = ({
         {verses.map((verse, index) => renderVerse(verse, index))}
       </div>
 
-      {/* Chapter Complete Button - At Bottom */}
       <div style={{ padding: '20px 0 8px 0' }}>
         <button
           onClick={handleMarkComplete}
@@ -314,3 +324,5 @@ export const VerseView: React.FC<VerseViewProps> = ({
     </div>
   )
 }
+
+
