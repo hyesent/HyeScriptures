@@ -38,7 +38,7 @@ export const AIChat: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { checkAndIncrement, remaining } = useAILimits()
+  const { checkOnly, commit } = useAILimits('shepherd')
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -51,7 +51,7 @@ export const AIChat: React.FC = () => {
   const handleSend = async () => {
     if (!input.trim() || loading) return
 
-    const { allowed, message } = checkAndIncrement()
+    const { allowed, message } = checkOnly('shepherd')
     if (!allowed) {
       setError(message || 'AI limit reached')
       setTimeout(() => setError(null), 4000)
@@ -66,6 +66,10 @@ export const AIChat: React.FC = () => {
 
     try {
       const response = await chatWithAI([...messages, userMessage])
+      // Only commit the call if the AI actually responded
+      if (response && !response.startsWith('Sorry')) {
+        commit('shepherd')
+      }
       setMessages(prev => [...prev, { role: 'assistant', content: response }])
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I could not respond at this time.' }])
@@ -129,7 +133,7 @@ export const AIChat: React.FC = () => {
 
       <div className={styles.bottomBar}>
         <div className={styles.counterRow}>
-          <AICounter />
+          <AICounter feature="shepherd" />
         </div>
         <div className={styles.inputArea}>
           <input
@@ -152,4 +156,4 @@ export const AIChat: React.FC = () => {
       </div>
     </div>
   )
-      }
+}
