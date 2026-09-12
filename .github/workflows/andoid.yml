@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install jsPDF 
+        run: npm install jspdf 
+
       - name: Build web app
         run: npm run build
 
