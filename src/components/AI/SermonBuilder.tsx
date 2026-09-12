@@ -30,22 +30,22 @@ const DURATIONS = ['10 mins', '20 mins', '40 mins', '1 hour']
 const TONES = ['Teaching', 'Evangelistic', 'Prophetic', 'Expository', 'Topical', 'Motivational', 'Pastoral']
 
 const Icons = {
-  Sermon: () => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5[...]
-  Book: () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 1[...]
-  Calendar: () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" hei[...]
-  Users: () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a[...]
-  Clock: () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><poly[...]
-  Tone: () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/[...]
-  Sparkle: () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.5 5.5L19 10l-5.5[...]
-  ArrowLeft: () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6[...]
-  ChevronDown: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 [...]
-  ChevronUp: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15[...]
-  Download: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a[...]
-  Copy: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="1[...]
-  Share: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle[...]
-  Folder: () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 [...]
-  Trash: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><pat[...]
-  PDF: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0[...]
+  Sermon: () => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 4.5a2.121 2.121 0 0 1 3 3L7 21H4v-3L16.5 4.5z"/></svg>),
+  Book: () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>),
+  Calendar: () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><polyline points="16 2 16 6 8 6 8 2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>),
+  Users: () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>),
+  Clock: () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>),
+  Tone: () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>),
+  Sparkle: () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg>),
+  ArrowLeft: () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>),
+  ChevronDown: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>),
+  ChevronUp: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>),
+  Download: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>),
+  Copy: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>),
+  Share: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>),
+  Folder: () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>),
+  Trash: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>),
+  PDF: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><text x="6" y="16" fontSize="2" fontWeight="bold">PDF</text></svg>),
 }
 
 const TYPE_CARDS: { type: SermonType; icon: React.ElementType; label: string; desc: string }[] = [
@@ -400,7 +400,7 @@ export const SermonBuilder: React.FC = () => {
         <Crown size={48} style={{ color: '#c9a84c', opacity: 0.6 }} />
         <h2 style={{ fontSize: 20, fontWeight: 700 }}>Sermon Builder is for Elders</h2>
         <p style={{ color: '#888', maxWidth: 300 }}>Upgrade to Elder to create AI-powered sermon outlines with historical context, Greek/Hebrew insights, and more.</p>
-        <button onClick={() => window.location.href = '/upgrade'} style={{ padding: '12px 28px', background: '#c9a84c', color: 'white', border: 'none', borderRadius: 12, fontWeight: 600, cursor: [...]
+        <button onClick={() => window.location.href = '/upgrade'} style={{ padding: '12px 28px', background: '#c9a84c', color: 'white', border: 'none', borderRadius: 12, fontWeight: 600, cursor: 'pointer' }}>Upgrade to Elder</button>
       </div>
     )
   }
@@ -458,7 +458,7 @@ export const SermonBuilder: React.FC = () => {
       {step === 'type' && (
         <div className={styles.typeGrid}>
           {TYPE_CARDS.map(({ type, icon: Icon, label, desc }) => (
-            <button key={type} className={styles.typeCard} onClick={() => handleTypeSelect(type)}><Icon /><span className={styles.typeLabel}>{label}</span><span className={styles.typeDesc}>{desc}[...]
+            <button key={type} className={styles.typeCard} onClick={() => handleTypeSelect(type)}><Icon /><span className={styles.typeLabel}>{label}</span><span className={styles.typeDesc}>{desc}</span></button>
           ))}
         </div>
       )}
@@ -469,12 +469,12 @@ export const SermonBuilder: React.FC = () => {
             <label>{sermonType === 'topic' ? 'What topic?' : sermonType === 'passage' ? 'Which passage?' : sermonType === 'occasion' ? 'What occasion?' : 'Which audience?'}</label>
             {sermonType === 'topic' && <input type="text" className={styles.input} placeholder="e.g. Faith, Grace..." value={topicInput} onChange={e => setTopicInput(e.target.value)} />}
             {sermonType === 'passage' && <input type="text" className={styles.input} placeholder="e.g. Romans 8..." value={passageInput} onChange={e => setPassageInput(e.target.value)} />}
-            {sermonType === 'occasion' && <div className={styles.chipGrid}>{OCCASIONS.map(o => <button key={o} className={`${styles.chip} ${selectedOccasion === o ? styles.chipActive : ''}`} onCl[...]
-            {sermonType === 'audience' && <div className={styles.chipGrid}>{AUDIENCES.map(a => <button key={a} className={`${styles.chip} ${selectedAudience === a ? styles.chipActive : ''}`} onCl[...]
+            {sermonType === 'occasion' && <div className={styles.chipGrid}>{OCCASIONS.map(o => <button key={o} className={`${styles.chip} ${selectedOccasion === o ? styles.chipActive : ''}`} onClick={() => setSelectedOccasion(o)}>{o}</button>)}</div>}
+            {sermonType === 'audience' && <div className={styles.chipGrid}>{AUDIENCES.map(a => <button key={a} className={`${styles.chip} ${selectedAudience === a ? styles.chipActive : ''}`} onClick={() => setSelectedAudience(a)}>{a}</button>)}</div>}
           </div>
-          <div className={styles.formGroup}><label><Icons.Clock /> Duration</label><div className={styles.chipGrid}>{DURATIONS.map(d => <button key={d} className={`${styles.chip} ${formData.durat[...]
-          <div className={styles.formGroup}><label><Icons.Tone /> Tone</label><div className={styles.chipGrid}>{TONES.map(t => <button key={t} className={`${styles.chip} ${formData.tone === t ? s[...]
-          <div className={styles.formGroup}><label><Icons.Users /> Target Audience</label><input type="text" className={styles.input} placeholder="e.g. Young adults..." value={formData.audience} [...]
+          <div className={styles.formGroup}><label><Icons.Clock /> Duration</label><div className={styles.chipGrid}>{DURATIONS.map(d => <button key={d} className={`${styles.chip} ${formData.duration === d ? styles.chipActive : ''}`} onClick={() => setFormData(prev => ({ ...prev, duration: d }))}>{d}</button>)}</div></div>
+          <div className={styles.formGroup}><label><Icons.Tone /> Tone</label><div className={styles.chipGrid}>{TONES.map(t => <button key={t} className={`${styles.chip} ${formData.tone === t ? styles.chipActive : ''}`} onClick={() => setFormData(prev => ({ ...prev, tone: t }))}>{t}</button>)}</div></div>
+          <div className={styles.formGroup}><label><Icons.Users /> Target Audience</label><input type="text" className={styles.input} placeholder="e.g. Young adults..." value={formData.audience} onChange={e => setFormData(prev => ({ ...prev, audience: e.target.value }))} /></div>
           <button className={styles.generateBtn} onClick={handleGenerate}><Icons.Sparkle /> Generate Sermon</button>
           {error && <div className={styles.error}>{error}</div>}
         </div>
@@ -492,15 +492,15 @@ export const SermonBuilder: React.FC = () => {
                 {section.expanded && (
                   <div className={styles.sectionContent}>
                     <div className={styles.modeToggle}>
-                      <button className={`${styles.modeBtn} ${(!sectionModes[section.id] || sectionModes[section.id] === 'original') ? styles.modeActive : ''}`} onClick={() => setSectionModes(pre[...]
-                      <button className={`${styles.modeBtn} ${sectionModes[section.id] === 'notes' ? styles.modeActive : ''}`} onClick={() => initNotes(section.id, section.content)}>My Notes</but[...]
+                      <button className={`${styles.modeBtn} ${(!sectionModes[section.id] || sectionModes[section.id] === 'original') ? styles.modeActive : ''}`} onClick={() => setSectionModes(prev => ({ ...prev, [section.id]: 'original' }))}>Original</button>
+                      <button className={`${styles.modeBtn} ${sectionModes[section.id] === 'notes' ? styles.modeActive : ''}`} onClick={() => initNotes(section.id, section.content)}>My Notes</button>
                     </div>
                     {(!sectionModes[section.id] || sectionModes[section.id] === 'original') && (
                       <div className={styles.renderedContent} dangerouslySetInnerHTML={{ __html: formatContent(section.content) }} />
                     )}
                     {sectionModes[section.id] === 'notes' && (
                       <div className={styles.notesMode}>
-                        <textarea className={styles.notesEditor} value={sectionNotes[section.id] || section.content} onChange={e => setSectionNotes(prev => ({ ...prev, [section.id]: e.target.valu[...]
+                        <textarea className={styles.notesEditor} value={sectionNotes[section.id] || section.content} onChange={e => setSectionNotes(prev => ({ ...prev, [section.id]: e.target.value }))} />
                         <div className={styles.notesHint}>Links are clickable. **bold** and *italic*. Verses become tappable.</div>
                       </div>
                     )}
@@ -550,14 +550,14 @@ export const SermonBuilder: React.FC = () => {
             <p className={styles.expansionDesc}>Use these prompts to deepen your message in your own words</p>
             <div className={styles.expansionList}>
               {[
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-[...]
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z[...]
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path [...]
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>), label: 'Obje[...]
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>), label[...]
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0[...]
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77[...]
-                { icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy[...]
+                { icon: '❓', label: 'Question', text: 'What would you ask the audience to reflect on?' },
+                { icon: '💭', label: 'Discussion', text: 'How might this message spark conversation?' },
+                { icon: '🎓', label: 'Teaching', text: 'What deeper truths can you emphasize?' },
+                { icon: '✅', label: 'Objective', text: 'What transformation do you want to see?' },
+                { icon: '👁️', label: 'Vision', text: 'How does this connect to God\'s bigger plan?' },
+                { icon: '❤️', label: 'Heart', text: 'What emotional truth resonates here?' },
+                { icon: '⭐', label: 'Highlights', text: 'Which moments will stick with listeners?' },
+                { icon: '👥', label: 'Connection', text: 'How does this affect relationships?' },
               ].map((item, i) => (
                 <div key={i} className={styles.ponderCard}>
                   <div className={styles.ponderIcon}>{item.icon}</div>
