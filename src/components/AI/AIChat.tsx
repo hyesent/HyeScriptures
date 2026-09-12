@@ -127,25 +127,29 @@ export const AIChat: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className={styles.inputArea}>
-        <AICounter />
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Ask a question..."
-          className={styles.input}
-          disabled={loading}
-        />
-        <button
-          className={styles.sendBtn}
-          onClick={handleSend}
-          disabled={!input.trim() || loading}
-        >
-          <SendIcon />
-        </button>
+      <div className={styles.bottomBar}>
+        <div className={styles.counterRow}>
+          <AICounter />
+        </div>
+        <div className={styles.inputArea}>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Ask a question..."
+            className={styles.input}
+            disabled={loading}
+          />
+          <button
+            className={styles.sendBtn}
+            onClick={handleSend}
+            disabled={!input.trim() || loading}
+          >
+            <SendIcon />
+          </button>
+        </div>
       </div>
     </div>
   )
-}
+      }
