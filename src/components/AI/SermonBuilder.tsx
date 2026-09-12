@@ -89,7 +89,7 @@ export const SermonBuilder: React.FC = () => {
   const [savedSermons, setSavedSermons] = useState<SavedSermon[]>([])
   const [sectionModes, setSectionModes] = useState<Record<string, 'original' | 'notes'>>({})
   const [sectionNotes, setSectionNotes] = useState<Record<string, string>>({})
-  const { checkAndIncrement } = useAILimits()
+  const { checkOnly, commit } = useAILimits('sermon')
 
   useEffect(() => {
     try { const saved = localStorage.getItem(SAVE_KEY); if (saved) setSavedSermons(JSON.parse(saved)) } catch {}
@@ -123,19 +123,26 @@ export const SermonBuilder: React.FC = () => {
   }
 
   const handleGenerate = async () => {
-    const { allowed, message } = checkAndIncrement()
+    // Check limit — does NOT increment
+    const { allowed, message } = checkOnly('sermon')
     if (!allowed) { setError(message || 'AI limit reached'); return }
+
     let topic = ''
     if (sermonType === 'topic') topic = topicInput
     else if (sermonType === 'passage') topic = passageInput
     else if (sermonType === 'occasion') topic = selectedOccasion
     else if (sermonType === 'audience') topic = selectedAudience
     if (!topic.trim()) { setError('Please enter a topic or select an option'); return }
+
     setLoading(true); setError(null)
+
     try {
       const prompt = buildSermonPrompt(topic, formData, sermonType!)
       const result = await callSermonEdgeFunction(prompt)
       if (result) {
+        // Only count on success
+        commit('sermon')
+
         setSections([
           { id: 'opening-prayer', title: 'Opening Prayer', content: ensureString(result.opening_prayer), expanded: true },
           { id: 'title', title: 'Title & Theme', content: `**${ensureString(result.title || topic)}**\n\n${ensureString(result.theme)}`, expanded: true },
@@ -154,9 +161,14 @@ export const SermonBuilder: React.FC = () => {
           { id: 'altar-call', title: 'Altar Call', content: ensureString(result.altar_call), expanded: false },
         ].filter(s => s.content))
         setSectionModes({}); setSectionNotes({}); setStep('result')
-      } else { setError('Failed to generate sermon.') }
-    } catch { setError('Error generating sermon.') }
-    finally { setLoading(false) }
+      } else {
+        setError('Failed to generate sermon.')
+      }
+    } catch {
+      setError('Error generating sermon.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const toggleSection = (id: string) => setSections(prev => prev.map(s => s.id === id ? { ...s, expanded: !s.expanded } : s))
@@ -209,12 +221,12 @@ export const SermonBuilder: React.FC = () => {
           </div>
         </div>
         <div className={styles.headerRight}>
-          <AICounter />
+          <AICounter feature="sermon" />
           <button className={`${styles.navBtn} ${step === 'saved' ? styles.active : ''}`} onClick={() => setStep('saved')}><Icons.Folder /> Saved</button>
         </div>
       </div>
 
-      {step === 'saved' && (
+       {step === 'saved' && (
         <div className={styles.savedSection}>
           <h3>My Sermons</h3>
           {savedSermons.length === 0 ? <p className={styles.empty}>No saved sermons yet.</p> : (
@@ -331,4 +343,4 @@ const callSermonEdgeFunction = async (prompt: string): Promise<any> => {
     if (error) throw error
     return data?.response || null
   } catch { return null }
-}
+}                                                 }
