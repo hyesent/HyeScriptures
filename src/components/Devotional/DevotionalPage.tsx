@@ -177,13 +177,13 @@ export const DevotionalPage: React.FC = () => {
   }
 
   const handleCopyFull = () => {
-    const fullText = `${currentDevotional.scripture}\n\n${currentDevotional.reflection}\n\n${currentDevotional.prayer}`
-    navigator.clipboard.writeText(fullText).then(() => {
+    const formatted = buildFormattedDevotional()
+    navigator.clipboard.writeText(formatted).then(() => {
       setCopiedFull(true)
       setTimeout(() => setCopiedFull(false), 2000)
     }).catch(() => {
       const textArea = document.createElement('textarea')
-      textArea.value = fullText
+      textArea.value = formatted
       document.body.appendChild(textArea)
       textArea.select()
       document.execCommand('copy')
@@ -314,7 +314,6 @@ export const DevotionalPage: React.FC = () => {
       const fileName = `${scriptureData.reference.replace(/\s/g, '_')}.png`
       const shareText = `${scriptureData.reference} - ${scriptureData.verse}`
 
-      // WEB
       if (!isCapacitorPlatform() && navigator.share && navigator.canShare) {
         try {
           const response = await fetch(imageDataUrl)
@@ -327,7 +326,6 @@ export const DevotionalPage: React.FC = () => {
         } catch { return }
       }
 
-      // APK — save file first, then share the URI
       if (isCapacitorPlatform()) {
         try {
           const base64Data = imageDataUrl.split(',')[1]
@@ -353,7 +351,6 @@ export const DevotionalPage: React.FC = () => {
         }
       }
 
-      // FALLBACK — download
       const link = document.createElement('a')
       link.download = fileName
       link.href = imageDataUrl
@@ -409,14 +406,61 @@ export const DevotionalPage: React.FC = () => {
     } catch {}
   }
 
+  // ===== FORMATTED DEVOTIONAL BUILDER =====
+  const formatVerseAsPoetry = (verse: string): string => {
+    return verse
+      .replace(/;\s*/g, ';\n')
+      .replace(/,\s+(?=[A-Z])/g, ',\n')
+      .trim()
+  }
+
+  const buildFormattedDevotional = (): string => {
+    const ref = scriptureData.reference
+    const verse = scriptureData.verse
+    const reflection = currentDevotional.reflection || ''
+    const prayer = currentDevotional.prayer || ''
+    const divider = '━━━━━━━━━━━━━━━'
+
+    return `${ref}
+
+"${formatVerseAsPoetry(verse)}"
+
+${divider}
+
+${reflection}
+
+${divider}
+
+A prayer for today:
+
+${prayer}
+
+${divider}
+
+Hyescriptures
+Your daily bread`
+  }
+
+  const handleShareFullDevotional = async () => {
+    const formatted = buildFormattedDevotional()
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Daily Devotional', text: formatted })
+        return
+      }
+      await navigator.clipboard.writeText(formatted)
+    } catch {}
+  }
+
   const handlePostToCommunity = async () => {
     if (!user || posting) return
     setPosting(true)
     try {
+      const formatted = buildFormattedDevotional()
       const post = await createPost(
         'verse_reflection',
-        `${currentDevotional.reflection}\n\n${currentDevotional.prayer}`,
-        currentDevotional.scripture || undefined
+        formatted,
+        undefined
       )
       if (post) {
         setPosted(true)
@@ -591,7 +635,7 @@ export const DevotionalPage: React.FC = () => {
             <button className={styles.cardActionBtn} onClick={() => navigator.clipboard.writeText(currentDevotional.prayer || '')}>
               <Copy size={14} />Copy
             </button>
-            <button className={styles.cardActionBtn} onClick={() => handleShare(`${currentDevotional.scripture}\n\n${currentDevotional.reflection}\n\n${currentDevotional.prayer}`)}>
+            <button className={styles.cardActionBtn} onClick={handleShareFullDevotional}>
               <Share size={14} />Share Devotional
             </button>
           </div>
@@ -604,4 +648,4 @@ export const DevotionalPage: React.FC = () => {
       </div>
     </div>
   )
-}
+            }
