@@ -908,6 +908,19 @@
 }
 
 /* ============================================================
+   SAVE BUTTON — success flash state
+============================================================ */
+.actionBtnSaved {
+  background: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #059669 !important;
+}
+
+.actionBtnSaved svg {
+  color: #059669 !important;
+}
+
+/* ============================================================
    RESPONSIVE — new additions
 ============================================================ */
 @media (max-width: 600px) {
