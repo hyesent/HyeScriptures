@@ -753,3 +753,131 @@
   line-height: 1.6;
   margin: 0;
 }
+
+/* ============================================================
+   ORIGINAL EXPORT (unedited) ACTIONS
+============================================================ */
+.originalActions {
+  margin-top: 20px;
+  padding: 18px 20px;
+  background: #fdfcf9;
+  border: 1px dashed #e0dbd2;
+  border-radius: 16px;
+  animation: slideDown 0.3s ease;
+}
+
+.originalHint {
+  font-size: 13px;
+  color: #999;
+  margin: 0 0 14px;
+  font-weight: 500;
+}
+
+.originalBtnRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.originalBtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  background: transparent;
+  border: 1px solid #e8e4dd;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.originalBtn:hover {
+  border-color: #c9a84c;
+  color: #c9a84c;
+  background: rgba(201, 168, 76, 0.05);
+  transform: translateY(-1px);
+}
+
+.originalBtn svg {
+  color: #999;
+  transition: color 0.25s ease;
+}
+
+.originalBtn:hover svg {
+  color: #c9a84c;
+}
+
+/* ============================================================
+   ACTION BUTTON VARIANTS
+============================================================ */
+.actionBtn.copied {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #059669;
+}
+
+.actionBtn.copied svg {
+  color: #059669;
+}
+
+.actionBtn.primary {
+  background: #1a1a2e;
+  color: #fff;
+  border-color: #1a1a2e;
+}
+
+.actionBtn.primary svg {
+  color: #c9a84c;
+}
+
+.actionBtn.primary:hover {
+  background: #2d2d44;
+  border-color: #2d2d44;
+}
+
+/* ============================================================
+   INLINE LINK STYLES (rendered content)
+============================================================ */
+.sermon-link {
+  color: #c9a84c;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  word-break: break-all;
+  font-weight: 500;
+}
+
+.sermon-link:hover {
+  color: #b8963a;
+  text-decoration-thickness: 2px;
+}
+
+.sermon-verse-link {
+  display: inline-block;
+  color: #1a1a2e;
+  background: rgba(201, 168, 76, 0.14);
+  padding: 1px 7px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.93em;
+  border: 1px solid rgba(201, 168, 76, 0.25);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sermon-verse-link:hover {
+  background: rgba(201, 168, 76, 0.28);
+  border-color: #c9a84c;
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   RESPONSIVE — Original actions
+============================================================ */
+@media (max-width: 600px) {
+  .originalBtnRow { flex-direction: column; }
+  .originalBtn { justify-content: center; }
+   }
