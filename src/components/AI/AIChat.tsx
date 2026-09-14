@@ -38,7 +38,9 @@ export const AIChat: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { checkOnly, commit } = useAILimits('shepherd')
+
+  // ✅ FIXED: use current API
+  const { checkAndIncrement, syncFromResponse } = useAILimits('shepherd')
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -51,7 +53,8 @@ export const AIChat: React.FC = () => {
   const handleSend = async () => {
     if (!input.trim() || loading) return
 
-    const { allowed, message } = checkOnly('shepherd')
+    // Fast local hint — server is the real gate
+    const { allowed, message } = checkAndIncrement('shepherd')
     if (!allowed) {
       setError(message || 'AI limit reached')
       setTimeout(() => setError(null), 4000)
@@ -65,12 +68,22 @@ export const AIChat: React.FC = () => {
     setError(null)
 
     try {
-      const response = await chatWithAI([...messages, userMessage])
-      // Only commit the call if the AI actually responded
-      if (response && !response.startsWith('Sorry')) {
-        commit('shepherd')
+      const result = await chatWithAI([...messages, userMessage])
+
+      // Mirror server's authoritative count
+      syncFromResponse('shepherd', result)
+
+      // Server said no
+      if (!result.allowed) {
+        setError(result.message || 'Limit reached')
+        setTimeout(() => setError(null), 4000)
+        return
       }
-      setMessages(prev => [...prev, { role: 'assistant', content: response }])
+
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: result.response || 'Sorry, I could not respond at this time.'
+      }])
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I could not respond at this time.' }])
     } finally {
