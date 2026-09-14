@@ -14,19 +14,16 @@ interface AIUsage {
 
 const getToday = () => new Date().toISOString().split('T')[0]
 
-// Per-feature limits
+// Display-only hints — server is the source of truth
 const FEATURE_LIMITS: Record<AIFeature, { free: number; elder: number }> = {
-  explain: { free: 2, elder: 7 },
-  shepherd: { free: 0, elder: 7 },
-  sermon: { free: 0, elder: 7 },
-  scripture: { free: 1, elder: 3 },
+  explain: { free: 3, elder: 10 },
+  shepherd: { free: 0, elder: 10 },
+  sermon: { free: 0, elder: 4 },
+  scripture: { free: 3, elder: 10 },
 }
 
 const emptyCounts = (): Record<AIFeature, number> => ({
-  explain: 0,
-  shepherd: 0,
-  sermon: 0,
-  scripture: 0,
+  explain: 0, shepherd: 0, sermon: 0, scripture: 0,
 })
 
 const getUsage = (): AIUsage => {
@@ -35,7 +32,6 @@ const getUsage = (): AIUsage => {
     if (!data) return { date: getToday(), counts: emptyCounts() }
     const usage = JSON.parse(data) as AIUsage
     if (usage.date !== getToday()) return { date: getToday(), counts: emptyCounts() }
-    // Ensure all features exist
     return { date: usage.date, counts: { ...emptyCounts(), ...usage.counts } }
   } catch {
     return { date: getToday(), counts: emptyCounts() }
@@ -51,25 +47,19 @@ export const useAILimits = (feature?: AIFeature) => {
   const { user } = useAuth()
   const [usage, setUsage] = useState<AIUsage>(getUsage())
 
-  useEffect(() => {
-    setUsage(getUsage())
-  }, [user])
+  useEffect(() => { setUsage(getUsage()) }, [user])
 
   const getFeatureLimit = useCallback((f: AIFeature): number => {
     const limits = FEATURE_LIMITS[f]
     return tier === 'elder' ? limits.elder : limits.free
   }, [tier])
 
+  // Fast local hint — does NOT block the server call
   const checkAndIncrement = useCallback((f?: AIFeature): { allowed: boolean; message?: string } => {
     const targetFeature = f || feature
-    if (!targetFeature) {
-      return { allowed: false, message: 'No AI feature specified' }
-    }
+    if (!targetFeature) return { allowed: false, message: 'No AI feature specified' }
 
     const limit = getFeatureLimit(targetFeature)
-    const current = getUsage()
-    const currentCount = current.counts[targetFeature] || 0
-
     if (limit === 0) {
       return {
         allowed: false,
@@ -79,34 +69,38 @@ export const useAILimits = (feature?: AIFeature) => {
       }
     }
 
+    const current = getUsage()
+    const currentCount = current.counts[targetFeature] || 0
     if (currentCount >= limit) {
-      const featureNames: Record<AIFeature, string> = {
-        explain: 'AI explanations',
-        shepherd: 'Shepherd messages',
-        sermon: 'sermon generations',
-        scripture: 'scripture moments',
-      }
       return {
         allowed: false,
         message: tier === 'free'
-          ? `You've used your ${limit} free ${featureNames[targetFeature]} today. Upgrade to Elder for more.`
-          : `You've used all ${limit} ${featureNames[targetFeature]} today. Come back tomorrow.`,
+          ? `You've used your ${limit} free AI calls today. Upgrade for more.`
+          : `You've used all ${limit} AI calls today. Come back tomorrow.`,
       }
     }
 
+    // Optimistically increment local (will be overwritten by server sync)
     const updated: AIUsage = {
       date: current.date,
-      counts: {
-        ...current.counts,
-        [targetFeature]: currentCount + 1,
-      },
+      counts: { ...current.counts, [targetFeature]: currentCount + 1 },
     }
     saveUsage(updated)
     setUsage(updated)
     return { allowed: true }
   }, [feature, getFeatureLimit, tier])
 
-  // Get remaining for a feature
+  // NEW: Called after every server response to mirror the real count
+  const syncFromResponse = useCallback((f: AIFeature, envelope: { count: number }) => {
+    const current = getUsage()
+    const updated: AIUsage = {
+      date: current.date,
+      counts: { ...current.counts, [f]: envelope.count },
+    }
+    saveUsage(updated)
+    setUsage(updated)
+  }, [])
+
   const getRemaining = useCallback((f?: AIFeature): number => {
     const targetFeature = f || feature
     if (!targetFeature) return 0
@@ -122,14 +116,13 @@ export const useAILimits = (feature?: AIFeature) => {
   }, [feature, usage])
 
   return {
-    // Legacy single-feature accessors (uses `feature` param)
     remaining: feature ? getRemaining() : 0,
     used: feature ? getUsed() : 0,
     limit: feature ? getFeatureLimit(feature) : 0,
     isLimited: feature ? getRemaining() === 0 : false,
     tier,
-    // New multi-feature API
     checkAndIncrement,
+    syncFromResponse,   // ← NEW
     getRemaining,
     getUsed,
     getFeatureLimit,
