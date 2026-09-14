@@ -1,3 +1,4 @@
+// src/hooks/useSubscription.ts
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from './useAuth'
 import type { Tier, Feature } from '../types/subscription'
@@ -13,6 +14,8 @@ const ELDER_EMAILS: string[] = [
 const HYESPACE_VERIFY_URL =
   'https://bqyrkdxqwysrhvjfajix.supabase.co/functions/v1/verify-subscription'
 
+const TIER_CACHE_KEY = 'hyescriptures_tier_cache'
+
 export const useSubscription = () => {
   const { user } = useAuth()
   const [tier, setTier] = useState<Tier>('free')
@@ -27,6 +30,13 @@ export const useSubscription = () => {
     }
   })
 
+  // Persist tier to localStorage so lib/ai.ts can read it synchronously
+  useEffect(() => {
+    try {
+      localStorage.setItem(TIER_CACHE_KEY, JSON.stringify({ tier, at: Date.now() }))
+    } catch {}
+  }, [tier])
+
   const checkTier = useCallback(async () => {
     if (!user?.email) {
       setTier('free')
@@ -34,14 +44,12 @@ export const useSubscription = () => {
       return
     }
 
-    // Elder emails bypass
     if (ELDER_EMAILS.includes(user.email)) {
       setTier('elder')
       setLoading(false)
       return
     }
 
-    // Must have storeId to verify via HyeSpace
     if (!storeId) {
       setTier('free')
       setLoading(false)
@@ -82,7 +90,6 @@ export const useSubscription = () => {
       }
 
       if (data.subscribed && data.status === 'active') {
-        // Map tier_id to Tier type (hyescriptures-elder → elder, anything else → free)
         const mappedTier: Tier =
           data.tierId === 'hyescriptures-elder' ? 'elder' : 'free'
         setTier(mappedTier)
