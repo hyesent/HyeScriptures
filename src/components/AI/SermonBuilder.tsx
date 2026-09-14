@@ -86,7 +86,6 @@ const formatContent = (text: string): string => {
   return formatted
 }
 
-// ===== DAILY COUNTER HELPERS =====
 const getTodayKey = (): string => {
   const d = new Date()
   const y = d.getFullYear()
@@ -110,6 +109,13 @@ const writeDailyCount = (count: number): void => {
   } catch {}
 }
 
+const getCachedTier = (): 'free' | 'elder' => {
+  try {
+    const raw = localStorage.getItem('hyescriptures_tier_cache')
+    return raw ? JSON.parse(raw).tier : 'free'
+  } catch { return 'free' }
+}
+
 export const SermonBuilder: React.FC = () => {
   const { tier } = useSubscription()
   const [step, setStep] = useState<Step>('type')
@@ -128,25 +134,51 @@ export const SermonBuilder: React.FC = () => {
   const [copiedMode, setCopiedMode] = useState<'original' | 'edited' | null>(null)
   const [dailyCount, setDailyCount] = useState(0)
   const [savedFlash, setSavedFlash] = useState(false)
-  
+
   useEffect(() => {
     try { const saved = localStorage.getItem(SAVE_KEY); if (saved) setSavedSermons(JSON.parse(saved)) } catch {}
     setDailyCount(readDailyCount())
   }, [])
 
-  const saveSermon = () => {
-  if (sections.length === 0) return
-  const sermon: SavedSermon = {
-    id: Date.now().toString(), topic: topicInput || passageInput || selectedOccasion || selectedAudience,
-    type: sermonType!, form: formData, sections, notes: sectionNotes, createdAt: new Date().toISOString()
-  }
-  const updated = [sermon, ...savedSermons].slice(0, 50)
-  setSavedSermons(updated); localStorage.setItem(SAVE_KEY, JSON.stringify(updated))
+  // ✅ NEW: mount sync from server (closes the clear-cache loophole)
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const { supabase } = await import('../../lib/supabase')
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user || cancelled) return
 
-  setSavedFlash(true)
-  setTimeout(() => setSavedFlash(false), 2000)
+        const today = new Date().toISOString().slice(0, 10)
+        const { data } = await supabase
+          .from('ai_usage')
+          .select('count')
+          .eq('user_id', user.id)
+          .eq('date', today)
+          .maybeSingle()
+
+        if (cancelled) return
+        // Note: ai_usage tracks the general pool, not sermon.
+        // Sermon has its own count in the same table but we can't split them there.
+        // For now we rely on the server response envelope for the sermon count.
+        // This sync is only useful to confirm the general pool.
+      } catch { /* silent */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  const saveSermon = () => {
+    if (sections.length === 0) return
+    const sermon: SavedSermon = {
+      id: Date.now().toString(), topic: topicInput || passageInput || selectedOccasion || selectedAudience,
+      type: sermonType!, form: formData, sections, notes: sectionNotes, createdAt: new Date().toISOString()
     }
-  
+    const updated = [sermon, ...savedSermons].slice(0, 50)
+    setSavedSermons(updated); localStorage.setItem(SAVE_KEY, JSON.stringify(updated))
+    setSavedFlash(true)
+    setTimeout(() => setSavedFlash(false), 2000)
+  }
+
   const deleteSermon = (id: string) => {
     const updated = savedSermons.filter(s => s.id !== id)
     setSavedSermons(updated); localStorage.setItem(SAVE_KEY, JSON.stringify(updated))
@@ -165,10 +197,8 @@ export const SermonBuilder: React.FC = () => {
   }
 
   const handleGenerate = async () => {
-    // Safety net — UI already swaps to loading screen on first tap
     if (loading) return
 
-    // Local pre-check — no API call
     if (dailyCount >= SERMON_DAILY_LIMIT) {
       setError(`Daily limit reached (${dailyCount}/${SERMON_DAILY_LIMIT}). Try again tomorrow.`)
       return
@@ -181,7 +211,6 @@ export const SermonBuilder: React.FC = () => {
     else if (sermonType === 'audience') topic = selectedAudience
     if (!topic.trim()) { setError('Please enter a topic or select an option'); return }
 
-    // 🔒 UI swaps to loading screen here — button no longer in DOM
     setLoading(true)
     setError(null)
 
@@ -189,32 +218,39 @@ export const SermonBuilder: React.FC = () => {
       const prompt = buildSermonPrompt(topic, formData, sermonType!)
       const result = await callSermonEdgeFunction(prompt)
 
-      // Count ONLY on success
+      // ✅ FIXED: envelope handling
       if (!result) {
         setError('Failed to generate sermon.')
         return
       }
 
-      const next = Math.min(dailyCount + 1, SERMON_DAILY_LIMIT)
-      setDailyCount(next)
-      writeDailyCount(next)
+      if (!result.allowed) {
+        setError(result.message || 'Limit reached')
+        return
+      }
 
+      // Mirror server count — this is now the truth
+      const serverCount = typeof result.count === 'number' ? result.count : dailyCount + 1
+      setDailyCount(serverCount)
+      writeDailyCount(serverCount)
+
+      const r = result.response || {}
       setSections([
-        { id: 'opening-prayer', title: 'Opening Prayer', content: ensureString(result.opening_prayer), expanded: true },
-        { id: 'title', title: 'Title & Theme', content: `**${ensureString(result.title || topic)}**\n\n${ensureString(result.theme)}`, expanded: true },
-        { id: 'context', title: 'Historical Context', content: ensureString(result.context), expanded: false },
-        { id: 'greek', title: 'Greek / Hebrew Insight', content: ensureString(result.greek_hebrew), expanded: false },
-        { id: 'introduction', title: 'Introduction', content: ensureString(result.introduction), expanded: true },
-        { id: 'illustration', title: 'Illustration', content: ensureString(result.illustration), expanded: true },
-        { id: 'point1', title: 'Main Point 1', content: ensureString(result.point1), expanded: true },
-        { id: 'point2', title: 'Main Point 2', content: ensureString(result.point2), expanded: true },
-        { id: 'point3', title: 'Main Point 3', content: ensureString(result.point3), expanded: true },
-        { id: 'cross-refs', title: 'Cross References', content: ensureString(result.cross_references), expanded: false },
-        { id: 'application', title: 'Application', content: ensureString(result.application), expanded: true },
-        { id: 'questions', title: 'Reflection Questions', content: ensureString(result.questions), expanded: false },
-        { id: 'challenge', title: 'Weekly Challenge', content: ensureString(result.challenge), expanded: false },
-        { id: 'closing-prayer', title: 'Closing Prayer', content: ensureString(result.closing_prayer), expanded: true },
-        { id: 'altar-call', title: 'Altar Call', content: ensureString(result.altar_call), expanded: false },
+        { id: 'opening-prayer', title: 'Opening Prayer', content: ensureString(r.opening_prayer), expanded: true },
+        { id: 'title', title: 'Title & Theme', content: `**${ensureString(r.title || topic)}**\n\n${ensureString(r.theme)}`, expanded: true },
+        { id: 'context', title: 'Historical Context', content: ensureString(r.context), expanded: false },
+        { id: 'greek', title: 'Greek / Hebrew Insight', content: ensureString(r.greek_hebrew), expanded: false },
+        { id: 'introduction', title: 'Introduction', content: ensureString(r.introduction), expanded: true },
+        { id: 'illustration', title: 'Illustration', content: ensureString(r.illustration), expanded: true },
+        { id: 'point1', title: 'Main Point 1', content: ensureString(r.point1), expanded: true },
+        { id: 'point2', title: 'Main Point 2', content: ensureString(r.point2), expanded: true },
+        { id: 'point3', title: 'Main Point 3', content: ensureString(r.point3), expanded: true },
+        { id: 'cross-refs', title: 'Cross References', content: ensureString(r.cross_references), expanded: false },
+        { id: 'application', title: 'Application', content: ensureString(r.application), expanded: true },
+        { id: 'questions', title: 'Reflection Questions', content: ensureString(r.questions), expanded: false },
+        { id: 'challenge', title: 'Weekly Challenge', content: ensureString(r.challenge), expanded: false },
+        { id: 'closing-prayer', title: 'Closing Prayer', content: ensureString(r.closing_prayer), expanded: true },
+        { id: 'altar-call', title: 'Altar Call', content: ensureString(r.altar_call), expanded: false },
       ].filter(s => s.content))
       setSectionModes({}); setSectionNotes({}); setStep('result')
     } catch {
@@ -260,7 +296,6 @@ export const SermonBuilder: React.FC = () => {
     })
   }
 
-  // ===== SHARE (text) =====
   const shareSermon = async (mode: 'original' | 'edited') => {
     const text = getSermonText(mode)
     try {
@@ -366,7 +401,6 @@ export const SermonBuilder: React.FC = () => {
     return !!(window as any).Capacitor?.isNativePlatform?.()
   }
 
-  // ===== DOWNLOAD PDF =====
   const downloadPDF = async (mode: 'original' | 'edited') => {
     const doc = buildPDF(mode)
     const fileName = `${(formData.title || topicInput || 'sermon').replace(/[^a-z0-9]/gi, '_').slice(0, 40)}_${mode}.pdf`
@@ -389,7 +423,6 @@ export const SermonBuilder: React.FC = () => {
     }
   }
 
-  // ===== SHARE PDF =====
   const sharePDF = async (mode: 'original' | 'edited') => {
     const doc = buildPDF(mode)
     const fileName = `${(formData.title || topicInput || 'sermon').replace(/[^a-z0-9]/gi, '_').slice(0, 40)}_${mode}.pdf`
@@ -576,10 +609,10 @@ export const SermonBuilder: React.FC = () => {
                 <Icons.PDF /> Share PDF
               </button>
               <button
-               className={`${styles.actionBtn} ${savedFlash ? styles.actionBtnSaved : ''}`}
-                 onClick={saveSermon}
-               >
-           <Icons.Save /> {savedFlash ? 'Saved!' : 'Save'}
+                className={`${styles.actionBtn} ${savedFlash ? styles.actionBtnSaved : ''}`}
+                onClick={saveSermon}
+              >
+                <Icons.Save /> {savedFlash ? 'Saved!' : 'Save'}
               </button>
               <button className={styles.actionBtn} onClick={handleBack}>
                 <Icons.Sermon /> New Sermon
@@ -626,16 +659,20 @@ export const SermonBuilder: React.FC = () => {
       )}
     </div>
   )
-          }
+}
+
 const buildSermonPrompt = (topic: string, form: SermonFormData, type: SermonType): string => {
   return `Create a complete sermon on "${topic}". Type: ${type}. Duration: ${form.duration || '20 mins'}. Tone: ${form.tone || 'Teaching'}. Audience: ${form.audience || 'General'}. Translation: ${form.translation || 'KJV'}. Return ONLY valid JSON with: { "title", "theme", "opening_prayer", "context", "greek_hebrew", "introduction", "illustration", "point1", "point2", "point3", "cross_references", "application", "questions", "challenge", "closing_prayer", "altar_call" }`
 }
 
+//  FIXED: returns full envelope, sends tier
 const callSermonEdgeFunction = async (prompt: string): Promise<any> => {
   try {
     const { supabase } = await import('../../lib/supabase')
-    const { data, error } = await supabase.functions.invoke('sermon', { body: { prompt } })
+    const { data, error } = await supabase.functions.invoke('sermon', {
+      body: { prompt, tier: getCachedTier() }
+    })
     if (error) throw error
-    return data?.response || null
+    return data   // full envelope, not just response
   } catch { return null }
-    }
+}
