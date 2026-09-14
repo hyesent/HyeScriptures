@@ -10,6 +10,20 @@ export interface ScriptureMoment {
   createdAt: string
 }
 
+export interface ScriptureEnvelope {
+  allowed: boolean
+  count: number
+  limit: number
+  remaining: number
+  tier: 'free' | 'elder'
+  response?: {
+    references: string[]
+    word: string
+    prayer: string
+  }
+  message?: string
+}
+
 const HISTORY_KEY = 'hyescriptures_scripture_moments'
 const MAX_HISTORY = 30
 
@@ -39,30 +53,32 @@ export const clearHistory = () => {
 }
 
 // ========== GENERATE ==========
-interface GenerateResult {
-  references: string[]
-  word: string
-  prayer: string
+const getTier = (): 'free' | 'elder' => {
+  try {
+    const raw = localStorage.getItem('hyescriptures_tier_cache')
+    if (raw) return JSON.parse(raw).tier || 'free'
+  } catch {}
+  return 'free'
 }
 
-export const generateScriptureMoment = async (input: string): Promise<GenerateResult | null> => {
+const denied = (message: string): ScriptureEnvelope => ({
+  allowed: false,
+  count: 0,
+  limit: 0,
+  remaining: 0,
+  tier: 'free',
+  message,
+})
+
+export const generateScriptureMoment = async (input: string): Promise<ScriptureEnvelope> => {
   try {
     const { data, error } = await supabase.functions.invoke('scripture', {
-      body: { input }
+      body: { input, tier: getTier() }
     })
-    if (error) throw error
-    if (!data?.success || !data?.response) return null
-    
-    const result = data.response as GenerateResult
-    if (!result.references || result.references.length === 0) return null
-
-    return {
-      references: result.references.slice(0, 2),
-      word: result.word || '',
-      prayer: result.prayer || '',
-    }
+    if (error) return denied('Could not reach AI. Try again.')
+    return data as ScriptureEnvelope
   } catch (error) {
     console.error('Error generating scripture moment:', error)
-    return null
+    return denied('Could not reach AI. Try again.')
   }
 }
