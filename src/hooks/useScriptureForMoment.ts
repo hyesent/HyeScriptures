@@ -15,7 +15,9 @@ export const useScriptureForMoment = () => {
   const [error, setError] = useState<string | null>(null)
   const [current, setCurrent] = useState<ScriptureMoment | null>(null)
   const [history, setHistory] = useState<ScriptureMoment[]>(getHistory())
-  const { checkAndIncrement, getRemaining, tier } = useAILimits('scripture')
+
+  // ✅ FIXED: use the mirror API
+  const { checkAndIncrement, syncFromResponse, getRemaining, tier } = useAILimits('scripture')
 
   const generate = useCallback(async (input: string): Promise<boolean> => {
     if (!input.trim()) {
@@ -23,6 +25,7 @@ export const useScriptureForMoment = () => {
       return false
     }
 
+    // Fast local pre-check — server is the real gate
     const { allowed, message } = checkAndIncrement('scripture')
     if (!allowed) {
       setError(message || 'Limit reached')
@@ -34,7 +37,19 @@ export const useScriptureForMoment = () => {
 
     try {
       const result = await generateScriptureMoment(input.trim())
-      if (!result) {
+
+      // Mirror server's authoritative count
+      syncFromResponse('scripture', result)
+
+      // Server said no
+      if (!result.allowed) {
+        setError(result.message || 'Limit reached')
+        setLoading(false)
+        return false
+      }
+
+      // Server said yes but AI failed
+      if (!result.response) {
         setError('Could not find scripture for this moment. Please try again.')
         setLoading(false)
         return false
@@ -43,9 +58,9 @@ export const useScriptureForMoment = () => {
       const moment: ScriptureMoment = {
         id: Date.now().toString(),
         input: input.trim(),
-        references: result.references,
-        word: result.word,
-        prayer: result.prayer,
+        references: result.response.references,
+        word: result.response.word,
+        prayer: result.response.prayer,
         createdAt: new Date().toISOString(),
       }
 
@@ -59,7 +74,7 @@ export const useScriptureForMoment = () => {
     } finally {
       setLoading(false)
     }
-  }, [checkAndIncrement])
+  }, [checkAndIncrement, syncFromResponse])
 
   const loadFromHistory = useCallback((moment: ScriptureMoment) => {
     setCurrent(moment)
