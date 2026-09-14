@@ -146,7 +146,7 @@ export const ScriptureMomentPage: React.FC<ScriptureMomentPageProps> = ({ onBack
               <p className={styles.limitNote}>
                 {tier === 'free'
                   ? 'You\'ve used your free reflection today. Upgrade to Elder for more.'
-                  : 'You\'ve used all 3 reflections today. Come back tomorrow.'}
+                  : 'You\'ve used all 10 reflections today. Come back tomorrow.'}
               </p>
             )}
           </div>
