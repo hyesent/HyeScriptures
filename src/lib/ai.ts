@@ -7,18 +7,33 @@ export type AIMessage = {
   content: string
 }
 
-export type AIResponse = {
-  success: boolean
-  data?: string
-  error?: string
+export type AIEnvelope<T = any> = {
+  allowed: boolean
+  count: number
+  limit: number
+  remaining: number
+  tier: 'free' | 'elder'
+  response?: T
+  message?: string
 }
 
 export type SermonData = {
-  context: string
-  greek_hebrew: string
-  explanation: string
-  application: string
-  verses: string[]
+  title?: string
+  theme?: string
+  opening_prayer?: string
+  context?: string
+  greek_hebrew?: string
+  introduction?: string
+  illustration?: string
+  point1?: string
+  point2?: string
+  point3?: string
+  cross_references?: string
+  application?: string
+  questions?: string
+  challenge?: string
+  closing_prayer?: string
+  altar_call?: string
 }
 
 export type QuizQuestion = {
@@ -28,119 +43,119 @@ export type QuizQuestion = {
   explanation: string
 }
 
-// ========== AI CALL WRAPPER ==========
-// All AI calls go through this. Import useAILimits in components, not here.
-// Components check limits BEFORE calling these functions.
+export type DreamverseResult = {
+  verse: string
+  meaning: string
+}
 
-// Explain a verse
-export const explainVerse = async (verse: string): Promise<string> => {
+export type ScriptureMomentResult = {
+  references: string[]
+  word: string
+  prayer: string
+}
+
+// ========== TIER HELPER ==========
+const getTier = (): 'free' | 'elder' => {
+  try {
+    const raw = localStorage.getItem('hyescriptures_tier_cache')
+    if (raw) return JSON.parse(raw).tier || 'free'
+  } catch {}
+  return 'free'
+}
+
+const denied = (message: string): AIEnvelope => ({
+  allowed: false,
+  count: 0,
+  limit: 0,
+  remaining: 0,
+  tier: 'free',
+  message,
+})
+
+// ========== AI CALLS ==========
+
+export const explainVerse = async (verse: string): Promise<AIEnvelope<string>> => {
   try {
     const { data, error } = await supabase.functions.invoke('ai', {
-      body: { action: 'explain', verse }
+      body: { action: 'explain', verse, tier: getTier() }
     })
-    
-    if (error) {
-      console.error('AI Explain Error:', error)
-      return 'Sorry, I could not explain that verse at this time. Please try again later.'
-    }
-    return data?.response || 'No explanation available'
-  } catch (error) {
-    console.error('AI Explain Error:', error)
-    return 'Sorry, I could not explain that verse at this time. Please try again later.'
+    if (error) return denied('Could not reach AI. Try again.')
+    return data as AIEnvelope<string>
+  } catch {
+    return denied('Could not reach AI. Try again.')
   }
 }
 
-// Chat with AI
-export const chatWithAI = async (messages: AIMessage[]): Promise<string> => {
+export const chatWithAI = async (messages: AIMessage[]): Promise<AIEnvelope<string>> => {
   try {
     const { data, error } = await supabase.functions.invoke('ai', {
-      body: { action: 'chat', messages }
+      body: { action: 'chat', messages, tier: getTier() }
     })
-    
-    if (error) {
-      console.error('AI Chat Error:', error)
-      return 'Sorry, I could not respond at this time. Please try again later.'
-    }
-    return data?.response || 'No response'
-  } catch (error) {
-    console.error('AI Chat Error:', error)
-    return 'Sorry, I could not respond at this time. Please try again later.'
+    if (error) return denied('Could not reach AI. Try again.')
+    return data as AIEnvelope<string>
+  } catch {
+    return denied('Could not reach AI. Try again.')
   }
 }
 
-// Generate sermon
-export const generateSermon = async (topic: string): Promise<SermonData | null> => {
+export const generateQuiz = async (topic: string): Promise<AIEnvelope<QuizQuestion[]>> => {
   try {
     const { data, error } = await supabase.functions.invoke('ai', {
-      body: { action: 'sermon', topic }
+      body: { action: 'quiz', topic, tier: getTier() }
     })
-    
-    if (error) {
-      console.error('AI Sermon Error:', error)
-      return null
-    }
-    return data?.response || null
-  } catch (error) {
-    console.error('AI Sermon Error:', error)
-    return null
+    if (error) return denied('Could not reach AI. Try again.')
+    return data as AIEnvelope<QuizQuestion[]>
+  } catch {
+    return denied('Could not reach AI. Try again.')
   }
 }
 
-// Generate quiz
-export const generateQuiz = async (topic: string): Promise<QuizQuestion[]> => {
+export const generateDreamverse = async (): Promise<AIEnvelope<DreamverseResult>> => {
   try {
     const { data, error } = await supabase.functions.invoke('ai', {
-      body: { action: 'quiz', topic }
+      body: { action: 'dreamverse', tier: getTier() }
     })
-    
-    if (error) {
-      console.error('AI Quiz Error:', error)
-      return []
-    }
-    
-    const response = data?.response
-    if (Array.isArray(response)) {
-      return response
-    }
-    return []
-  } catch (error) {
-    console.error('AI Quiz Error:', error)
-    return []
+    if (error) return denied('Could not reach AI. Try again.')
+    return data as AIEnvelope<DreamverseResult>
+  } catch {
+    return denied('Could not reach AI. Try again.')
   }
 }
 
-// Generate dreamverse
-export const generateDreamverse = async (): Promise<{ verse: string; meaning: string } | null> => {
+export const summarizeChapter = async (book: string, chapter: number): Promise<AIEnvelope<string>> => {
   try {
     const { data, error } = await supabase.functions.invoke('ai', {
-      body: { action: 'dreamverse' }
+      body: { action: 'summarize', book, chapter, tier: getTier() }
     })
-    
-    if (error) {
-      console.error('AI Dreamverse Error:', error)
-      return null
-    }
-    return data?.response || null
-  } catch (error) {
-    console.error('AI Dreamverse Error:', error)
-    return null
+    if (error) return denied('Could not reach AI. Try again.')
+    return data as AIEnvelope<string>
+  } catch {
+    return denied('Could not reach AI. Try again.')
   }
 }
 
-// Summarize chapter
-export const summarizeChapter = async (book: string, chapter: number): Promise<string> => {
+// ========== DEDICATED EDGE FUNCTIONS ==========
+
+export const generateSermon = async (prompt: string): Promise<AIEnvelope<SermonData>> => {
   try {
-    const { data, error } = await supabase.functions.invoke('ai', {
-      body: { action: 'summarize', book, chapter }
+    const { data, error } = await supabase.functions.invoke('sermon', {
+      body: { prompt, tier: getTier() }
     })
-    
-    if (error) {
-      console.error('AI Summarize Error:', error)
-      return 'Sorry, I could not summarize this chapter at this time.'
-    }
-    return data?.response || 'No summary available'
-  } catch (error) {
-    console.error('AI Summarize Error:', error)
-    return 'Sorry, I could not summarize this chapter at this time.'
+    if (error) return denied('Could not reach AI. Try again.')
+    return data as AIEnvelope<SermonData>
+  } catch {
+    return denied('Could not reach AI. Try again.')
+  }
+}
+
+export const generateScriptureMoment = async (input: string): Promise<AIEnvelope<ScriptureMomentResult>> => {
+  try {
+    const { data, error } = await supabase.functions.invoke('scripture', {
+      body: { input, tier: getTier() }
+    })
+    if (error) return denied('Could not reach AI. Try again.')
+    return data as AIEnvelope<ScriptureMomentResult>
+  } catch {
+    return denied('Could not reach AI. Try again.')
   }
 }
