@@ -73,7 +73,9 @@ export const VerseView: React.FC<VerseViewProps> = ({
   const verseRefs = useRef<(HTMLDivElement | null)[]>([])
   const touchStartX = useRef(0)
   const longPressTimer = useRef<NodeJS.Timeout | null>(null)
-  const { checkOnly, commit } = useAILimits('explain')
+
+  // ✅ FIXED: use current API (checkAndIncrement + syncFromResponse)
+  const { checkAndIncrement, syncFromResponse } = useAILimits('explain')
   const { tier } = useSubscription()
 
   const { settings, isPlaying, isPaused, isLoading, currentVerseIndex, audioRef,
@@ -105,8 +107,9 @@ export const VerseView: React.FC<VerseViewProps> = ({
   }
   const handleAddNote = (index: number) => { setNoteVerseRef(getVerseReference(index)); setShowNoteEditor(true); handleActionComplete() }
 
+  // ✅ FIXED: use checkAndIncrement + syncFromResponse, envelope handling
   const handleAIExplain = async (index: number) => {
-    const { allowed, message } = checkOnly('explain')
+    const { allowed, message } = checkAndIncrement('explain')
     if (!allowed) { showToast(message || 'AI limit reached'); return }
     const reference = getVerseReference(index)
     const verseText = verses[index]
@@ -114,11 +117,14 @@ export const VerseView: React.FC<VerseViewProps> = ({
     setShowAI(prev => ({ ...prev, [reference]: true }))
     try {
       const result = await explainVerse(`${reference} - ${verseText}`)
-      // Only commit if we got a real explanation
-      if (result && !result.startsWith('Sorry')) {
-        commit('explain')
+      // Mirror server count
+      syncFromResponse('explain', result)
+      // Server said no — show its message
+      if (!result.allowed) {
+        setAiExplanation(prev => ({ ...prev, [reference]: result.message || 'Limit reached' }))
+        return
       }
-      setAiExplanation(prev => ({ ...prev, [reference]: result }))
+      setAiExplanation(prev => ({ ...prev, [reference]: result.response || '' }))
     } catch {
       setAiExplanation(prev => ({ ...prev, [reference]: 'Sorry, I could not explain this verse at this time.' }))
     } finally {
@@ -139,17 +145,20 @@ export const VerseView: React.FC<VerseViewProps> = ({
     setTimeout(() => setShowCompletedToast(false), 3000)
   }
 
+  // ✅ FIXED: removed client-side tier check (server enforces now),
+  //    uses checkAndIncrement + syncFromResponse, envelope handling
   const handleSummarizeChapter = async () => {
-    if (tier !== 'elder') { showToast('Chapter summary is an Elder exclusive feature. Upgrade to unlock.'); return }
-    const { allowed, message } = checkOnly('explain')
+    const { allowed, message } = checkAndIncrement('explain')
     if (!allowed) { showToast(message || 'AI limit reached'); return }
     setLoadingSummary(true)
     try {
       const result = await summarizeChapter(book, chapter)
-      if (result && !result.startsWith('Sorry')) {
-        commit('explain')
+      syncFromResponse('explain', result)
+      if (!result.allowed) {
+        showToast(result.message || 'Limit reached')
+        return
       }
-      setChapterSummary(result)
+      setChapterSummary(result.response || '')
     } catch {
       showToast('Failed to generate summary')
     } finally {
@@ -324,5 +333,3 @@ export const VerseView: React.FC<VerseViewProps> = ({
     </div>
   )
 }
-
-
