@@ -140,10 +140,18 @@ export const DevotionalPage: React.FC = () => {
   }
 
   const handleRefresh = async () => {
-    setRefreshing(true)
-    await fetchDailyContent()
-    setRefreshing(false)
+  setRefreshing(true)
+
+  try {
+    await supabase.functions.invoke('daily_devotional', { body: {} })
+  } catch (error) {
+    console.error('Edge function invocation failed:', error)
   }
+
+  await new Promise(resolve => setTimeout(resolve, 500))
+  await fetchDailyContent()
+  setRefreshing(false)
+            }
 
   const handleLike = async () => {
     if (!user || liking) return
