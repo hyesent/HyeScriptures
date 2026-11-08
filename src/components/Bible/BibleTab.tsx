@@ -96,21 +96,30 @@ export const BibleTab: React.FC<BibleTabProps> = ({ initialBook, initialChapter,
             }} 
           />
         )
-      case 'verses':
-        return (
-          <VerseView
-            book={currentBook}
-            chapter={currentChapter}
-            verses={verses}
-            translationId={translationId}
-            onNext={nextChapter}
-            onPrev={prevChapter}
-            onSelectVerseForCrossRef={(ref) => {
-              setSelectedVerseForCrossRef(ref)
-              navigateTo('crossReferences')
-            }}
-          />
-        )
+      
+case 'verses':
+  return (
+    <VerseView
+      book={currentBook}
+      chapter={currentChapter}
+      verses={verses}
+      translationId={translationId}
+      onNext={nextChapter}
+      onPrev={prevChapter}
+      onNavigateToBooks={() => {
+        setViewHistory([]) // Clear history so back goes straight to books
+        setView('books')
+      }}
+      onNavigateToChapters={() => {
+        setViewHistory([]) // Clear history so back goes straight to chapters
+        setView('chapters')
+      }}
+      onSelectVerseForCrossRef={(ref) => {
+        setSelectedVerseForCrossRef(ref)
+        navigateTo('crossReferences')
+      }}
+    />
+  )
       case 'search':
         return <Search onSelectVerse={handleSelectVerse} />
       case 'crossReferences':
