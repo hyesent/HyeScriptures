@@ -1342,3 +1342,54 @@
 
 }
 
+.readerTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.titleBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 19px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.titleBtn:hover {
+  background: var(--bg-hover);
+  color: var(--primary);
+}
+
+.titleIcon {
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.titleBtn:hover .titleIcon {
+  color: var(--primary);
+}
+
+.chapterBtn {
+  background: var(--bg-secondary);
+  color: var(--primary);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 15px;
+}
+
+.chapterBtn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.chapterBtn:hover .titleIcon {
+  color: white;
+      }
