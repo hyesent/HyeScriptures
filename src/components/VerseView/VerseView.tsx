@@ -12,9 +12,10 @@ import { useAILimits } from '../../hooks/useAILimits'
 import { useSubscription } from '../../hooks/useSubscription'
 import { useChapterProgress } from '../../hooks/useChapterProgress'
 import { PREMIUM_VOICES, VOICE_LABELS, VOICE_TOASTS } from '../../lib/voice'
-import { 
+import {
   MoreVertical, Volume2, X, Bookmark, Highlighter, PenLine,
-  Sparkles, Link, Copy, ChevronLeft, ChevronRight, BookOpen, Crown, CheckCircle, Circle
+  Sparkles, Link, Copy, ChevronLeft, ChevronRight, BookOpen, Crown, CheckCircle, Circle,
+  ChevronDown, // PATCH: added
 } from 'lucide-react'
 import styles from './VerseView.module.css'
 
@@ -34,6 +35,8 @@ interface VerseViewProps {
   showVerseNumbers?: boolean
   onSelectVerseForCrossRef?: (reference: string) => void
   onPostToCommunity?: (reference: string, text: string) => void
+  onNavigateToBooks?: () => void      // PATCH: NEW
+  onNavigateToChapters?: () => void   // PATCH: NEW
 }
 
 type HighlightColor = 'yellow' | 'green' | 'blue' | 'pink'
@@ -49,6 +52,7 @@ export const VerseView: React.FC<VerseViewProps> = ({
   book, chapter, verses, translationId = 'en_kjv',
   onNext, onPrev, showVerseNumbers = true,
   onSelectVerseForCrossRef, onPostToCommunity,
+  onNavigateToBooks, onNavigateToChapters, // PATCH: added
 }) => {
   const { isBookmarked, toggle: toggleBookmark } = useBookmarks()
   const { getColor, toggle: toggleHighlight } = useHighlights()
@@ -243,7 +247,17 @@ export const VerseView: React.FC<VerseViewProps> = ({
     <div className={styles.container}>
       <div className={styles.readerHeader}>
         <button className={styles.navBtn} onClick={onPrev}><ChevronLeft size={18} /></button>
-        <div className={styles.readerTitle}><span className={styles.bookName}>{book}</span><span className={styles.chapterNum}>{chapter}</span></div>
+
+        {/* PATCH: UPDATED HEADER TITLE */}
+        <div className={styles.readerTitle}>
+          <button className={styles.titleBtn} onClick={onNavigateToBooks}>
+            {book} <ChevronDown size={14} className={styles.titleIcon} />
+          </button>
+          <button className={`${styles.titleBtn} ${styles.chapterBtn}`} onClick={onNavigateToChapters}>
+            {chapter} <ChevronDown size={14} className={styles.titleIcon} />
+          </button>
+        </div>
+
         <button className={styles.navBtn} onClick={onNext}><ChevronRight size={18} /></button>
         <button className={styles.menuBtn} onClick={() => setShowReaderMenu(!showReaderMenu)}><MoreVertical size={18} /></button>
       </div>
@@ -332,4 +346,4 @@ export const VerseView: React.FC<VerseViewProps> = ({
       <audio ref={audioRef} style={{ display: 'none' }} />
     </div>
   )
-}
+  }
