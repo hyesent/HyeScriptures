@@ -1,0 +1,214 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R 6 0 R 8 0 R 10 0 R 12 0 R] /Count 5 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< >>
+stream
+BT /F1 10 Tf 48 748 Td 14 TL
+(HYESCRIPTURES - PROJECT TECHNICAL REPORT) Tj T*
+(Repository: hyesent/HyeScriptures | Reviewed: 21 November 2026) Tj T*
+(Snapshot: main at 618de88af1c63d19da5ca97b62b3fb30c1ebd0ac) Tj T*
+(Website: https://hye-scriptures.vercel.app) Tj T*
+(Report basis: repository tree, source modules, configuration, migration, and recent commit diffs.) Tj T*
+(This report prioritizes the implementation over the repository README, which describes itself as) Tj T*
+(a brief feature overview and may not reflect the latest code.) Tj T*
+() Tj T*
+(1. PROJECT SUMMARY) Tj T*
+(HyeScriptures is a scripture reading and study application built as a TypeScript/React web app,) Tj T*
+(with a Capacitor Android wrapper. Its product surface combines Bible reading, study utilities,) Tj T*
+(personal spiritual journals, audio and speech tools, community features, learning games, AI-backed) Tj T*
+(assistance, user progress, and tier-gated features. Supabase provides authentication and cloud) Tj T*
+(functionality; local browser storage and bundled data support important client-side experiences.) Tj T*
+() Tj T*
+(Repository facts) Tj T*
+(- Public repository; default branch main; description: Bible; no declared license or topics.) Tj T*
+(- Configured web homepage: https://hye-scriptures.vercel.app) Tj T*
+(- Capacitor app ID: com.hyescriptures.app; app name: Hyescriptures; web output: dist.) Tj T*
+(- Root includes React/Vite/TypeScript source, Android native project, Supabase functions/migration,) Tj T*
+(  static PWA/offline assets, and an Android GitHub Actions workflow.) Tj T*
+(- GitHub language byte counts: TypeScript 2,030,788; CSS 518,603; JavaScript 12,443;) Tj T*
+(  Java 5,291; HTML 2,833. These are GitHub byte-based estimates, not line counts.) Tj T*
+(- Approximate share: TypeScript 79.0%, CSS 20.2%, JavaScript 0.5%, Java 0.2%, HTML 0.1%.) Tj T*
+() Tj T*
+(Interpretation: this is a substantial, feature-rich application rather than a standalone Bible text) Tj T*
+(viewer. The source tree includes dedicated product modules and data for reading, study, social,) Tj T*
+(personal organization, gamification, mobile support, and server-side AI/payment handling.) Tj T*
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< >>
+stream
+BT /F1 10 Tf 48 748 Td 14 TL
+(2. PRODUCT CAPABILITIES FROM THE SOURCE TREE) Tj T*
+() Tj T*
+(Scripture reading and study) Tj T*
+(- Bible reader modules handle book, chapter, and verse navigation; search and cross-reference views) Tj T*
+(  are part of the reader flow. Verse view supports bookmarks, highlights, sharing, audio/voice, and) Tj T*
+(  navigation. The latest commit adds direct book and chapter navigation from VerseView.) Tj T*
+(- Bundled Bible data includes XML files for English KJV, English BBE, Greek, Esperanto, and French,) Tj T*
+(  plus a KJV JSON dataset. bible-loader, useBible, search, and cache modules support access.) Tj T*
+(- Study modules include cross references, Strong's Concordance data, Bible maps, timeline, topics,) Tj T*
+(  first-mention tracking, prophecy references, and an emotion heat map.) Tj T*
+(- Reading plans, bookmarks, highlights, chapter progress, history, notes, and memory verses support) Tj T*
+(  ongoing study and personal continuity.) Tj T*
+() Tj T*
+(Personal growth and engagement) Tj T*
+(- Home, daily devotional, Scripture Moment and its history, reminders, journal, prayer journal, and) Tj T*
+(  profile/settings are represented by dedicated components and helper modules.) Tj T*
+(- Games include Bible quiz, book order, crossword, daily challenge, finish-verse, hangman, memory) Tj T*
+(  verse, missionary journey, rapid fire, timeline challenge, verse puzzle, Who Am I, and Who Said It.) Tj T*
+(- Game engine, level/XP utilities, badges, achievement toasts, streak tracking, and progress data) Tj T*
+(  provide progression mechanics.) Tj T*
+(- Community components cover feed/posts, groups, friends, friend requests, and user search.) Tj T*
+(- AI UI includes chat, quiz generation, sermon builder, and AI counters/usage limits.) Tj T*
+() Tj T*
+(Architecture and navigation) Tj T*
+(- src/main.tsx bootstraps the client; src/App.tsx owns top-level auth/loading state and primary tabs.) Tj T*
+(- App tabs: Home, Bible, Study, Community, and Me; AudioBible is also reachable through home flow.) Tj T*
+(- src/components is organized by feature, with CSS modules and shared styles.) Tj T*
+(- src/hooks centralizes auth, Bible access, bookmarks, highlights, offline status, streaks,) Tj T*
+(  subscriptions, AI limits, and voice audio.) Tj T*
+(- src/lib holds service/data utilities; src/data holds bundled scripture, maps, topics, game banks,) Tj T*
+(  badges, cross-references, prophecies, Strong's entries, and timeline content.) Tj T*
+(- ThemeContext and SyncContext provide cross-cutting theme and cloud synchronization behavior.) Tj T*
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 9 0 R >>
+endobj
+9 0 obj
+<< >>
+stream
+BT /F1 10 Tf 48 748 Td 14 TL
+(3. PLATFORM, DATA AND SERVICE DESIGN) Tj T*
+() Tj T*
+(Client and mobile) Tj T*
+(- React 19, TypeScript, Vite 8, and ES modules are declared in package.json.) Tj T*
+(- Capacitor 8 dependencies include Android, Filesystem, and Share. Android native source and) Tj T*
+(  Gradle wrapper are checked into android/; a custom AppIcon Java plugin is present.) Tj T*
+(- public/ contains a web manifest, service worker, offline fallback, favicon, app icons, and) Tj T*
+(  theme-specific icon assets. useOffline and cache utilities indicate offline support.) Tj T*
+(- Native file/share integration supports exporting content or assets from mobile.) Tj T*
+() Tj T*
+(Backend and persistence) Tj T*
+(- Supabase JS client reads VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY. Auth and application) Tj T*
+(  services use this client; server-side logic lives in Supabase Edge Functions.) Tj T*
+(- Edge Functions in-tree: ai, daily_devotional, paystack-webhook, scripture, and sermon.) Tj T*
+(- The AI and sermon functions provide server-side generation endpoints; daily_devotional provides) Tj T*
+(  devotional content generation; paystack-webhook handles payment-provider callbacks.) Tj T*
+(- A SQL migration defines user_stats, ai_usage_logs, reading_progress, and sermon_generations,) Tj T*
+(  with RLS policies and indexes. Policies generally scope reads/writes to auth.uid(); AI usage) Tj T*
+(  mutation is intended for service-side handling.) Tj T*
+(- SyncContext triggers an initial sync and recurring sync for signed-in users, stops syncing on) Tj T*
+(  sign-out, and attempts a sync when the app returns online. Failures are intentionally silent.) Tj T*
+(- Some app content/preferences are stored in localStorage. cache.ts and SyncContext implement cloud) Tj T*
+(  synchronization; storage.ts includes bookmark, highlight, and history helpers.) Tj T*
+() Tj T*
+(Commercial/access model) Tj T*
+(- TierGate, UpgradePage, useSubscription, and useAILimits implement feature access and upgrade UX.) Tj T*
+(- Types include free/pro/elder plan values; the app shell prominently labels the elder tier.) Tj T*
+(- Payment integration is indicated by the Paystack webhook function. This report does not infer a) Tj T*
+(  complete payment flow or deployment configuration from the presence of that handler alone.) Tj T*
+() Tj T*
+(Important scope note: features listed here are confirmed by named code modules and configuration.) Tj T*
+(The presence of a component does not guarantee every external service is configured, deployed, or) Tj T*
+(available in production. No live production verification was performed for this report.) Tj T*
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 11 0 R >>
+endobj
+11 0 obj
+<< >>
+stream
+BT /F1 10 Tf 48 748 Td 14 TL
+(4. DEVELOPER WORKFLOW, OPERATIONS AND REVIEW NOTES) Tj T*
+() Tj T*
+(Commands declared in package.json) Tj T*
+(- npm run dev: launch Vite development server.) Tj T*
+(- npm run build: run Vite production build.) Tj T*
+(- npm run preview: preview the production build.) Tj T*
+(- npm run lint: run ESLint.) Tj T*
+() Tj T*
+(Key operational observations) Tj T*
+(- Build output is configured as dist, matching capacitor.config.ts.) Tj T*
+(- The repository includes .github/workflows/andoid.yml (spelling as checked in); inspect its) Tj T*
+(  actual workflow before relying on its trigger/build/release behavior.) Tj T*
+(- Supabase credentials are read from Vite environment variables; never place service-role secrets) Tj T*
+(  in browser code or publish secret values in documentation.) Tj T*
+(- A root .env file and Supabase .temp project metadata are present in the tracked tree. Their) Tj T*
+(  contents are intentionally not reproduced here. Verify that no live secrets or sensitive local) Tj T*
+(  configuration are committed; rotate credentials if any were exposed.) Tj T*
+(- The migration contains row-level security policies; review each table policy and the deployment) Tj T*
+(  model together. Security behavior was not penetration-tested.) Tj T*
+(- No test script is declared in package.json. Android template test files exist, but that does not) Tj T*
+(  establish coverage of the TypeScript application.) Tj T*
+(- No license is declared in repository metadata. Confirm licensing for bundled Bible translations,) Tj T*
+(  datasets, and assets before redistribution.) Tj T*
+() Tj T*
+(Recommended next steps) Tj T*
+(1. Document required environment variables and provide a safe example file without secrets.) Tj T*
+(2. Add automated unit/integration tests for Bible loading/search, auth gating, sync conflicts,) Tj T*
+(   AI usage limits, and subscription transitions.) Tj T*
+(3. Review RLS policies and webhook signature validation; keep privileged keys server-side.) Tj T*
+(4. Document install, build, Android sync/release, and Supabase function deployment steps.) Tj T*
+(5. Keep README and this report tied to source and release snapshots; verify runtime behavior.) Tj T*
+ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 13 0 R >>
+endobj
+13 0 obj
+<< >>
+stream
+BT /F1 10 Tf 48 748 Td 14 TL
+(5. RECENT HISTORY AND SOURCE SNAPSHOT) Tj T*
+() Tj T*
+(The repository's latest commit at the reviewed main snapshot is 618de88, dated 8 November 2026.) Tj T*
+(Recent commit trail (chronological):) Tj T*
+(- 1363d50, 8 Nov 2026: VerseView gained book/chapter navigation controls.) Tj T*
+(- 6929df6, 8 Nov 2026: styling added for reader title and chapter buttons.) Tj T*
+(- 618de88, 8 Nov 2026: BibleTab wired those controls to book/chapter selection views.) Tj T*
+() Tj T*
+(These diffs show a focused usability improvement to Bible navigation. The repository API returned) Tj T*
+(more history than the displayed recent commits; consult GitHub for the complete, live history.) Tj T*
+() Tj T*
+(Report limitations) Tj T*
+(- Based on the tracked tree and selected source files at commit 618de88; not an exhaustive audit) Tj T*
+(  of every implementation line, runtime environment, or external service.) Tj T*
+(- Repository homepage and metadata are GitHub settings; implementation references come from code.) Tj T*
+(- Language percentages are approximate and calculated from GitHub-reported language byte counts.) Tj T*
+(- Feature presence, security posture, uptime, data correctness, and production deployment were not) Tj T*
+(  independently validated.) Tj T*
+() Tj T*
+(References) Tj T*
+(Repository: https://github.com/hyesent/HyeScriptures) Tj T*
+(Recent history: https://github.com/hyesent/HyeScriptures/commits/main/) Tj T*
+(Deployment homepage: https://hye-scriptures.vercel.app) Tj T*
+() Tj T*
+(End of report.) Tj T*
+ET
+endstream
+endobj
+trailer
+<< /Root 1 0 R >>
+startxref
+0
+%%EOF
